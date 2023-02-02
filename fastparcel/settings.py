@@ -165,7 +165,7 @@ STRIPE_API_SECRET_KEY = "sk_test_51MUlhfBtiQxYzJ3OsK6lu0vGJKkOBNegdDmT4bqZhmnoZl
 GOOGLE_MAP_API_KEY = "AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go"
 
 PAYPAL_MODE = "sandbox"
-PAYPAL_CLIENT_ID = "YAST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu"
+PAYPAL_CLIENT_ID = "AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu"
 PAYPAL_CLIENT_SECRET = "EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE"
 
 NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
@@ -178,7 +178,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": ['127.0.0.1',6379],
+            "hosts": ['redis://:p9029785bcd5c3b047aea28b392ef94ff559802b2b15a2a7c0a0d5df1055334ab@ec2-107-23-211-55.compute-1.amazonaws.com:31790'],
         },
     },
 }

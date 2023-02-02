@@ -30,7 +30,7 @@ def payout_to_courier(modeladmin, request, queryset):
         payout_items.append({
           "recipient_type": "EMAIL",
             "amount": {
-                "value": "{:.2f}".format(balance * 0.8),
+                "value": "{:.2f}".format(balance * 0.98 - .30),
                 "currency": "USD"
             },
             "receiver": courier.paypal_email,

@@ -172,7 +172,7 @@ def create_job_page(request):
                     duration = r.json()['rows'][0]['elements'][0]['duration']['value']
                     creating_job.distance = round(distance / 1000, 2)
                     creating_job.duration = int(duration / 60)
-                    creating_job.price = creating_job.distance * 1 + 3 # $1 per mile and $2.99 service fee
+                    creating_job.price = creating_job.distance * 1.25 + 2.99 # $1 per mile and $2.99 service fee
                     creating_job.save()
 
                 except Exception as e:
