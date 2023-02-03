@@ -73,17 +73,10 @@
             icon: "{% static 'img/start.png' %}"
           });
 
-          const icon = {
-            url: "{% static 'img/end.png' %}", // url
-            scaledSize: new google.maps.Size(50, 50), // scaled size
-            origin: new google.maps.Point(0,0), // origin
-            anchor: new google.maps.Point(0, 0) // anchor
-          };
-
           new google.maps.Marker({
             position: leg.end_location,
             map: map,
-            icon: icon
+            icon: "{% static 'img/end.png' %}"
           });
 
           window.courierMarker = new google.maps.Marker({
@@ -99,7 +92,7 @@
   }
 
   const jobSocket = new WebSocket(
-    "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+    "wss://" + "localhost:8000" + "/ws/jobs/{{ job.id }}/"
   );
 
   // Execute this function whenever this page receives an event from Job Consumer via WebSocket

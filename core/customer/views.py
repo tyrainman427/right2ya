@@ -160,17 +160,26 @@ def create_job_page(request):
                 creating_job = step3_form.save()
                 
                 try:
-                    r = requests.get("https://maps.googleapis.com/maps/api/distancematrix/json?imperial&origins={}&destinations={}&mode=transit&key={}".format(
+                    r = requests.get("https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins={}&destinations=side_of_road%{}&mode=driving&best_guess&departure_time=now&key={}".format(
                         creating_job.pickup_address,
                         creating_job.delivery_address,
                         settings.GOOGLE_MAP_API_KEY,
                     ))
 
                     print(r.json()['rows'])
+                    from redis import Redis
+
+                    redis_host = '127.0.0.1'
+                    r = Redis(redis_host, socket_connect_timeout=1) # short timeout for the test
+
+                    r.ping() 
+
+                    print('connected to redis "{}"'.format(redis_host)) 
 
                     distance = r.json()['rows'][0]['elements'][0]['distance']['value']
                     duration = r.json()['rows'][0]['elements'][0]['duration']['value']
-                    creating_job.distance = round(distance / 1000, 2)
+                    distance = round(distance / 1000, 2) * 0.62
+                    creating_job.distance = distance
                     creating_job.duration = int(duration / 60)
                     creating_job.price = creating_job.distance * 1.25 + 2.99 # $1 per mile and $2.99 service fee
                     creating_job.save()
