@@ -36,7 +36,7 @@
       <h4>{{ job.name }}</h4>
       <span>{{ job.get_size_display }} Size</span><br />
       <span>{{ job.quantity }} Item(s)</span><br />
-      <span>${{ job.price }}</span>
+      <span>${{ job.price | floatformat:2 }}</span>
     </div>
   </div>
   <hr />

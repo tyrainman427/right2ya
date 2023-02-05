@@ -1,0 +1,66 @@
+{% extends 'dashboard/layout.html' %}
+
+{% block script %}
+
+<script>
+  $(document).ready(function() {
+    var now = new Date();
+    setInterval(function() {
+      $.ajax({
+        url: '/api/dashboard/order/notification/' + now.toISOString() + '/',
+        method: 'GET',
+        success: function(data) {
+          if (data['notification'] === 0) {
+            $('.badge').text('');
+          } else {
+            $('.badge').text(data['notification']);
+          }
+        }
+      })
+    }, 3000)
+  })
+</script>
+
+{% endblock %}
+
+
+
+{% block sidebar %}
+
+{% url 'dashboard_service' as dashboard_service_url %}
+{% url 'dashboard_order' as restaurant_order_url %}
+{% url 'dashboard_report' as dashboard_report_url %}
+{% url 'dashboard_account' as dashboard_account_url %}
+
+<div class="text-center mt-4">
+  <img src="{{ request.user.restaurant.logo.url }}" class="rounded-circle" width="80" height="80" alt="">
+  <br><br>
+  <h5>{{ request.user.get_full_name }}</h5>
+  {% comment %} <h6>{{ request.user.restaurant.name }}</h6> {% endcomment %}
+</div>
+
+<hr>
+
+<div class="list-group">
+  <span class="text-uppercase">Dashboard</span>
+
+  <a href="{% url 'dashboard:dashboard_service' %}" 
+    class="list-group-item {% if request.path == restaurant_service_url %} active {% endif %}">Services</a>
+  <a href="{% url 'dashboard:dashboard_order' %}" 
+    class="list-group-item {% if request.path == restaurant_order_url %} active {% endif %}">
+    Orders
+    <span class="badge badge-warning ml-2"></span>
+  </a>
+  <a href="{% url 'dashboard:dashboard_report' %}" 
+    class="list-group-item {% if request.path == restaurant_report_url %} active {% endif %}">Report</a>
+
+  {% comment %} <span class="text-uppercase">Profile</span>
+  <a href="{% url 'restaurant_account' %}" 
+    class="list-group-item {% if request.path == restaurant_account_url %} active {% endif %}">Account</a> {% endcomment %}
+</div>
+
+<div class="text-center my-3 mx-3">
+  <a href="" class="btn btn-warning btn-block">Logout</a>
+</div>
+
+{% endblock %}

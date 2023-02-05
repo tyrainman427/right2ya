@@ -52,6 +52,7 @@
         origin: new google.maps.LatLng(pickupLat, pickupLng),
         destination: new google.maps.LatLng(deliveryLat, deliveryLng),
         travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL,
       },
       (response, status) => {
         if (status === "OK") {
@@ -60,8 +61,8 @@
             directions: response,
             suppressMarkers: true,
             polylineOptions: {
-              strokeColor: "#000",
-              strokeWeight: 5,
+              strokeColor: "#FFFF0",
+              strokeWeight: 3,
               strokeOpacity: 0.8
             }
           });
@@ -92,14 +93,14 @@
   }
 
   const jobSocket = new WebSocket(
-    "wss://" + "localhost:8000" + "/ws/jobs/{{ job.id }}/"
+    "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
   );
-
   // Execute this function whenever this page receives an event from Job Consumer via WebSocket
   jobSocket.onmessage = function (e) {
     var data = JSON.parse(e.data);
     var job = data.job;
     console.log(job);
+  
 
     if (job.courier_lat && job.courier_lng) {
       var courierPosition = new google.maps.LatLng(job.courier_lat, job.courier_lng);
@@ -152,7 +153,7 @@
       </div>
       <div class="col-lg-3">
         <small class="text-secondary">PRICE</small><br />
-        <span><b>${{ job.price }}</b></span>
+        <span><b>${{ job.price | floatformat:2 }}</b></span>
       </div>
       <div class="col-lg-3">
         <small class="text-secondary">QUANTITY</small><br />

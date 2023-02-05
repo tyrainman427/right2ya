@@ -1,0 +1,51 @@
+{% extends 'dashboard/base.html' %} 
+
+{% block title %} Services {% endblock %}
+
+{% block body %}
+
+  <div class="row">
+    <div class="col-md-10 offset-md-1">
+      <div class="card shadow text-white mb-3 mt-5">
+        <div class="card-header text-center bg-warning">
+          <h5 class="m-0 font-weight-bold text-black">Services</h5>
+        </div>
+        <div class="card-body">
+          <span class="float-right mb-3">
+            {% comment %} <a href="" class="btn btn-black">Add Service</a> {% endcomment %}
+          </span>
+
+          <table class="table table-striped table-hover table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Price</th>
+                <th scope="col">Image</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for meal in meals %}
+                <tr class="align-middle">
+                  <th scope="row">{{ meal.id }}</th>
+                  <td>
+                    {% comment %} <a href="{% url 'restaurant_edit_meal' meal.id %}">{{ meal.name }}</a> {% endcomment %}
+                  </td>
+                  <td>{{ meal.short_description }}</td>
+                  <td class="text-right">${{ meal.price }}</td>
+                  <td class="text-center">
+                    {% comment %} <img src="{{ meal.image.url }}" class="rounded" width="50" height="50" alt=""> {% endcomment %}
+                  </td>
+                </tr>
+              {% endfor %}
+              
+            </tbody>
+          </table>
+          
+          
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

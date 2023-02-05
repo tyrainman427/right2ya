@@ -9,7 +9,7 @@
   function initMap() {
     const map = new google.maps.Map(document.getElementById("map"), {
       zoom: 13,
-      center: { lat: 41.528705, lng: -72.776354 },
+      center: { lat: 41.7658, lng: -72.6734 },
     });
 
     // Get available jobs via API
@@ -33,7 +33,7 @@
           bounds.extend(position);
 
           new google.maps.InfoWindow({
-            content: "<small><b>" + job.name + "</b></small><br/><small>" + job.distance + " Km</small>"
+            content: "<small><b>" + job.name + "</b></small><br/><small>" + job.distance.toFixed(2) + " mi</small>"
           }).open(map, marker);
 
           // Click event for each job
@@ -55,7 +55,7 @@
     $("#pickup-address").html(job.pickup_address);
     $("#delivery-address").html(job.delivery_address);
     $("#duration").html(job.duration);
-    $("#distance").html(job.distance);
+    $("#distance").html(job.distance.toFixed(2));
     $("#price").html(job.price);
 
     $("#job-details").on("click", function () {

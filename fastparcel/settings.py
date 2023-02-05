@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'bootstrap4',
     'social_django',
     'core.apps.CoreConfig',
-    'channels',
+    # 'channels',
+    'daphne',
 ]
 
 MIDDLEWARE = [
@@ -170,15 +171,15 @@ PAYPAL_CLIENT_SECRET = "EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUf
 
 NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
 
+INSTALLED_APPS.append('channels')
 ASGI_APPLICATION = "fastparcel.asgi.application"
-
 
 # Channels
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": ['redis://:p9029785bcd5c3b047aea28b392ef94ff559802b2b15a2a7c0a0d5df1055334ab@ec2-107-23-211-55.compute-1.amazonaws.com:31790'],
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         },
     },
 }
@@ -186,7 +187,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": "localhost:6379",
     },
 }
 

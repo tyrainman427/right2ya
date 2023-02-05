@@ -36,6 +36,7 @@
         origin: new google.maps.LatLng(pickupLat, pickupLng),
         destination: new google.maps.LatLng(deliveryLat, deliveryLng),
         travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL,
       },
       (response, status) => {
         if (status === "OK") {
@@ -54,7 +55,7 @@
           new google.maps.Marker({
             position: leg.start_location,
             map: map,
-            icon: "{% static 'img/start.png' %}"
+            icon: "{% static 'img/end.png' %}"
           });
 
           new google.maps.Marker({
@@ -70,10 +71,10 @@
       }
     );
   }
-
+  
   function updateCourierPosition(map) {
     const jobSocket = new WebSocket(
-      "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+      "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}"
     );
 
     jobSocket.onopen = (e) => {
@@ -96,8 +97,13 @@
         }
 
         map.panTo(courierPostion);
-      
+        
+        jobSocket.addEventListener('open', () => {
+          connection_resolvers.forEach(r => r.resolve())
+      });
+        
         try {
+  
           jobSocket.send(JSON.stringify({
             job: {
               courier_lat: pos.coords.latitude,
@@ -154,7 +160,7 @@
             <div class="flex-grow-1 mr-2">
 
               <small class="text-success">
-                <i class="fas fa-car"></i> <span>{{ job.distance }}</span> mi
+                <i class="fas fa-car"></i> <span>{{ job.distance | floatformat:2 }}</span> mi
                 <i class="far fa-clock ml-2"></i> <span>{{ job.duration }}</span> mins
               </small>
 
@@ -169,7 +175,7 @@
               </div>
 
             </div>
-            $<h3>{{ job.price }}</h3>
+            $<h3>{{ job.price | floatformat:2 }}</h3>
 
           </div>
         </div>

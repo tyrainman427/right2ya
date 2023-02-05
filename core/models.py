@@ -5,12 +5,13 @@ from django.utils import timezone
 
 # Create your models here.
 class Customer(models.Model):
-  user = models.OneToOneField(User, on_delete=models.CASCADE)
+  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer',)
   avatar = models.ImageField(upload_to='customer/avatars/', blank=True, null=True)
   phone_number = models.CharField(max_length=50, blank=True)
   stripe_customer_id = models.CharField(max_length=255, blank=True)
   stripe_payment_method_id = models.CharField(max_length=255, blank=True)
   stripe_card_last4 = models.CharField(max_length=255, blank=True)
+
 
   def __str__(self):
     return self.user.get_full_name()
@@ -21,6 +22,10 @@ class Courier(models.Model):
   lng = models.FloatField(default=0)
   paypal_email = models.EmailField(max_length=255, blank=True)
   fcm_token = models.TextField(blank=True)
+  
+  car_make = models.CharField(max_length=255, blank=True)
+  car_model = models.CharField(max_length=255, blank=True)
+  plate_number = models.CharField(max_length=255, blank=True)
 
   def __str__(self):
     return self.user.get_full_name()
@@ -117,6 +122,59 @@ class Transaction(models.Model):
     return self.stripe_payment_intent_id
 
 
+class Dashboard(models.Model):
+  jobs = models.ForeignKey(Job, on_delete=models.CASCADE)
+  couriers = models.ForeignKey(Courier,on_delete=models.CASCADE)
+  customers = models.ForeignKey(Customer, on_delete=models.CASCADE)
+  
+  def __str__(self):
+    return self.jobs.name
+      
 
+class Service(models.Model):
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+  courier = models.ForeignKey(Courier, on_delete=models.CASCADE, null=True, blank=True)
+  name = models.CharField(max_length=255)
+  short_description = models.TextField(max_length=500)
+  image = ""
+  price = models.IntegerField(default=0)
+
+  def __str__(self):
+    return self.name    
+
+class Order(models.Model):
+  COOKING = 1
+  READY = 2
+  ONTHEWAY = 3
+  DELIVERED = 4
+
+  STATUS_CHOICES = (
+    (COOKING, "Cooking"),
+    (READY, "Ready"),
+    (ONTHEWAY, "On the way"),
+    (DELIVERED, "Delivered"),
+  )
+
+  customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+  service = models.ForeignKey(Service, on_delete=models.PROTECT)
+  courier = models.ForeignKey(Courier, models.SET_NULL, blank=True, null=True)
+  address = models.CharField(max_length=500)
+  total = models.IntegerField()
+  status = models.IntegerField(choices=STATUS_CHOICES)
+  created_at = models.DateTimeField(default=timezone.now)
+  picked_at = models.DateTimeField(blank=True, null=True)
+
+  def __str__(self):
+    return str(self.id)
+
+class OrderDetails(models.Model):
+  order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='order_details')
+  service = models.ForeignKey(Service, on_delete=models.PROTECT)
+  quantity = models.IntegerField()
+  sub_total = models.IntegerField()
+
+  def __str__(self):
+    return str(self.id)
 
 

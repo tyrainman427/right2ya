@@ -15,6 +15,11 @@
   <a href="{% url 'courier:payout_method' %}" class="btn btn-outline-secondary btn-block btn-md mt-2">
     Setup
   </a>
+  <div>
+    <form type="POST">
+      
+    </form>
+  </div>
 </div>
 
 <div class="mt-2 p-2">
@@ -23,7 +28,7 @@
 
   <div class="d-flex text-center">
     <div class="flex-grow-1">
-      <h4 class="text-success">${{ total_earnings }}</h4>
+      <h4 class="text-success">${{ total_earnings | floatformat:2 }}</h4>
       <span class="text-secondary">Total Earnings</span>
     </div>
     <div class="flex-grow-1">
@@ -31,7 +36,7 @@
       <span class="text-secondary">Completed</span>
     </div>
     <div class="flex-grow-1">
-      <h4 class="text-danger">{{ total_km }} Mi</h4>
+      <h4 class="text-danger">{{ total_km | floatformat:2 }} Mi</h4>
       <span class="text-secondary">Driven</span>
     </div>
   </div>

@@ -38,7 +38,7 @@
             <div class="flex-grow-1 mr-2">
 
               <small class="text-success">
-                <i class="fas fa-car"></i> <span>{{ job.distance }}</span> mi
+                <i class="fas fa-car"></i> <span>{{ job.distance | floatformat:2 }}</span> mi
                 <i class="far fa-clock ml-2"></i> <span>{{ job.duration }}</span> mins
               </small>
 
@@ -53,7 +53,7 @@
               </div>
 
             </div>
-            $<h3>{{ job.price }}</h3>
+            $<h3>{{ job.price | floatformat:2 }}</h3>
 
           </div>
         </div>

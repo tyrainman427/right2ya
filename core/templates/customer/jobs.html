@@ -50,7 +50,7 @@
 
           <div class="col-lg-3 text-right d-flex flex-column justify-content-between">
             <div><span class="badge badge-warning mb-2">{{ job.get_status_display }}</span></div>
-            <h2 class="mb-1">${{ job.price }}</h2>
+            <h2 class="mb-1">${{ job.price | floatformat:2 }}</h2>
           </div>
 
         </div>
@@ -63,7 +63,7 @@
   {% else %}
   <div class="card">
     <div class="card-body text-center">
-      Nothing to show here yet.
+      No current jobs.
     </div>
   </div>
   {% endif %}

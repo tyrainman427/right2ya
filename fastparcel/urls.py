@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -8,9 +9,10 @@ from django.views.generic import TemplateView
 from core import views, consumers
 
 from core.customer import views as customer_views
+from core.dashboard import views as dashboard_views
 from core.courier import views as courier_views, apis as courier_apis
 
-customer_urlpatters = [
+customer_urlpatterns = [
     path('', customer_views.home, name="home"),
     path('profile/', customer_views.profile_page, name="profile"),
     path('payment_method/', customer_views.payment_method_page, name="payment_method"),
@@ -21,7 +23,7 @@ customer_urlpatters = [
     path('jobs/<job_id>/', customer_views.job_page, name="job"),
 ]
 
-courier_urlpatters = [
+courier_urlpatterns = [
     path('', courier_views.home, name="home"),
     path('jobs/available/', courier_views.available_jobs_page, name="available_jobs"),
     path('jobs/available/<id>/', courier_views.available_job_page, name="available_job"),
@@ -37,6 +39,13 @@ courier_urlpatters = [
     path('api/fcm-token/update/', courier_apis.fcm_token_update_api, name="fcm_token_update_api"),
 ]
 
+dashboard_urlpatterns = [
+    path('', dashboard_views.home, name="dashboard_home"),
+    path('service/', dashboard_views.dashboard_service, name="dashboard_service"),
+    path('order/', dashboard_views.dashboard_order, name="dashboard_order"),
+    path('report/', dashboard_views.dashboard_report, name="dashboard_report"),
+]
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('social_django.urls', namespace='social')),
@@ -46,13 +55,14 @@ urlpatterns = [
     path('sign-out/', auth_views.LogoutView.as_view(next_page="/")),
     path('sign-up/', views.sign_up),
     
-    path('customer/', include((customer_urlpatters, 'customer'))),
-    path('courier/', include((courier_urlpatters, 'courier'))),
+    path('customer/', include((customer_urlpatterns, 'customer'))),
+    path('courier/', include((courier_urlpatterns, 'courier'))),
+    path('dashboard/', include((dashboard_urlpatterns, 'dashboard'))),
     path('firebase-messaging-sw.js', (TemplateView.as_view(template_name="firebase-messaging-sw.js", content_type="application/javascript",))),
 ]
 
 websocket_urlpatterns = [
-    path('ws/jobs/<job_id>/', consumers.JobConsumer.as_asgi())
+    url(r'^ws/jobs/(?P<job_id>[^/]+)/$', consumers.JobConsumer.as_asgi())
 ]
 
 if settings.DEBUG:
