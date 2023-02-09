@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     # 'channels',
     'daphne',
-    'oauth2_provider',
-    'rest_framework_social_oauth2',
 ]
 
 MIDDLEWARE = [
@@ -74,7 +72,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
-                
             ],
         },
     },
@@ -145,15 +142,12 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_FACEBOOK_KEY = "1943959652602864" # put app ID here
-SOCIAL_AUTH_FACEBOOK_SECRET = "fe886e5bb0b3db8542d428640e6a241b"
+SOCIAL_AUTH_FACEBOOK_KEY = "YOUR_FACEBOOK_CLIENT_KEY"
+SOCIAL_AUTH_FACEBOOK_SECRET = "YOUR_FACEBOOK_SECRET_KEY"
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email' 'picture.type(large)'
+    'fields': 'id, name, email'
 }
-SOCIAL_AUTH_FACEBOOK_API_VERSION = '16.0'
-
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -161,7 +155,7 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'tyraineytech@gmail.com'
 EMAIL_HOST_PASSWORD = 'opbtdmygboipgaer'
-DEFAULT_FROM_EMAIL = 'Right 2 Ya <no-reply@right2ya.com>' 
+DEFAULT_FROM_EMAIL = 'Fast Parcel <no-reply@fastparcel.localhost>' 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 FIREBASE_ADMIN_CREDENTIAL = os.path.join(BASE_DIR,"fastparcel-1c719-firebase-adminsdk-drpt3-5f3aba66ac.json")
@@ -196,7 +190,6 @@ CACHES = {
         "LOCATION": "localhost:6379",
     },
 }
-
 
 #Activate Django Heroku
 import django_on_heroku

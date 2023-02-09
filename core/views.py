@@ -26,6 +26,3 @@ def sign_up(request):
     return render(request, 'sign_up.html', {
         'form': form
     })
-    
-def privacy(request):
-    return render(request, 'privacy.html')

@@ -35,7 +35,7 @@ body {
 	top: 0;
 	left: 0;
 	padding: 0;
-	color: #e3af0300;
+	background-color: #1cc88a;
 	background-image: linear-gradient(180deg, #1cc88a, #13855c 100%);
 	background-size: cover;
 	overflow: auto;
@@ -63,7 +63,7 @@ body {
 
 .sidebar .list-group .list-group-item {
 	background-color: transparent;
-	color: #e3af0300;
+	color: #ffffff66;
 	border: 0;
 	padding-left: 60px;
 	padding-right: 30px;

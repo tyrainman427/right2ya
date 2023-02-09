@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import *
 
 class SignUpForm(UserCreationForm):
   email = forms.EmailField(max_length=250)
@@ -19,27 +18,4 @@ class SignUpForm(UserCreationForm):
       raise ValidationError("This email address already exists.")
     return email
 
-class UserForm(forms.ModelForm):
-  email = forms.CharField(max_length=100, required=True)
-  password = forms.CharField(widget=forms.PasswordInput())
-  
-  class Meta:
-    model = User
-    fields = ("username", "password", "first_name", "last_name", "email")
 
-class RestaurantForm(forms.ModelForm):
-  class Meta:
-    model = Restaurant
-    fields = ("name", "phone", "address", "logo")
-
-class AccountForm(forms.ModelForm):
-  email = forms.CharField(max_length=100, required=True)
-
-  class Meta:
-    model = User
-    fields = ("first_name", "last_name", "email")
-
-class ServiceForm(forms.ModelForm):
-  class Meta:
-    model = Service
-    exclude = ("restaurant","customer","courier")
