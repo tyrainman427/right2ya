@@ -1,4 +1,5 @@
 {% extends 'dashboard/layout.html' %}
+{% load static %}
 
 {% block script %}
 
@@ -30,13 +31,17 @@
 {% url 'dashboard_service' as dashboard_service_url %}
 {% url 'dashboard_order' as restaurant_order_url %}
 {% url 'dashboard_report' as dashboard_report_url %}
-{% url 'dashboard_account' as dashboard_account_url %}
+{% url 'customer:profile' as dashboard_account_url %}
 
 <div class="text-center mt-4">
+    {% if request.user.restaurant.logo %}
   <img src="{{ request.user.restaurant.logo.url }}" class="rounded-circle" width="80" height="80" alt="">
+    {% else %}
+    <img src="{% static 'img/logo.png' %}" class="rounded-circle" width="80" height="80" alt="">
+    {% endif %}
   <br><br>
-  <h5>{{ request.user.get_full_name }}</h5>
-  {% comment %} <h6>{{ request.user.restaurant.name }}</h6> {% endcomment %}
+  <h5>{{ request.user }}</h5>
+  <h6>{{ request.user.restaurant.name}}</h6>
 </div>
 
 <hr>
@@ -54,9 +59,9 @@
   <a href="{% url 'dashboard:dashboard_report' %}" 
     class="list-group-item {% if request.path == restaurant_report_url %} active {% endif %}">Report</a>
 
-  {% comment %} <span class="text-uppercase">Profile</span>
-  <a href="{% url 'restaurant_account' %}" 
-    class="list-group-item {% if request.path == restaurant_account_url %} active {% endif %}">Account</a> {% endcomment %}
+  <span class="text-uppercase">Profile</span>
+  <a href="{% url 'customer:profile' %}" 
+    class="list-group-item {% if request.path == dashboard_account_url %} active {% endif %}">Account</a> 
 </div>
 
 <div class="text-center my-3 mx-3">

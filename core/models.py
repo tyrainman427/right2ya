@@ -4,8 +4,15 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 # Create your models here.
+class Restaurant(models.Model):
+  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='restaurant')
+  name = models.CharField(max_length=255)
+  phone = models.CharField(max_length=255)
+  address = models.CharField(max_length=255)
+  logo = models.ImageField(upload_to='company/logos/', null=True, blank=True)
+  
 class Customer(models.Model):
-  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer',)
+  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
   avatar = models.ImageField(upload_to='customer/avatars/', blank=True, null=True)
   phone_number = models.CharField(max_length=50, blank=True)
   stripe_customer_id = models.CharField(max_length=255, blank=True)
@@ -132,9 +139,7 @@ class Dashboard(models.Model):
       
 
 class Service(models.Model):
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-  courier = models.ForeignKey(Courier, on_delete=models.CASCADE, null=True, blank=True)
+  # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   name = models.CharField(max_length=255)
   short_description = models.TextField(max_length=500)
   image = ""
@@ -144,21 +149,21 @@ class Service(models.Model):
     return self.name    
 
 class Order(models.Model):
-  COOKING = 1
+  PROCESSING = 1
   READY = 2
   ONTHEWAY = 3
   DELIVERED = 4
 
   STATUS_CHOICES = (
-    (COOKING, "Cooking"),
+    (PROCESSING, "Processing"),
     (READY, "Ready"),
     (ONTHEWAY, "On the way"),
     (DELIVERED, "Delivered"),
   )
 
   customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
-  service = models.ForeignKey(Service, on_delete=models.PROTECT)
-  courier = models.ForeignKey(Courier, models.SET_NULL, blank=True, null=True)
+  restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT)
+  courier = models.ForeignKey(Courier, models.SET_NULL, blank=True, null=True, default="Not assigned")
   address = models.CharField(max_length=500)
   total = models.IntegerField()
   status = models.IntegerField(choices=STATUS_CHOICES)
