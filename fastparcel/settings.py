@@ -184,12 +184,12 @@ CHANNEL_LAYERS = {
     },
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "localhost:6379",
-    },
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "localhost:6379",
+#     },
+# }
 
 #Activate Django Heroku
 import django_on_heroku
