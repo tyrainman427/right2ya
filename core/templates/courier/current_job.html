@@ -55,7 +55,7 @@
           new google.maps.Marker({
             position: leg.start_location,
             map: map,
-            icon: "{% static 'img/end.png' %}"
+            icon: "{% static 'img/start.png' %}"
           });
 
           new google.maps.Marker({
@@ -71,16 +71,13 @@
       }
     );
   }
+
   
   function updateCourierPosition(map) {
+    console.log("Job ID" + ":" + "{{job.id}}")
     const jobSocket = new WebSocket(
-      "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}"
-    );
-
-    jobSocket.onopen = (e) => {
-      open = true;
-      console.log("connect");
-    };
+            "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+        );
 
     navigator.geolocation.watchPosition(
       pos => {
@@ -98,17 +95,12 @@
 
         map.panTo(courierPostion);
         
-        jobSocket.addEventListener('open', () => {
-          connection_resolvers.forEach(r => r.resolve())
-      });
-        
         try {
-  
-          jobSocket.send(JSON.stringify({
-            job: {
+          jobSocket.send(JSON.stringify({    
+           job: {
               courier_lat: pos.coords.latitude,
               courier_lng: pos.coords.longitude,
-            }
+           }
           }))
         } catch (error) {
           console.log(error);

@@ -34,6 +34,7 @@
   var courierLat = parseFloat(" {{ job.courier.lat }} ");
   var courierLng = parseFloat(" {{ job.courier.lng }} ");
 
+
   function initMap() {
     const directionsService = new google.maps.DirectionsService();
     const directionsRenderer = new google.maps.DirectionsRenderer();
@@ -45,6 +46,7 @@
 
     calculateAndDisplayRoute(map, directionsService, directionsRenderer);
   }
+
 
   function calculateAndDisplayRoute(map, directionsService, directionsRenderer) {
     directionsService.route(
@@ -93,8 +95,10 @@
   }
 
   const jobSocket = new WebSocket(
-    "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
-  );
+           "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+        );
+
+
   // Execute this function whenever this page receives an event from Job Consumer via WebSocket
   jobSocket.onmessage = function (e) {
     var data = JSON.parse(e.data);

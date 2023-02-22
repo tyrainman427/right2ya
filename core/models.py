@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 
 # Create your models here.
 class Customer(models.Model):
@@ -63,7 +64,7 @@ class Job(models.Model):
   )
 
   # Step 1
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
   customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
   courier = models.ForeignKey(Courier, on_delete=models.CASCADE, null=True, blank=True)
   name = models.CharField(max_length=255)

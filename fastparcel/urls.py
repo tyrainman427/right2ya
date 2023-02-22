@@ -20,8 +20,14 @@ customer_urlpatterns = [
 
     path('jobs/current/', customer_views.current_jobs_page, name="current_jobs"),
     path('jobs/archived/', customer_views.archived_jobs_page, name="archived_jobs"),
-    path('jobs/<job_id>/', customer_views.job_page, name="job"),
+    path('jobs/<uuid:job_id>/', customer_views.job_page, name="job"),
+    
 ]
+
+websocket_urlpatterns = [
+    path("ws/jobs/<job_id>/", consumers.JobConsumer.as_asgi()),
+]
+
 
 courier_urlpatterns = [
     path('', courier_views.home, name="home"),
@@ -50,6 +56,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('social_django.urls', namespace='social')),
     path('', views.home),
+   
 
     path('sign-in/', auth_views.LoginView.as_view(template_name="sign_in.html")),
     path('sign-out/', auth_views.LogoutView.as_view(next_page="/")),
@@ -59,10 +66,6 @@ urlpatterns = [
     path('courier/', include((courier_urlpatterns, 'courier'))),
     path('dashboard/', include((dashboard_urlpatterns, 'dashboard'))),
     path('firebase-messaging-sw.js', (TemplateView.as_view(template_name="firebase-messaging-sw.js", content_type="application/javascript",))),
-]
-
-websocket_urlpatterns = [
-    url(r'^ws/jobs/(?P<job_id>[^/]+)/$', consumers.JobConsumer.as_asgi())
 ]
 
 if settings.DEBUG:

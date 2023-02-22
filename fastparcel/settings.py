@@ -32,6 +32,7 @@ SECURE_SSL_REDIRECT=False
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +43,6 @@ INSTALLED_APPS = [
     'bootstrap4',
     'social_django',
     'core.apps.CoreConfig',
-    # 'channels',
     'daphne',
 ]
 
@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.ProfileMiddleware',
+  
 ]
 
 ROOT_URLCONF = 'fastparcel.urls'
@@ -171,25 +172,34 @@ PAYPAL_CLIENT_SECRET = "EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUf
 
 NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
 
-INSTALLED_APPS.append('channels')
+
 ASGI_APPLICATION = "fastparcel.asgi.application"
 
 # Channels
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+import redis
 
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "localhost:6379",
-#     },
-# }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "KEY_PREFIX": "fastparcel",
+        "TIMEOUT": 300,
+    }
+}
+
+
+# Session storage
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
 #Activate Django Heroku
 import django_on_heroku

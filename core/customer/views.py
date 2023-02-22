@@ -265,9 +265,10 @@ def current_jobs_page(request):
             Job.DELIVERING_STATUS
         ]
     )
-
+  
     return render(request, 'customer/jobs.html', {
-        "jobs": jobs
+        "jobs": jobs,
+
     })
 
 @login_required(login_url="/sign-in/?next=/customer/")

@@ -215,7 +215,7 @@
             <input type="hidden" name="step" value="4">
             <button type="button" class="btn btn-outline-warning"
               onclick="$('#pills-delivery-tab').tab('show');">Back</button>
-            <button type="submit" class="btn btn-warning">Create Job</button>
+            <button id="job-submit" type="submit" class="btn btn-warning">Create Job</button>
           </form>
         </div>
       </div>
@@ -309,6 +309,14 @@
     initMapByType("pickup", pickupLat, pickupLng);
     initMapByType("delivery", deliveryLat, deliveryLng);
   }
+
+  document.querySelector('#job-submit').onclick = function(e) {
+  
+    const message = "Connection is working"
+    jobSocket.send(JSON.stringify({
+        'message': message
+    }));
+};
 </script>
 
 {% endblock %}

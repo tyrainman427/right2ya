@@ -81,7 +81,7 @@ class TransactionAdmin(admin.ModelAdmin):
   def courier(self, obj):
     return obj.job.courier
 
-  def courier_paypal_email(sefl, obj):
+  def courier_paypal_email(self, obj):
     return obj.job.courier.paypal_email if obj.job.courier else None
 
 # Register your models here.
