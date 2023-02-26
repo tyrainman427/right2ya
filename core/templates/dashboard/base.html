@@ -27,7 +27,7 @@
 
 {% block sidebar %}
 
-{% url 'dashboard_service' as dashboard_service_url %}
+{% url 'restaurant_meal' as dashboard_service_url %}
 {% url 'dashboard_order' as restaurant_order_url %}
 {% url 'dashboard_report' as dashboard_report_url %}
 {% url 'dashboard_account' as dashboard_account_url %}
@@ -44,7 +44,7 @@
 <div class="list-group">
   <span class="text-uppercase">Dashboard</span>
 
-  <a href="{% url 'dashboard:dashboard_service' %}" 
+  <a href="{% url 'dashboard:restaurant_meal' %}" 
     class="list-group-item {% if request.path == restaurant_service_url %} active {% endif %}">Services</a>
   <a href="{% url 'dashboard:dashboard_order' %}" 
     class="list-group-item {% if request.path == restaurant_order_url %} active {% endif %}">

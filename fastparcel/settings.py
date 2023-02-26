@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'social_django',
     'core.apps.CoreConfig',
     'daphne',
+    'oauth2_provider',
+    'rest_framework_social_oauth2',
 ]
 
 MIDDLEWARE = [
@@ -143,12 +145,13 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_FACEBOOK_KEY = "YOUR_FACEBOOK_CLIENT_KEY"
-SOCIAL_AUTH_FACEBOOK_SECRET = "YOUR_FACEBOOK_SECRET_KEY"
+SOCIAL_AUTH_FACEBOOK_KEY = "1943959652602864"
+SOCIAL_AUTH_FACEBOOK_SECRET = "fe886e5bb0b3db8542d428640e6a241b"
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email'
+    'fields': 'id, name, email, picture.type(large)'
 }
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -176,11 +179,30 @@ NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
 ASGI_APPLICATION = "fastparcel.asgi.application"
 
 # Channels
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
+
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
+        },
     },
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+    'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+}
+
 import redis
 
 
@@ -200,6 +222,16 @@ CACHES = {
 # Session storage
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+AWS_ACCESS_KEY_ID = 'AKIARRODHX724ZM4WBVK'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'right2ya'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_S3_VERIFY = True
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
 
 #Activate Django Heroku
 import django_on_heroku

@@ -5,9 +5,20 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 # Create your models here.
+class Restaurant(models.Model):
+  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='restaurant')
+  name = models.CharField(max_length=255)
+  phone = models.CharField(max_length=255)
+  address = models.CharField(max_length=255)
+  logo = models.ImageField(upload_to='rest_images',blank=True,null=True)
+
+  def __str__(self):
+    return self.name
+
 class Customer(models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer',)
   avatar = models.ImageField(upload_to='customer/avatars/', blank=True, null=True)
+  address = models.CharField(max_length=255, blank=True)
   phone_number = models.CharField(max_length=50, blank=True)
   stripe_customer_id = models.CharField(max_length=255, blank=True)
   stripe_payment_method_id = models.CharField(max_length=255, blank=True)
@@ -18,9 +29,11 @@ class Customer(models.Model):
     return self.user.get_full_name()
 
 class Courier(models.Model):
-  user = models.OneToOneField(User, on_delete=models.CASCADE)
+  user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='courier',)
   lat = models.FloatField(default=0)
   lng = models.FloatField(default=0)
+  #temp to fix location bug
+  location = models.CharField(max_length=255, blank=True)
   paypal_email = models.EmailField(max_length=255, blank=True)
   fcm_token = models.TextField(blank=True)
   
@@ -132,13 +145,11 @@ class Dashboard(models.Model):
     return self.jobs.name
       
 
-class Service(models.Model):
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-  courier = models.ForeignKey(Courier, on_delete=models.CASCADE, null=True, blank=True)
+class Meal(models.Model):
+  restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='restaurant')
   name = models.CharField(max_length=255)
   short_description = models.TextField(max_length=500)
-  image = ""
+  image = models.ImageField(upload_to='service_images',blank=True,null=True)
   price = models.IntegerField(default=0)
 
   def __str__(self):
@@ -158,7 +169,7 @@ class Order(models.Model):
   )
 
   customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
-  service = models.ForeignKey(Service, on_delete=models.PROTECT)
+  restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT)
   courier = models.ForeignKey(Courier, models.SET_NULL, blank=True, null=True)
   address = models.CharField(max_length=500)
   total = models.IntegerField()
@@ -171,7 +182,7 @@ class Order(models.Model):
 
 class OrderDetails(models.Model):
   order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='order_details')
-  service = models.ForeignKey(Service, on_delete=models.PROTECT)
+  meal = models.ForeignKey(Meal, on_delete=models.PROTECT)
   quantity = models.IntegerField()
   sub_total = models.IntegerField()
 
