@@ -98,7 +98,7 @@ def customer_add_order(request):
         customer = customer,
         restaurant_id = request.POST["restaurant_id"],
         total = order_total,
-        status = Order.COOKING,
+        status = Order.PROCESSING,
         address = request.POST["address"]
       )
 

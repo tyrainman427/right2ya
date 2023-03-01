@@ -27,7 +27,7 @@ def restaurant_account(request):
   account_form = AccountForm(instance=request.user)
   restaurant_form = RestaurantForm(instance=request.user.restaurant)
 
-  return render(request, 'restaurant/account.html', {
+  return render(request, 'dashboard/account.html', {
     "account_form": account_form,
     "restaurant_form": restaurant_form
   })
@@ -77,11 +77,11 @@ def dashboard_order(request):
   if request.method == "POST":
     order = Order.objects.get(id=request.POST["id"])
 
-    if order.status == Order.COOKING:
+    if order.status == Order.PROCESSING:
       order.status = Order.READY
       order.save()
 
-  orders = Order.objects.filter(dashboard = request.user.customer.order).order_by("-id")
+  orders = Order.objects.filter(restaurant = request.user.restaurant).order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })

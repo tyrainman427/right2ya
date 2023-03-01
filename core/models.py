@@ -156,13 +156,13 @@ class Meal(models.Model):
     return self.name    
 
 class Order(models.Model):
-  COOKING = 1
+  PROCESSING = 1
   READY = 2
   ONTHEWAY = 3
   DELIVERED = 4
 
   STATUS_CHOICES = (
-    (COOKING, "Cooking"),
+    (PROCESSING, "Processing"),
     (READY, "Ready"),
     (ONTHEWAY, "On the way"),
     (DELIVERED, "Delivered"),
