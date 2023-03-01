@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models import Sum, Count, Case, When
 
-from core.forms import AccountForm, UserForm, MealForm
+from core.forms import AccountForm, UserForm, MealForm, RestaurantForm
 from core.models import Meal, Order, Courier
 
 
@@ -13,24 +13,24 @@ from core.models import Meal, Order, Courier
 def home(request):
     return render(request, 'dashboard/meal.html')
 
-# @login_required(login_url='/restaurant/sign_in/')
-# def restaurant_account(request):
+@login_required(login_url='/restaurant/sign_in/')
+def restaurant_account(request):
 
-#   if request.method == "POST":
-#     account_form = AccountForm(request.POST, instance=request.user)
-#     restaurant_form = RestaurantForm(request.POST, request.FILES, instance=request.user.restaurant)
+  if request.method == "POST":
+    account_form = AccountForm(request.POST, instance=request.user)
+    restaurant_form = RestaurantForm(request.POST, request.FILES, instance=request.user.restaurant)
 
-#     if account_form.is_valid() and restaurant_form.is_valid():
-#       account_form.save()
-#       restaurant_form.save()
+    if account_form.is_valid() and restaurant_form.is_valid():
+      account_form.save()
+      restaurant_form.save()
 
-#   account_form = AccountForm(instance=request.user)
-#   restaurant_form = RestaurantForm(instance=request.user.restaurant)
+  account_form = AccountForm(instance=request.user)
+  restaurant_form = RestaurantForm(instance=request.user.restaurant)
 
-#   return render(request, 'restaurant/account.html', {
-#     "account_form": account_form,
-#     "restaurant_form": restaurant_form
-#   })
+  return render(request, 'restaurant/account.html', {
+    "account_form": account_form,
+    "restaurant_form": restaurant_form
+  })
 
 @login_required(login_url='/dashboard/sign_in/')
 def restaurant_meal(request):
@@ -49,7 +49,7 @@ def restaurant_add_meal(request):
       meal = meal_form.save(commit=False)
       meal.restaurant = request.user.restaurant
       meal.save()
-      return redirect(restaurant_meal)
+      return redirect('dashboard:restaurant_meal')
 
   meal_form = MealForm()
   return render(request, 'dashboard/add_meal.html', {
@@ -81,7 +81,7 @@ def dashboard_order(request):
       order.status = Order.READY
       order.save()
 
-  orders = Order.objects.all() #filter(dashboard = request.user.customer.order).order_by("-id")
+  orders = Order.objects.filter(dashboard = request.user.customer.order).order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })
@@ -110,20 +110,20 @@ def dashboard_report(request):
     orders.append(delivered_orders.count())
 
   # Getting Top 3 Meals
-    top3_meals = Meal.objects.filter(dashboard = request.user.customer)\
+    top3_meals = Meal.objects.filter(restaurant = request.user.restaurant)\
     .annotate(total_order = Sum('orderdetails__quantity'))\
     .order_by("-total_order")[:3]
 
-  meals = {
+  meal = {
     "labels": [meal.name for meal in top3_meals],
-    "data": [meals.total_order or 0 for meal in top3_meals]
+    "data": [meal.total_order or 0 for meal in top3_meals]
   }
 
   # Getting Top 3 Drivers
   top3_drivers = Courier.objects.annotate(
     total_order = Count(
       Case (
-        When(order__dashboard = request.user, then = 1)
+        When(order__restaurant = request.user.restaurant, then = 1)
       )
     )
   ).order_by("-total_order")[:3]
@@ -136,7 +136,7 @@ def dashboard_report(request):
   return render(request, 'dashboard/report.html', {
     "revenue": revenue,
     "orders": orders,
-    "meals": meals,
+    "meal": meal,
     "driver": driver,
   })
 

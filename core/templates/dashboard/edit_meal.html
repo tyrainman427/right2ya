@@ -1,7 +1,7 @@
 {% extends 'dashboard/base.html' %}
 {% load bootstrap4 %} 
 
-{% block title %} Edit Meal {% endblock %}
+{% block title %} Edit Service {% endblock %}
 
 {% block body %}
 
@@ -16,7 +16,7 @@
             {% csrf_token %}
             {% bootstrap_form meal_form %}
             
-            <button type="submit" class="btn btn-black float-right">Update Meal</button>
+            <button type="submit" class="btn btn-black float-right">Update Service</button>
           </form>
         </div>
       </div>
