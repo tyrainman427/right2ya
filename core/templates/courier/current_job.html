@@ -74,7 +74,6 @@
 
   
   function updateCourierPosition(map) {
-    console.log("Job ID" + ":" + "{{job.id}}")
     const jobSocket = new WebSocket(
             "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
         );

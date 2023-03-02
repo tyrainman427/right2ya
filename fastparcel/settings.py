@@ -179,20 +179,20 @@ NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
 ASGI_APPLICATION = "fastparcel.asgi.application"
 
 # Channels
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#     },
-# }
-
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
-        },
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
+#         },
+#     },
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
