@@ -76,13 +76,12 @@ def restaurant_edit_meal(request, meal_id):
 @login_required(login_url='/dashboard/sign_in/')
 def dashboard_order(request):
   if request.method == "POST":
-    orders = Order.objects.all()   #get(id=request.POST["id"])
-    for items in orders:
-      if items.status == Order.PROCESSING:
-         items.status = Order.READY
-         items.save()
+    order = Order.objects.get(id=request.POST["id"])
+    if order.status == Order.PROCESSING:
+       order.status = Order.READY
+       order.save()
 
-  orders = Order.objects.all().order_by("-id")
+  orders = Order.objects.filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })
