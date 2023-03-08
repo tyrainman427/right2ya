@@ -1,6 +1,7 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from fcm_django.models import FCMDevice
 from . import models
 
 class JobConsumer(WebsocketConsumer):
@@ -42,6 +43,9 @@ class JobConsumer(WebsocketConsumer):
         'job': job
       }
     )
+    
+    devices = FCMDevice.objects.all()
+    devices.send_message(title='Hello', body='World', message='Test message')
 
   # Receive message from job group
   def job_update(self, event):

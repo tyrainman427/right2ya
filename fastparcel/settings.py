@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'daphne',
     'oauth2_provider',
     'rest_framework_social_oauth2',
+    "fcm_django",
 ]
 
 MIDDLEWARE = [
@@ -173,17 +174,27 @@ PAYPAL_MODE = "sandbox"
 PAYPAL_CLIENT_ID = "AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu"
 PAYPAL_CLIENT_SECRET = "EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE"
 
-NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
+NOTIFICATION_URL = "https://beta.right2ya.com/"
 
 
 ASGI_APPLICATION = "fastparcel.asgi.application"
+REDIS_HOSTNAME = os.environ.get("REDIS_HOSTNAME")
+REDIS_PORT = os.environ.get("REDIS_PORT")
 
 # Channels
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [(REDIS_HOSTNAME, REDIS_PORT)],
+        },
     },
 }
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
 
 # CHANNEL_LAYERS = {
 #     'default': {
