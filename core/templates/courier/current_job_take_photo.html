@@ -95,7 +95,7 @@
       var upload_name = "{% if job.status == 'picking' %}pickup{% else %}delivery{% endif %}_photo"
       formData.append(upload_name, blob, upload_name + '.png');
 
-      fetch("{% url 'courier:current_job_update_api' job.id %}", {
+      fetch("{% url 'current_job_update_api' job.id %}", {
         method: "POST",
         body: formData
       })

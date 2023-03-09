@@ -26,7 +26,7 @@
       .then((currentToken) => {
         console.log(currentToken);
         if (currentToken) {
-          fetch('{% url "courier:fcm_token_update_api" %}?fcm_token=' + currentToken);
+          fetch('{% url "fcm_token_update_api" %}?fcm_token=' + currentToken);
         }
       })
       .catch((err) => {

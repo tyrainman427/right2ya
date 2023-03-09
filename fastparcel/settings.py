@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'daphne',
     'oauth2_provider',
     'rest_framework_social_oauth2',
+    "fcm_django",
 ]
 
 MIDDLEWARE = [
@@ -173,26 +174,36 @@ PAYPAL_MODE = "sandbox"
 PAYPAL_CLIENT_ID = "AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu"
 PAYPAL_CLIENT_SECRET = "EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE"
 
-NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
+NOTIFICATION_URL = "https://beta.right2ya.com/"
 
 
 ASGI_APPLICATION = "fastparcel.asgi.application"
+REDIS_HOSTNAME = os.environ.get("REDIS_HOSTNAME")
+REDIS_PORT = os.environ.get("REDIS_PORT")
 
 # Channels
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': ['redis://default:b2kKWbRTvmPnzg3LGmW6@containers-us-west-50.railway.app:7126'],
+        },
+    },
+}
 # CHANNEL_LAYERS = {
 #     'default': {
 #         'BACKEND': 'channels.layers.InMemoryChannelLayer',
 #     },
 # }
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
+#         },
+#     },
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

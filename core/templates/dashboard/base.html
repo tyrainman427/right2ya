@@ -36,7 +36,7 @@
   <img src="{{ request.user.restaurant.logo.url }}" class="rounded-circle" width="80" height="80" alt="">
   <br><br>
   <h5>{{ request.user.get_full_name }}</h5>
-  {% comment %} <h6>{{ request.user.restaurant.name }}</h6> {% endcomment %}
+ <h6>{{ request.user.restaurant.name }}</h6> 
 </div>
 
 <hr>
@@ -55,7 +55,7 @@
     class="list-group-item {% if request.path == restaurant_report_url %} active {% endif %}">Report</a>
 
   <span class="text-uppercase">Profile</span>
-  <a href="{% url 'restaurant_account' %}" 
+  <a href="{% url 'dashboard:restaurant_account' %}" 
     class="list-group-item {% if request.path == restaurant_account_url %} active {% endif %}">Account</a>
 </div>
 

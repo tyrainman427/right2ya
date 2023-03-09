@@ -42,6 +42,7 @@ class JobConsumer(WebsocketConsumer):
         'job': job
       }
     )
+    
 
   # Receive message from job group
   def job_update(self, event):

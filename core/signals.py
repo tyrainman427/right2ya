@@ -16,7 +16,7 @@ def send_welcome_email(sender, instance, created, **kwargs):
         )
         # send welcome email
         send_mail(
-            'Welcome to Fast Parcel',
+            'Welcome to Right 2 Ya Beta',
             body,
             settings.DEFAULT_FROM_EMAIL,
             [instance.email],
