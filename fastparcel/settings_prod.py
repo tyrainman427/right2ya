@@ -12,6 +12,17 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
+
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+ALLOWED_HOSTS = ["68.183.20.15","beta.right2ya.com",]
+
+ROOT_URLCONF = f'{config("fastparcel")}.urls'
+
+WSGI_APPLICATION = f'{config("fastparcel")}.wsgi.application'
+
+ASGI_APPLICATION = f'{config("fastparcel")}.routing.application'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,9 +38,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2_+&
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ['*',]
+
 SECURE_SSL_REDIRECT=False
 
 # Application definition
@@ -66,7 +76,7 @@ MIDDLEWARE = [
 ]
 
 
-ROOT_URLCONF = 'fastparcel.urls'
+
 
 TEMPLATES = [
     {
@@ -86,19 +96,20 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'fastparcel.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config("DB_NAME"),
+        'USER': config("DB_USER"),
+        'PASSWORD': config("DB_PASSWORD"),
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -137,9 +148,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_LOCATION)
+TEMP = os.path.join(BASE_DIR, 'temp')
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 
 LOGIN_URL = '/sign-in/'
 LOGIN_REDIRECT_URL = '/'
@@ -160,30 +173,31 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 }
 
 
-EMAIL_BACKEND = os.environ.get('django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('smtp.gmail.com'
-EMAIL_USE_TLS = os.environ.get(True
-EMAIL_PORT = os.environ.get(587
-EMAIL_HOST_USER = os.environ.get('tyraineytech@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('opbtdmygboipgaer'
-DEFAULT_FROM_EMAIL = os.environ.get('Fast Parcel <no-reply@fastparcel.localhost>' 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get('tyraineytech@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('opbtdmygboipgaer')
+DEFAULT_FROM_EMAIL = 'Right 2 Ya Beta <no-reply@beta.right2ya.com>' 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+BASE_URL = "http://68.183.20.15"
 
 FIREBASE_ADMIN_CREDENTIAL = os.path.join(BASE_DIR,"fastparcel-1c719-firebase-adminsdk-drpt3-5f3aba66ac.json")
 
-STRIPE_API_PUBLIC_KEY = os.environ.get("pk_test_51MUlhfBtiQxYzJ3O8kUqgiIiXr2suu56rZUF1pjTzWPeEADWruq5Jf80wbFlbBtAU45no3hXLy6ODExte7rqmqe200IpeLD7EP"
-STRIPE_API_SECRET_KEY = os.environ.get("sk_test_51MUlhfBtiQxYzJ3OsK6lu0vGJKkOBNegdDmT4bqZhmnoZl11RLFZu8JFakKv9UTpqc2KBWBpnAyOgmFKxh3dIxmj00nU8hBkKM"
+STRIPE_API_PUBLIC_KEY = os.environ.get("pk_test_51MUlhfBtiQxYzJ3O8kUqgiIiXr2suu56rZUF1pjTzWPeEADWruq5Jf80wbFlbBtAU45no3hXLy6ODExte7rqmqe200IpeLD7EP")
+STRIPE_API_SECRET_KEY = os.environ.get("sk_test_51MUlhfBtiQxYzJ3OsK6lu0vGJKkOBNegdDmT4bqZhmnoZl11RLFZu8JFakKv9UTpqc2KBWBpnAyOgmFKxh3dIxmj00nU8hBkKM")
 
-GOOGLE_MAP_API_KEY = os.environ.get("AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go"
+GOOGLE_MAP_API_KEY = os.environ.get("AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go")
 
 PAYPAL_MODE = "sandbox"
-PAYPAL_CLIENT_ID = os.environ.get("AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu"
-PAYPAL_CLIENT_SECRET = os.environ.get("EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE"
+GOOGLE_MAP_API_KEY = os.environ.get("AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go")
+PAYPAL_CLIENT_ID = os.environ.get("AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu")
+PAYPAL_CLIENT_SECRET = os.environ.get("EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE")
 
-NOTIFICATION_URL = os.environ.get("https://beta.right2ya.com/"
+NOTIFICATION_URL = os.environ.get("https://beta.right2ya.com/")
 
-
-ASGI_APPLICATION = "fastparcel.asgi.application"
 REDIS_HOSTNAME = os.environ.get("REDIS_HOSTNAME")
 REDIS_PORT = os.environ.get("REDIS_PORT")
 
@@ -240,15 +254,22 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-AWS_ACCESS_KEY_ID = os.environ.get('AKIARRODHX724ZM4WBVK')
-AWS_SECRET_ACCESS_KEY = os.environ.get('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')
-AWS_STORAGE_BUCKET_NAME = os.environ.get('right2ya'
-AWS_S3_SIGNATURE_VERSION = os.environ.get('s3v4'
-AWS_S3_REGION_NAME = os.environ.get('us-east-1'
+AWS_STORAGE_BUCKET_NAME = os.environ.get('right2ya')
+AWS_S3_SIGNATURE_VERSION = os.environ.get('s3v4')
+AWS_S3_REGION_NAME = os.environ.get('us-east-1')
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_VERIFY = True
-DEFAULT_FILE_STORAGE = os.environ.get('storages.backends.s3boto3.S3Boto3Storage' 
+
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = config('AWS_S3_ENDPOINT_URL')
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = config('AWS_LOCATION')
+
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True

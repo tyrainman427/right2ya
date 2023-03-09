@@ -186,7 +186,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [(REDIS_HOSTNAME, REDIS_PORT)],
+            'hosts': ['redis://default:b2kKWbRTvmPnzg3LGmW6@containers-us-west-50.railway.app:7126'],
         },
     },
 }
