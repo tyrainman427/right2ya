@@ -75,10 +75,10 @@
   
   function updateCourierPosition(map) {
 
-    var ws_scheme = windows.location.protocol == "https:" ? "wss" : "ws";
-    var ws_path = ws_scheme + '://' + window.location.host + ":8001/"; // Production
-    //var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
-    const jobSocket = new WebSocket(ws_path);
+    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+  var ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/{{ job.id}}/"; // Production
+  // var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+   const jobSocket = new WebSocket(ws_path);
 
     navigator.geolocation.watchPosition(
       pos => {
