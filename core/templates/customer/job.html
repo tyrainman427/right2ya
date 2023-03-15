@@ -73,7 +73,7 @@
           new google.maps.Marker({
             position: leg.start_location,
             map: map,
-            icon: "{% static 'img/start.png' %}"
+            icon: "{% static 'img/start.png' %}".replace(/&amp;/g, "&")
           });
 
           new google.maps.Marker({
@@ -85,7 +85,7 @@
           window.courierMarker = new google.maps.Marker({
             position: new google.maps.LatLng(courierLat, courierLng),
             map,
-            icon: "{% static 'img/courier.png' %}",
+            icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&")
           })
         } else {
           window.alert("Directions request failed due to " + status);

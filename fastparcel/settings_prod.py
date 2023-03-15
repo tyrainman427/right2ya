@@ -16,7 +16,7 @@ from decouple import config
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ["68.183.20.15","beta.right2ya.com",]
+ALLOWED_HOSTS = ["68.183.20.15","beta.right2ya.com","localhost",]
 
 ROOT_URLCONF = 'fastparcel.urls'
 
@@ -155,7 +155,7 @@ USE_TZ = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_URL = '/static/'
-TEMP = os.path.join(BASE_DIR, 'temp')
+
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
@@ -183,8 +183,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get('tyraineytech@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('opbtdmygboipgaer')
+EMAIL_HOST_USER = 'tyraineytech@gmail.com'
+EMAIL_HOST_PASSWORD = 'opbtdmygboipgaer'
 DEFAULT_FROM_EMAIL = 'Right 2 Ya Beta <no-reply@beta.right2ya.com>' 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
@@ -202,17 +202,15 @@ GOOGLE_MAP_API_KEY = os.environ.get("AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go")
 PAYPAL_CLIENT_ID = os.environ.get("AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu")
 PAYPAL_CLIENT_SECRET = os.environ.get("EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE")
 
-NOTIFICATION_URL = os.environ.get("https://beta.right2ya.com/")
+NOTIFICATION_URL = "https://beta.right2ya.com/"
 
-REDIS_HOSTNAME = os.environ.get("REDIS_HOSTNAME")
-REDIS_PORT = os.environ.get("REDIS_PORT")
 
 # Channels
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [(REDIS_HOSTNAME, REDIS_PORT)],
+            "hosts": [('127.0.0.1', 6379)],
         },
     },
 }
@@ -222,14 +220,6 @@ CHANNEL_LAYERS = {
 #     },
 # }
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
-#         },
-#     },
-# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -283,8 +273,8 @@ SECURE_SSL_REDIRECT = True
 
 
 #Activate Django Heroku
-import django_on_heroku
-django_on_heroku.settings(locals())
+# import django_on_heroku
+# django_on_heroku.settings(locals())
 
 # Update database configuration from $DATABASE_URL.
 import dj_database_url

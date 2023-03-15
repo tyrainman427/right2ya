@@ -133,7 +133,13 @@ USE_TZ = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/sign-in/'
 LOGIN_REDIRECT_URL = '/'
@@ -185,7 +191,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': ['redis://default:b2kKWbRTvmPnzg3LGmW6@containers-us-west-50.railway.app:7126'],
+            "hosts": [('127.0.0.1', 6379)],
         },
     },
 }
@@ -252,5 +258,5 @@ AWS_S3_VERIFY = True
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
 
 #Activate Django Heroku
-import django_on_heroku
-django_on_heroku.settings(locals())
+# import django_on_heroku
+# django_on_heroku.settings(locals())
