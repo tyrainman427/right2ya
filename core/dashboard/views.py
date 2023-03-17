@@ -1,5 +1,6 @@
 from core.models import *
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -27,7 +28,7 @@ def restaurant_account(request):
   account_form = AccountForm(instance=request.user)
   restaurant_form = RestaurantForm(instance=request.user.restaurant)
 
-  return render(request, 'restaurant/account.html', {
+  return render(request, 'dashboard/account.html', {
     "account_form": account_form,
     "restaurant_form": restaurant_form
   })
@@ -49,7 +50,7 @@ def restaurant_add_meal(request):
       meal = meal_form.save(commit=False)
       meal.restaurant = request.user.restaurant
       meal.save()
-      return redirect('dashboard:restaurant_meal')
+      return redirect(reverse('dashboard:restaurant_meal'))
 
   meal_form = MealForm()
   return render(request, 'dashboard/add_meal.html', {
@@ -76,12 +77,11 @@ def restaurant_edit_meal(request, meal_id):
 def dashboard_order(request):
   if request.method == "POST":
     order = Order.objects.get(id=request.POST["id"])
+    if order.status == Order.PROCESSING:
+       order.status = Order.READY
+       order.save()
 
-    if order.status == Order.COOKING:
-      order.status = Order.READY
-      order.save()
-
-  orders = Order.objects.filter(dashboard = request.user.customer.order).order_by("-id")
+  orders = Order.objects.filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })
@@ -94,7 +94,7 @@ def dashboard_report(request):
   revenue = []
   orders = []
   today = datetime.now()
-  current_weekdays = [today + timedelta(days = i) for i in range(0 - today.weekday(), 7 - today.weekday())]
+  current_weekdays = [today + timedelta(days = i) for i in range(0 - today.weekday(), 6 - today.weekday())]
 
   # print(current_weekdays)
 

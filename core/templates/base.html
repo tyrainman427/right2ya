@@ -20,7 +20,7 @@
 
 <body>
   <nav class="navbar {% if not request.user.is_authenticated %} navbar-expand-lg {% endif%} navbar-light bg-warning">
-    <a class="navbar-brand" href="/">Fast Parcel</a>
+    <a class="navbar-brand" href="/">Right 2 Ya</a>
 
     {% if not request.user.is_authenticated %}
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -53,7 +53,7 @@
   {% block content %}{% endblock %}
 
   <footer class="text-center mt-5 mb-5">
-    &copy; Rainman Technologies
+    &copy; Right 2 Ya Beta 2023
   </footer>
 
   <script src="https://unpkg.com/bootoast@1.0.1/dist/bootoast.min.js"></script>
@@ -76,6 +76,11 @@
 
     {% endif %}
   </script>
+  <!-- jquery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js" integrity="sha512-WNLxfP/8cVYL9sj8Jnp6et0BkubLP31jhTG9vhL/F5uEZmg5wEzKoXp1kJslzPQWwPT1eyMiSxlKCgzHLOTOTQ==" crossorigin="anonymous"></script>
+
+  
 </body>
 
 </html>

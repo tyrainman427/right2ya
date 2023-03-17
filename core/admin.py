@@ -30,7 +30,7 @@ def payout_to_courier(modeladmin, request, queryset):
         payout_items.append({
           "recipient_type": "EMAIL",
             "amount": {
-                "value": "{:.2f}".format(balance * 0.98 - .30),
+                "value": "{:.2f}".format(balance * 0.85),
                 "currency": "USD"
             },
             "receiver": courier.paypal_email,
@@ -69,7 +69,7 @@ class CourierAdmin(admin.ModelAdmin):
     return obj.user.get_full_name()
 
   def balance(self, obj):
-    return round(sum(t.amount for t in Transaction.objects.filter(job__courier=obj, status=Transaction.IN_STATUS)) * 0.8, 2)
+    return round(sum(t.amount for t in Transaction.objects.filter(job__courier=obj, status=Transaction.IN_STATUS)) * 0.85, 2)
 
 class TransactionAdmin(admin.ModelAdmin):
   list_display = ['stripe_payment_intent_id', 'courier_paypal_email', 'customer', 'courier', 'job', 'amount', 'status', 'created_at']

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'daphne',
     'oauth2_provider',
     'rest_framework_social_oauth2',
+    "fcm_django",
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,13 @@ USE_TZ = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/sign-in/'
 LOGIN_REDIRECT_URL = '/'
@@ -173,26 +180,35 @@ PAYPAL_MODE = "sandbox"
 PAYPAL_CLIENT_ID = "AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu"
 PAYPAL_CLIENT_SECRET = "EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE"
 
-NOTIFICATION_URL = "https://fastparcel.herokuapp.com/"
+NOTIFICATION_URL = "http://beta.right2ya.com/"
 
 
 ASGI_APPLICATION = "fastparcel.asgi.application"
 
+
 # Channels
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 # CHANNEL_LAYERS = {
 #     'default': {
 #         'BACKEND': 'channels.layers.InMemoryChannelLayer',
 #     },
 # }
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
+#         },
+#     },
+# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -223,16 +239,24 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-AWS_ACCESS_KEY_ID = 'AKIARRODHX724ZM4WBVK'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'right2ya'
-AWS_S3_SIGNATURE_VERSION = 's3v4'
-AWS_S3_REGION_NAME = 'us-east-1'
+# AWS_ACCESS_KEY_ID = 'AKIARRODHX724ZM4WBVK'
+# AWS_SECRET_ACCESS_KEY = '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'
+# AWS_STORAGE_BUCKET_NAME = 'right2ya'
+# AWS_S3_SIGNATURE_VERSION = 's3v4'
+# AWS_S3_REGION_NAME = 'us-east-1'
+AWS_ACCESS_KEY_ID = 'DO00ACXPJ7WW9WXTGBV6'
+AWS_SECRET_ACCESS_KEY = 'D6/usUJe/pzr5kDAWRZdaHg7XS0vfOXxaZH9h5c82EY'
+AWS_STORAGE_BUCKET_NAME = 'right2ya-images'
+AWS_S3_ENDPOINT_URL = 'https://right2ya-images.nyc3.digitaloceanspaces.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = 'right2ya-static'
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_VERIFY = True
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
 
 #Activate Django Heroku
-import django_on_heroku
-django_on_heroku.settings(locals())
+# import django_on_heroku
+# django_on_heroku.settings(locals())
