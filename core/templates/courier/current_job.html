@@ -55,13 +55,13 @@
           new google.maps.Marker({
             position: leg.start_location,
             map: map,
-            icon: "{% static 'img/start.png' %}"
+            icon: "{% static 'img/start.png' %}".replace(/&amp;/g, "&")
           });
 
           new google.maps.Marker({
             position: leg.end_location,
             map: map,
-            icon: "{% static 'img/end.png' %}"
+            icon: "{% static 'img/end.png' %}".replace(/&amp;/g, "&")
           });
 
           updateCourierPosition(map);
@@ -75,10 +75,10 @@
   
   function updateCourierPosition(map) {
 
-    var ws_scheme = windows.location.protocol == "https:" ? "wss" : "ws";
-    var ws_path = ws_scheme + '://' + window.location.host + ":8001/"; // Production
-    //var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
-    const jobSocket = new WebSocket(ws_path);
+    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+  var ws_path = ws_scheme + '://' + 'localhost' + ":8000/ws/jobs/{{ job.id}}/"; // Production
+  // var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+   const jobSocket = new WebSocket(ws_path);
 
     navigator.geolocation.watchPosition(
       pos => {
@@ -88,7 +88,7 @@
           window.courierMarker = new google.maps.Marker({
             position: courierPostion,
             map,
-            icon: "{% static 'img/courier.png' %}"
+            icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&")
           });
         } else {
           window.courierMarker.setPosition(courierPostion);
