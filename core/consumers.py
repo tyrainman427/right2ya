@@ -49,6 +49,4 @@ class JobConsumer(WebsocketConsumer):
     job = event['job']
 
     # Send message to WebSocket
-    self.send(text_data=json.dumps({
-      'job': job
-    }))
+    self.send(text_data=json.dumps(job))

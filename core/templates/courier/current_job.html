@@ -80,6 +80,18 @@
   // var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
    const jobSocket = new WebSocket(ws_path);
 
+    jobsocket.onmessage = function(event) {
+    const message = JSON.parse(event.data);
+    const job_id = message.job_id;
+    const status = message.status;
+
+    // Check if the status change affects the current page
+    if (window.location.pathname.includes(job_id)) {
+        // Reload the screen
+        window.location.reload();
+    }
+};
+
     navigator.geolocation.watchPosition(
       pos => {
         var courierPostion = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);

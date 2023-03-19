@@ -239,23 +239,28 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-# AWS_ACCESS_KEY_ID = 'AKIARRODHX724ZM4WBVK'
-# AWS_SECRET_ACCESS_KEY = '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'
-# AWS_STORAGE_BUCKET_NAME = 'right2ya'
-# AWS_S3_SIGNATURE_VERSION = 's3v4'
-# AWS_S3_REGION_NAME = 'us-east-1'
-AWS_ACCESS_KEY_ID = 'DO00ACXPJ7WW9WXTGBV6'
-AWS_SECRET_ACCESS_KEY = 'D6/usUJe/pzr5kDAWRZdaHg7XS0vfOXxaZH9h5c82EY'
-AWS_STORAGE_BUCKET_NAME = 'right2ya-images'
-AWS_S3_ENDPOINT_URL = 'https://right2ya-images.nyc3.digitaloceanspaces.com'
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-AWS_LOCATION = 'right2ya-static'
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
-AWS_S3_VERIFY = True
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
+AWS_ACCESS_KEY_ID = 'AKIARRODHX724ZM4WBVK'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'right2ya'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_CUSTOM_DOMAIN = 'right2ya.s3.amazonaws.com'
+
+# Set the static and media URLs
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+# Set the location of static and media files in S3
+STATICFILES_LOCATION = 'static'
+MEDIAFILES_LOCATION = 'media'
+
+# Set the storage engine for static and media files
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# Set the bucket access permissions
+AWS_DEFAULT_ACL = 'public-read'
+
 
 #Activate Django Heroku
 # import django_on_heroku
