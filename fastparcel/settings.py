@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,7 +49,7 @@ INSTALLED_APPS = [
     'daphne',
     'oauth2_provider',
     'rest_framework_social_oauth2',
-    "fcm_django",
+
 ]
 
 MIDDLEWARE = [
@@ -164,21 +167,19 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'tyraineytech@gmail.com'
-EMAIL_HOST_PASSWORD = 'opbtdmygboipgaer'
-DEFAULT_FROM_EMAIL = 'Fast Parcel <no-reply@fastparcel.localhost>' 
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'Right2ya Beta <no-reply@beta.right2ya.com>' 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-FIREBASE_ADMIN_CREDENTIAL = os.path.join(BASE_DIR,"fastparcel-1c719-firebase-adminsdk-drpt3-5f3aba66ac.json")
+STRIPE_API_PUBLIC_KEY = os.getenv('STRIPE_API_PUBLIC_KEY')
+STRIPE_API_SECRET_KEY = os.getenv('STRIPE_API_SECRET_KEY')
 
-STRIPE_API_PUBLIC_KEY = "pk_test_51MUlhfBtiQxYzJ3O8kUqgiIiXr2suu56rZUF1pjTzWPeEADWruq5Jf80wbFlbBtAU45no3hXLy6ODExte7rqmqe200IpeLD7EP"
-STRIPE_API_SECRET_KEY = "sk_test_51MUlhfBtiQxYzJ3OsK6lu0vGJKkOBNegdDmT4bqZhmnoZl11RLFZu8JFakKv9UTpqc2KBWBpnAyOgmFKxh3dIxmj00nU8hBkKM"
-
-GOOGLE_MAP_API_KEY = "AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go"
+GOOGLE_MAP_API_KEY = os.getenv('GOOGLE_MAP_API_KEY')
 
 PAYPAL_MODE = "sandbox"
-PAYPAL_CLIENT_ID = "AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu"
-PAYPAL_CLIENT_SECRET = "EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE"
+PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID')
+PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET')
 
 NOTIFICATION_URL = "http://beta.right2ya.com/"
 
@@ -201,14 +202,6 @@ CHANNEL_LAYERS = {
 #     },
 # }
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": ['redis://:p90e413502fad99ca9a37c6472e9313014a783645b284b14b01e9fa4fe163c35d@ec2-3-230-7-140.compute-1.amazonaws.com:20220'],
-#         },
-#     },
-# }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -228,9 +221,7 @@ CACHES = {
         "LOCATION": os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "KEY_PREFIX": "fastparcel",
-        "TIMEOUT": 300,
+        }
     }
 }
 
@@ -239,23 +230,28 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-# AWS_ACCESS_KEY_ID = 'AKIARRODHX724ZM4WBVK'
-# AWS_SECRET_ACCESS_KEY = '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'
-# AWS_STORAGE_BUCKET_NAME = 'right2ya'
-# AWS_S3_SIGNATURE_VERSION = 's3v4'
-# AWS_S3_REGION_NAME = 'us-east-1'
-AWS_ACCESS_KEY_ID = 'DO00ACXPJ7WW9WXTGBV6'
-AWS_SECRET_ACCESS_KEY = 'D6/usUJe/pzr5kDAWRZdaHg7XS0vfOXxaZH9h5c82EY'
-AWS_STORAGE_BUCKET_NAME = 'right2ya-images'
-AWS_S3_ENDPOINT_URL = 'https://right2ya-images.nyc3.digitaloceanspaces.com'
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-AWS_LOCATION = 'right2ya-static'
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
-AWS_S3_VERIFY = True
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+AWS_S3_CUSTOM_DOMAIN = 'right2ya.s3.amazonaws.com'
+
+# Set the static and media URLs
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+# Set the location of static and media files in S3
+STATICFILES_LOCATION = 'static'
+MEDIAFILES_LOCATION = 'media'
+
+# Set the storage engine for static and media files
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# Set the bucket access permissions
+AWS_DEFAULT_ACL = 'public-read'
+
 
 #Activate Django Heroku
 # import django_on_heroku
