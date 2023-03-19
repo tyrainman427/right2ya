@@ -15,8 +15,7 @@ from django.conf import settings
 
 from core.models import *
 
-cred = credentials.Certificate(settings.FIREBASE_ADMIN_CREDENTIAL)
-firebase_admin.initialize_app(cred)
+
 
 stripe.api_key = settings.STRIPE_API_SECRET_KEY
 
@@ -206,26 +205,26 @@ def create_job_page(request):
                     creating_job.save()
 
                     # Send Push Notification to all Couriers
-                    couriers = Courier.objects.all()
-                    registration_tokens = [i.fcm_token for i in couriers if i.fcm_token]
+                    # couriers = Courier.objects.all()
+                    # registration_tokens = [i.fcm_token for i in couriers if i.fcm_token]
 
-                    message = messaging.MulticastMessage(
-                        notification = messaging.Notification(
-                            title = creating_job.name,
-                            body = creating_job.description,
-                        ),
-                        webpush = messaging.WebpushConfig(
-                            notification = messaging.WebpushNotification(
-                                icon = creating_job.photo.url,
-                            ),
-                            fcm_options = messaging.WebpushFCMOptions(
-                                link = settings.NOTIFICATION_URL + reverse('courier:available_jobs'),
-                            ),
-                        ),
-                        tokens = registration_tokens 
-                    )
-                    response = messaging.send_multicast(message)
-                    print('{0} messages were sent successfully'.format(response.success_count))
+                    # message = messaging.MulticastMessage(
+                    #     notification = messaging.Notification(
+                    #         title = creating_job.name,
+                    #         body = creating_job.description,
+                    #     ),
+                    #     webpush = messaging.WebpushConfig(
+                    #         notification = messaging.WebpushNotification(
+                    #             icon = creating_job.photo.url,
+                    #         ),
+                    #         fcm_options = messaging.WebpushFCMOptions(
+                    #             link = settings.NOTIFICATION_URL + reverse('courier:available_jobs'),
+                    #         ),
+                    #     ),
+                    #     tokens = registration_tokens 
+                    # )
+                    # response = messaging.send_multicast(message)
+                    # print('{0} messages were sent successfully'.format(response.success_count))
 
                     return redirect(reverse('customer:home'))
 

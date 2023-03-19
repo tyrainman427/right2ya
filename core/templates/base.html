@@ -20,7 +20,7 @@
 
 <body>
   <nav class="navbar {% if not request.user.is_authenticated %} navbar-expand-lg {% endif%} navbar-light bg-warning">
-    <a class="navbar-brand" href="/">Right 2 Ya</a>
+    <a class="navbar-brand" href="/">Right2Ya</a>
 
     {% if not request.user.is_authenticated %}
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -36,15 +36,11 @@
         <li class="nav-item {% if request.GET.next == '/courier/' %}active{% endif %}">
           <a class="nav-link active" aria-current="page" href="/sign-in/?next=/courier/">Courier</a>
         </li>
-        <li class="nav-item {% if request.GET.next == '/dashboard/' %}active{% endif %}">
-          <a class="nav-link active" aria-current="page" href="/sign-in/?next=/dashboard/">Dashboard</a>
-        </li>
       </ul>
     </div>
     {% else %}
     <form class="form-inline">
       <span class="mr-4">{{ request.user.get_full_name|title }}</span>
-      <a class="btn btn-outline-dark mr-2" aria-current="page" href="/sign-in/?next=/customer/">Customer</a>
       <a href="/sign-out" class="btn btn-outline-dark">Sign Out</a>
     </form>
     {% endif %}
