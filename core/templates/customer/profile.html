@@ -40,13 +40,23 @@
 
     <div id="recaptcha-container"></div>
 
-    <div id="get-code" class="input-group mb-3 {% if request.user.customer.phone_number %} d-none {% endif %}">
+   
+ <div id="phone" class="input-group mb-3 {% if request.user.customer.phone_number %} d-none {% endif %}">
       <input type="text" class="form-control" placeholder="Your phone number">
       <div class="input-group-append">
-        <button class="btn btn-warning" type="button">Send Code</button>
+        {% if not request.user.customer.phone %}
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-warning" type="submit">Send verification code</button>
+        </form>
+        {% else %}
+        <input type="text" class="form-control" disabled value="{{ request.user.customer.phone }}">
+        {% endif %}
       </div>
     </div>
 
+    {% comment %}
     <div id="verify-code" class="input-group mb-3 d-none">
       <input type="text" class="form-control" placeholder="Verification code">
       <div class="input-group-append">
@@ -59,14 +69,14 @@
       <div class="input-group-append">
         <button class="btn btn-warning" type="button">Change</button>
       </div>
-    </div> {% endcomment %}
+    </div> 
 
   </div>
-</div>
+</div>  {% endcomment %}
 
-<script>
+{% comment %} <script>
 
-  function onVerify(idToken) {
+  //function onVerify(idToken) {
     var form = document.createElement("form");
     form.method = "POST";
 
@@ -87,13 +97,13 @@
 
     document.body.appendChild(form);
     form.submit();
-  }
+  //}
 
   window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
     'size': 'invisible'
   });
 
-  $("#get-code button").on('click', function () {
+  //$("#get-code button").on('click', function () {
     const phoneNumber = $("#get-code input").val();
     console.log(phoneNumber);
 
@@ -112,9 +122,9 @@
       });
 
 
-  });
+  //});
 
-  $("#verify-code button").on('click', function () {
+ // $("#verify-code button").on('click', function () {
     const code = $("#verify-code input").val();
 
     confirmationResult.confirm(code).then((result) => {
@@ -135,7 +145,7 @@
     $("#change-phone").addClass("d-none");
     $("#get-code").removeClass("d-none");
   })
-</script>
+</script>  {% endcomment %}
 
 
 {% endblock %}

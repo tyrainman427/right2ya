@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework_social_oauth2',
 
+
 ]
 
 MIDDLEWARE = [
@@ -251,6 +252,11 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Set the bucket access permissions
 AWS_DEFAULT_ACL = 'public-read'
+
+# SENDSMS_BACKEND = 'sendsms.backends.console.SmsBackend'
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER= os.getenv('TWILIO_PHONE_NUMBER')
 
 
 #Activate Django Heroku
