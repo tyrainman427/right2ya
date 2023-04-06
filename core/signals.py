@@ -38,11 +38,11 @@ def send_update_email(sender, instance, **kwargs):
         message = client.messages.create(
                                 body=f'Your order has been updated and its status has changed to {instance.status}. If you need further information please check the app.',
                                 from_='+18446702408',
-                                to='+12037150447' 
+                                to=instance.customer.phone_number 
                             )
  
         subject = f'Job status changed to {instance.status}'
         body = f'Your order {instance.name} has been updated and its status has changed to {instance.status}.'
         from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = ['info@worknscrubs.com']
+        recipient_list = [instance.customer.user.email]
         send_mail(subject, body, from_email, recipient_list)
