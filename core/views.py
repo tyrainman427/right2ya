@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
+from twilio.rest import Client
 
 from . import forms
+from django.conf import settings
 
-# Create your views here.
+
+
 def home(request):
     return render(request, 'home.html')
 

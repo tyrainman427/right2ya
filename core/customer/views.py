@@ -7,12 +7,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from core.customer import forms
+from core.forms import RestaurantForm
 
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.conf import settings
-
+from twilio.rest import Client
+import random
+import os
 from core.models import *
 
 
@@ -297,3 +300,51 @@ def job_page(request, job_id):
         "job": job,
         "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY
     })
+    
+def send_verification_code(phone_number):
+    TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+    TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+    # Generate a random 6-digit code
+    verification_code = str(random.randint(100000, 999999))
+
+    # Send the verification code to the phone number
+    message = client.messages.create(
+        body=f"Your verification code is {verification_code}",
+        from_='+18446702408', # Your Twilio phone number
+        to=phone_number
+    )
+
+    return verification_code
+
+
+def phone_verification(request):
+    if request.method == 'POST':
+        form = RestaurantForm(request.POST)
+        if form.is_valid():
+            phone_number = form.cleaned_data['phone_number']
+            verification_code = send_verification_code(phone_number)
+            # Store the verification code in the session for later verification
+            request.session['verification_code'] = verification_code
+            return redirect('verify')
+    else:
+        form = RestaurantForm()
+    return render(request, 'profile.html', {'form': form})
+
+def verify(request):
+    if request.method == 'POST':
+        verification_code = request.POST.get('verification_code')
+        phone_number = request.session.get('phone_number')
+        if phone_number is None:
+            messages.error(request, 'Session expired')
+            return redirect('phone_verification')
+        client = Client(os.getenv('TWILIO_ACCOUNT_SID'), os.getenv('TWILIO_AUTH_TOKEN'))
+        service_sid = 'your_twilio_verify_service_sid'
+        verification_check = client.verify.services(service_sid).verification_checks.create(to=phone_number, code=verification_code)
+        if verification_check.status == 'approved':
+            # Verification successful, do something here
+            return redirect('success')
+        else:
+            messages.error(request, 'Invalid verification code')
+    return render(request, 'profile.html')
