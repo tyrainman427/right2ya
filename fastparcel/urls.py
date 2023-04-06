@@ -5,12 +5,18 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from rest_framework.routers import DefaultRouter
+
 
 from core import views, consumers,apis
 
 from core.customer import views as customer_views
 from core.dashboard import views as dashboard_views
 from core.courier import views as courier_views, apis as courier_apis
+from core.views import JobViewSet
+
+# router = DefaultRouter()
+# router.register(r'jobs', JobViewSet, basename='job')
 
 customer_urlpatterns = [
     path('', customer_views.home, name="home"),
@@ -55,6 +61,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('social_django.urls', namespace='social')),
     path('api/social/', include('rest_framework_social_oauth2.urls')),
+    # path('', include(router.urls)),
     path('', views.home),
    
 

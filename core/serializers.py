@@ -1,5 +1,13 @@
-from rest_framework import serializers
-from .models import Restaurant, Customer, Courier, Order, OrderDetails, Meal
+from .models import Restaurant, Customer, Courier, Order, OrderDetails, Meal, Job
+from rest_framework import viewsets, permissions, serializers
+from rest_framework.response import Response
+
+
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = '__all__'
+
 
 class RestaurantSerializer(serializers.ModelSerializer):
   logo = serializers.SerializerMethodField()
