@@ -62,11 +62,11 @@ class Job(models.Model):
   )
 
   CREATING_STATUS = 'creating'
-  PROCESSING_STATUS = 'Processing Order'
-  PICKING_STATUS = 'Picking Up'
+  PROCESSING_STATUS = 'processing'
+  PICKING_STATUS = 'picking'
   DELIVERING_STATUS = 'Delivering Order'
-  COMPLETED_STATUS = 'Order Completed'
-  CANCELED_STATUS = 'Canceled'
+  COMPLETED_STATUS = 'completed'
+  CANCELED_STATUS = 'canceled'
   STATUSES = (
     (CREATING_STATUS, 'Creating'),
     (PROCESSING_STATUS, 'Processing'),
