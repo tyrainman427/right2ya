@@ -8,25 +8,33 @@ from django.db import models
 from .models import Job
 from twilio.rest import Client
 import os
+from django.urls import reverse
+from allauth.account.signals import user_signed_up
+from allauth.account.utils import send_email_confirmation
+
+@receiver(user_signed_up)
+def send_email_verification(sender, request, user, **kwargs):
+    send_email_confirmation(request, user)
 
 
-@receiver(post_save, sender=User)
-def send_welcome_email(sender, instance, created, **kwargs):
-    if created and instance.email:
-        body = render_to_string(
-            'welcome_email_template.html',
-            {
-                'name': instance.get_full_name
-            }
-        )
-        # send welcome email
-        send_mail(
-            'Welcome to Right 2 Ya Beta',
-            body,
-            settings.DEFAULT_FROM_EMAIL,
-            [instance.email],
-            fail_silently=False,
-        )
+ 
+# @receiver(post_save, sender=User)
+# def send_welcome_email(sender, instance, created, **kwargs):
+#     if created and instance.email:
+#         body = render_to_string(
+#             'welcome_email_template.html',
+#             {
+#                 'name': instance.get_full_name
+#             }
+#         )
+#         # send welcome email
+#         send_mail(
+#             'Welcome to Right 2 Ya Beta',
+#             body,
+#             settings.DEFAULT_FROM_EMAIL,
+#             [instance.email],
+#             fail_silently=False,
+        # )
 @receiver(post_save, sender=Job)
 def send_update_email(sender, instance, **kwargs):   
     if instance.status != instance.CREATING_STATUS:

@@ -7,10 +7,12 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
 from core import views, consumers,apis
+from core.views import *
 
 from core.customer import views as customer_views
 from core.dashboard import views as dashboard_views
 from core.courier import views as courier_views, apis as courier_apis
+from allauth.account.views import ConfirmEmailView
 
 customer_urlpatterns = [
     path('', customer_views.home, name="home"),
@@ -55,9 +57,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('social_django.urls', namespace='social')),
     path('api/social/', include('rest_framework_social_oauth2.urls')),
+    path('accounts/', include('allauth.urls')),
     path('', views.home),
    
-
+    path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  
+        activate, name='activate'),  
+    
     path('sign-in/', auth_views.LoginView.as_view(template_name="sign_in.html")),
     path('sign-out/', auth_views.LogoutView.as_view(next_page="/")),
     path('sign-up/', views.sign_up),

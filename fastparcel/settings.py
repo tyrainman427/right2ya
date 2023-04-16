@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     
     'bootstrap4',
     'social_django',
@@ -49,6 +50,8 @@ INSTALLED_APPS = [
     'daphne',
     'oauth2_provider',
     'rest_framework_social_oauth2',
+    'allauth',
+    'allauth.account',
 
 
 ]
@@ -164,6 +167,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 SOCIAL_AUTH_FACEBOOK_KEY = "1943959652602864"
@@ -173,6 +177,8 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id, name, email, picture.type(large)'
 }
 
+# The ID of the current site
+SITE_ID = 2
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -272,3 +278,11 @@ TWILIO_PHONE_NUMBER= os.getenv('TWILIO_PHONE_NUMBER')
 #Activate Django Heroku
 # import django_on_heroku
 # django_on_heroku.settings(locals())
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300 # in seconds
