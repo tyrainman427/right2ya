@@ -125,7 +125,7 @@
 
             </div>
             $<h3 id="price"></h3>
-
+            <input type="hidden" id="latest-job-id" value="{{ latest_job_id }}">
           </div>
         </div>
       </div>
@@ -134,5 +134,28 @@
 </div>
 
 {% include 'courier/bottom_tabs.html' %}
+
+<script>
+  function checkForJobUpdates() {
+      const latestJobId = $('#job_id').val();
+      $.ajax({
+          url: '/courier/jobs/',
+          data: {'job_id': latestJobId},
+          dataType: 'json',
+          success: function(data) {
+              if (data.has_new_job) {
+                  // Display a notification to the user
+                  alert('New job available: ' + data.latest_job_description);
+                  
+                  // Update the ID of the latest job checked
+                  $('#latest-job-id').val(data.latest_job_id);
+              }
+          }
+      });
+  }
+  
+ // setInterval(checkForJobUpdates, 5000);
+  </script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 {% endblock %}
