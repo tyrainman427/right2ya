@@ -71,45 +71,114 @@
       }
     );
   }
+  async function updateCourierPosition(map) {
+  // Create a WebSocket connection to the server
+  const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+  const ws_path = ws_scheme + "://" + window.location.host + "/ws/jobs/{{ job.id}}/"; // Production
+  const jobSocket = new WebSocket(ws_path);
 
-  
-  function updateCourierPosition(map) {
+  jobSocket.onmessage = function (e) {
+    // Parse the received message and update the courier position on the map
+    const data = JSON.parse(e.data);
+    const courierPosition = new google.maps.LatLng(data.courier_lat, data.courier_lng);
+    if (!window.courierMarker) {
+      window.courierMarker = new google.maps.Marker({
+        position: courierPosition,
+        map,
+        icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
+      });
+    } else {
+      window.courierMarker.setPosition(courierPosition);
+    }
+    map.panTo(courierPosition);
+  };
 
-    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-    var ws_path = ws_scheme + '://' + 'localhost' + ":8001/ws/jobs/{{ job.id}}/"; // Production
-  // var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
-    const jobSocket = new WebSocket(ws_path);
+  jobSocket.onopen = function (e) {
+    console.log("WebSocket connection opened");
+  };
+
+  jobSocket.onerror = function (e) {
+    console.log("WebSocket connection error:", e);
+  };
+
+  jobSocket.onclose = function (e) {
+    console.log("WebSocket connection closed");
+  };
+
+  // Update the courier's position on the map and send it to the server through the WebSocket
+  navigator.geolocation.watchPosition(async (pos) => {
+    const courierPosition = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+
+    if (!window.courierMarker) {
+      window.courierMarker = new google.maps.Marker({
+        position: courierPosition,
+        map,
+        icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
+      });
+    } else {
+      window.courierMarker.setPosition(courierPosition);
+    }
+
+    map.panTo(courierPosition);
+
+    // Send the courier's position to the server through the WebSocket
+    const message = JSON.stringify({
+      courier_lat: pos.coords.latitude,
+      courier_lng: pos.coords.longitude,
+    });
+    jobSocket.send(message);
+  });
+}
+
+  // function updateCourierPosition(map) {
+  //   var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+  // var ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/{{ job.id}}/"; // Production
+  // // var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+  //  const jobSocket = new WebSocket(ws_path);
+
+  //   jobSocket.onmessage = function(e) {
+  //     console.log("message",e)
+  //   }
+  //   jobSocket.onopen = function(e) {
+  //     console.log("open",e)
+  //   }
+  //   jobSocket.onerror = function(e) {
+  //     console.log("error",e)
+  //   }
+  //   jobSocket.onclose = function(e) {
+  //     console.log("close",e)
+  //   }
 
 
-    navigator.geolocation.watchPosition(
-      pos => {
-        var courierPostion = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+  //   navigator.geolocation.watchPosition(
+  //     pos => {
+  //       var courierPostion = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
 
-        if (!window.courierMarker) {
-          window.courierMarker = new google.maps.Marker({
-            position: courierPostion,
-            map,
-            icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&")
-          });
-        } else {
-          window.courierMarker.setPosition(courierPostion);
-        }
+  //       if (!window.courierMarker) {
+  //         window.courierMarker = new google.maps.Marker({
+  //           position: courierPostion,
+  //           map,
+  //           icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&")
+  //         });
+  //       } else {
+  //         window.courierMarker.setPosition(courierPostion);
+  //       }
 
-        map.panTo(courierPostion);
+  //       map.panTo(courierPostion);
         
-        try {
-          jobSocket.send(JSON.stringify({    
-           job: {
-              courier_lat: pos.coords.latitude,
-              courier_lng: pos.coords.longitude,
-           }
-          }))
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      pos => console.log(pos))
-  }
+  //       try {
+  //         jobSocket.send(JSON.stringify({    
+  //          job: {
+  //             courier_lat: pos.coords.latitude,
+  //             courier_lng: pos.coords.longitude,
+  //          }
+  //         }))
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     },
+  //     pos => console.log(pos))
+  // }
 </script>
 
 <style>

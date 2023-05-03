@@ -54,12 +54,14 @@ def available_job_page(request, id):
 def check_for_job_updates(request):
     latest_job_id = request.GET.get('job.id')
     latest_job = Job.objects.filter(id__gt=latest_job_id, status=Job.PROCESSING_STATUS).last()
+   
+  
     
     if latest_job:
         data = {
             'has_new_job': True,
             'latest_job_id': latest_job.id,
-            'latest_job_description': latest_job.description
+            'latest_job_description': latest_job.description,
         }
     else:
         data = {'has_new_job': False}

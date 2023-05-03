@@ -16,7 +16,7 @@
     fetch("{% url 'available_jobs_api' %}")
       .then(response => response.json())
       .then(json => {
-        // console.log(json);
+         console.log(json);
 
         // Create a new viewpoint bound
         var bounds = new google.maps.LatLngBounds();
@@ -63,6 +63,7 @@
     })
 
   }
+  const messaging = firebase.messaging();
 
   messaging.onMessage((payload) => {
     window.location.reload();
@@ -136,25 +137,47 @@
 {% include 'courier/bottom_tabs.html' %}
 
 <script>
-  function checkForJobUpdates() {
-      const latestJobId = $('#job_id').val();
-      $.ajax({
-          url: '/courier/jobs/',
-          data: {'job_id': latestJobId},
-          dataType: 'json',
-          success: function(data) {
-              if (data.has_new_job) {
-                  // Display a notification to the user
-                  alert('New job available: ' + data.latest_job_description);
-                  
-                  // Update the ID of the latest job checked
-                  $('#latest-job-id').val(data.latest_job_id);
-              }
-          }
-      });
+  // Define a function to check for new jobs
+function checkForNewJobs() {
+  const job = '{{ job_id }}'
+  if (job) {
+    setTimeout(() => {
+    document.location.reload();
+  }, 3000);
+    console.log("Screen has reloaded")
   }
-  
- // setInterval(checkForJobUpdates, 5000);
+}
+// Call the function to check for new jobs every 5 seconds
+setInterval(checkForNewJobs, 5000);
+
+  // function checkForJobUpdates() {
+  //     const latestJobId = $('#job-id').val();
+
+  //     console.log(latestJobId)
+  //     $.ajax({
+  //         url: '/courier/jobs/available/',
+  //         data: {'job_id': latestJobId},
+  //         dataType: 'json',
+  //         success: function(data) {
+  //             if (data.has_new_job) {
+  //                 // Display a notification to the user
+  //                 alert('New job available: ' + data.latest_job_description);
+                  
+  //                 // Update the ID of the latest job checked
+  //                 $('#latest-job-id').val(data.latest_job_id);
+  //             }
+  //             else {
+  //               console.log("There is no data")
+  //             }
+  //         }
+  //     });
+  //     if (latestJobId != null) {
+  //       console.log("Screen reloaded")
+  //       location.reload
+  //     }
+      
+  // }
+  // setInterval(checkForJobUpdates, 5000);
   </script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
