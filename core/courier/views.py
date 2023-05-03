@@ -3,6 +3,7 @@ from channels.layers import get_channel_layer
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
@@ -48,6 +49,24 @@ def available_job_page(request, id):
     return render(request, 'courier/available_job.html', {
         "job": job
     })
+
+@login_required(login_url="/sign-in/?next=/courier/")
+def check_for_job_updates(request):
+    latest_job_id = request.GET.get('job.id')
+    latest_job = Job.objects.filter(id__gt=latest_job_id, status=Job.PROCESSING_STATUS).last()
+   
+  
+    
+    if latest_job:
+        data = {
+            'has_new_job': True,
+            'latest_job_id': latest_job.id,
+            'latest_job_description': latest_job.description,
+        }
+    else:
+        data = {'has_new_job': False}
+    
+    return JsonResponse(data)
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def current_job_page(request):
