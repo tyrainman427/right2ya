@@ -60,6 +60,13 @@ class Job(models.Model):
     (MEDIUM_SIZE, 'Medium'),
     (LARGE_SIZE, 'Large'),
   )
+  SAME_DAY_DELIVERY = 'same_day'
+  SCHEDULED_DELIVERY = 'scheduled'
+
+  DELIVERY_CHOICES = (
+        (SAME_DAY_DELIVERY, 'Same day delivery'),
+        (SCHEDULED_DELIVERY, 'Scheduled delivery'),
+    )
 
   CREATING_STATUS = 'creating'
   PROCESSING_STATUS = 'processing'
@@ -114,9 +121,27 @@ class Job(models.Model):
 
   delivery_photo = models.ImageField(upload_to='job/delivery_photos/', null=True, blank=True)
   delivered_at = models.DateTimeField(null=True, blank=True)
+  
+  delivery_date_time = models.DateTimeField(blank=True, null=True)
+  delivery_choice = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default=SAME_DAY_DELIVERY)
+
+  # Pricing
+  service_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+  delivery_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+
+  def save(self, *args, **kwargs):
+      if self.delivery_choice == self.SCHEDULED_DELIVERY:
+          self.price = 60.00
+          self.service_fee = 0.25 * self.price
+          self.delivery_fee = 0
+      else:
+          self.service_fee = 0
+          self.delivery_fee = 0.25 * self.price
+
+      super().save(*args, **kwargs)
 
   def __str__(self):
-    return self.description
+      return f"{self.name} - {self.delivery_choice}"
 
 class Transaction(models.Model):
   IN_STATUS = "in"

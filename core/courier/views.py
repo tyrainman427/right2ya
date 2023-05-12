@@ -13,7 +13,7 @@ from core.courier import forms
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def home(request):
-    return redirect(reverse('courier:available_jobs'))
+    return redirect(reverse('available_jobs'))
 
 
 @login_required(login_url="/sign-in/?next=/courier/")
@@ -27,7 +27,7 @@ def available_job_page(request, id):
     job = Job.objects.filter(id=id, status=Job.PROCESSING_STATUS).last()
 
     if not job:
-        return redirect(reverse('courier:available_jobs'))
+        return redirect(reverse('available_jobs'))
 
     if request.method == 'POST':
         job.courier = request.user.courier

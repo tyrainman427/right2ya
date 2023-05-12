@@ -16,7 +16,7 @@ class BasicCustomerForm(forms.ModelForm):
 class JobCreateStep1Form(forms.ModelForm):
   class Meta:
     model = Job
-    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo')
+    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo','delivery_choice','delivery_date_time')
 
 class JobCreateStep2Form(forms.ModelForm):
   pickup_address = forms.CharField(required=True)
