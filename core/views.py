@@ -9,10 +9,13 @@ from django.http import HttpResponse
 from .token import account_activation_token  
 from django.contrib.auth.models import User  
 from django.core.mail import EmailMessage  
+from rest_framework import viewsets
+from .models import Job
+from .serializers import JobSerializer
+
 
 from . import forms
 from django.conf import settings
-
 
 
 def home(request):
@@ -82,3 +85,8 @@ def activate(request, uidb64, token):
         return HttpResponse(f"Thank you for your email confirmation. Now you can login your account.")  
     else:  
         return HttpResponse('Activation link is invalid!') 
+    
+
+class AvailableJobsAPIView(viewsets.ModelViewSet):
+    queryset = Job.objects.filter(status=Job.PROCESSING_STATUS)
+    serializer_class = JobSerializer

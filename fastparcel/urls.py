@@ -13,6 +13,11 @@ from core.customer import views as customer_views
 from core.dashboard import views as dashboard_views
 from core.courier import views as courier_views, apis as courier_apis
 from allauth.account.views import ConfirmEmailView
+from rest_framework import routers
+from core.views import AvailableJobsAPIView
+
+router = routers.DefaultRouter()
+router.register(r'jobs', AvailableJobsAPIView)
 
 customer_urlpatterns = [
     path('', customer_views.home, name="home"),
@@ -33,7 +38,7 @@ websocket_urlpatterns = [
 
 courier_urlpatterns = [
     path('', courier_views.home, name="home"),
-    path('jobs/available/', courier_views.available_jobs_page, name="available_jobs"),
+    # path('jobs/available/', courier_views.available_jobs_page, name="available_jobs"),
     path('jobs/available/<id>/', courier_views.available_job_page, name="available_job"),
     path('jobs/current/', courier_views.current_job_page, name="current_job"),
     path('jobs/current/<id>/take_photo/', courier_views.current_job_take_photo_page, name="current_job_take_photo"),
@@ -59,6 +64,7 @@ urlpatterns = [
     path('api/social/', include('rest_framework_social_oauth2.urls')),
     # path('accounts/', include('allauth.urls')),
     path("accounts/", include("django.contrib.auth.urls")),
+    path('api/', include(router.urls)),
     path('', views.home),
    
     path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  
@@ -82,8 +88,9 @@ urlpatterns = [
     path('api/customer/payment_intent/', apis.create_payment_intent),
     path('api/dashboard/order/notification/<last_request_time>/', apis.restaurant_order_notification),
     
-    path('api/jobs/available/', courier_apis.available_jobs_api, name="available_jobs_api"),
+    path('api/jobs/available/', AvailableJobsAPIView, name='api-available-jobs'),
     path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),
+    
     path('api/fcm-token/update/', courier_apis.fcm_token_update_api, name="fcm_token_update_api"),
     
     path('api/driver/order/ready/', apis.driver_get_ready_orders),

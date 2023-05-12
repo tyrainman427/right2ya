@@ -12,6 +12,7 @@ from core.models import *
 @login_required(login_url="/courier/sign-in/")
 def available_jobs_api(request):
   jobs = list(Job.objects.filter(status=Job.PROCESSING_STATUS).values())
+  print("Ty's Job: ",jobs)
 
   return JsonResponse({
     "success": True,

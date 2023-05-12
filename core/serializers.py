@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Restaurant, Customer, Courier, Order, OrderDetails, Meal
+from .models import Restaurant, Customer, Courier, Order, OrderDetails, Meal, Job
 
 class RestaurantSerializer(serializers.ModelSerializer):
   logo = serializers.SerializerMethodField()
@@ -77,3 +77,8 @@ class OrderStatusSerializer(serializers.ModelSerializer):
   class Meta:
     model = Order
     fields = ("id", "status")
+
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = '__all__'
