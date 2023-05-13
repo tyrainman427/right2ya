@@ -122,23 +122,27 @@ class Job(models.Model):
   delivery_photo = models.ImageField(upload_to='job/delivery_photos/', null=True, blank=True)
   delivered_at = models.DateTimeField(null=True, blank=True)
   
-  delivery_date_time = models.DateTimeField(blank=True, null=True)
+  delivery_date_time = models.DateField(blank=True, null=True)
+  delivery_time = models.TimeField(blank=True, null=True)
   delivery_choice = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default=SAME_DAY_DELIVERY)
 
   # Pricing
   service_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-  delivery_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-
+  delivery_fee = models.FloatField(default=0)
+  
   def save(self, *args, **kwargs):
-      if self.delivery_choice == self.SCHEDULED_DELIVERY:
-          self.price = 60.00
-          self.service_fee = 0.25 * self.price
-          self.delivery_fee = 0
-      else:
-          self.service_fee = 0
-          self.delivery_fee = 0.25 * self.price
+    if self.delivery_choice == self.SCHEDULED_DELIVERY:
+        self.service_fee = 60.00
+        self.delivery_fee = 0.25 * self.service_fee
+        self.price = self.service_fee + self.delivery_fee
+    else:
+        print('save() is called.')
+        self.service_fee = self.price - (self.price*0.25)
+        self.delivery_fee = 0.25 * self.price
 
-      super().save(*args, **kwargs)
+    
+    super().save(*args, **kwargs)
+
 
   def __str__(self):
       return f"{self.name} - {self.delivery_choice}"

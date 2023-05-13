@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ModelForm
 from django.contrib.auth.models import User
 
 from core.models import Customer, Job
@@ -12,11 +13,22 @@ class BasicCustomerForm(forms.ModelForm):
   class Meta:
     model = Customer
     fields = ('avatar',)
+    
+class DateInput(forms.DateInput):
+    input_type = 'date'
+        
+class TimeInput(forms.TimeInput):
+      input_type = 'time'
+      format = '%H:%M:%S'
 
 class JobCreateStep1Form(forms.ModelForm):
   class Meta:
     model = Job
-    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo','delivery_choice','delivery_date_time')
+    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo','delivery_choice','delivery_date_time','delivery_time')
+    widgets = {
+            'delivery_date_time': DateInput(),
+            'delivery_time': TimeInput(),
+        }
 
 class JobCreateStep2Form(forms.ModelForm):
   pickup_address = forms.CharField(required=True)
@@ -35,3 +47,4 @@ class JobCreateStep3Form(forms.ModelForm):
   class Meta:
     model = Job
     fields = ('delivery_address', 'delivery_lat', 'delivery_lng', 'delivery_name', 'delivery_phone')
+    
