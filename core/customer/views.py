@@ -17,6 +17,7 @@ from twilio.rest import Client
 import random
 import os
 from core.models import *
+from .utils import save
 
 
 
@@ -119,6 +120,7 @@ def payment_method_page(request):
 @login_required(login_url="/sign-in/?next=/customer/")
 def create_job_page(request):
     current_customer = request.user.customer
+    total = 0
 
     if not current_customer.stripe_payment_method_id:
         return redirect(reverse('customer:payment_method'))
@@ -177,7 +179,11 @@ def create_job_page(request):
                     distance = round(distance / 1000, 2) * 0.62
                     creating_job.distance = distance
                     creating_job.duration = int(duration / 60)
-                    creating_job.price = round(creating_job.distance * 1.25 + 2.99, 2) # $1 per mile and $2.99 service fee
+                    creating_job.price = round(creating_job.distance * 1.5, 2) # $1.50 per mile and $2.99 service fee
+                    print(creating_job.price)
+                    delivery_fee = creating_job.price * 0.25
+                    creating_job.price = creating_job.price + delivery_fee
+                    print(creating_job.price)
                     creating_job.save()
 
                 except Exception as e:

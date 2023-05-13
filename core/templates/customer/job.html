@@ -360,7 +360,7 @@ function calculateAndDisplayRoute(map, directionsService, directionsRenderer) {
 </div>
 
 <!-- DELIVERY INFORMATION -->
-<b class="text-secondary">DELIVERY INFORMATION</b><br />
+<b class="text-secondary">DELIVERY INFORMATION</b> {% if job.delivery_choice == 'scheduled' %}<p class="badge badge-danger mb-2"> {{ job.delivery_choice}} <br />{% endif %}</p><br />
 <div class="card bg-white mt-2 mb-5">
   <div class="card-body p-4">
 

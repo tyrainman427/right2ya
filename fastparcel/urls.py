@@ -14,6 +14,8 @@ from core.dashboard import views as dashboard_views
 from core.courier import views as courier_views, apis as courier_apis
 from allauth.account.views import ConfirmEmailView
 
+
+
 customer_urlpatterns = [
     path('', customer_views.home, name="home"),
     path('profile/', customer_views.profile_page, name="profile"),
@@ -58,11 +60,17 @@ urlpatterns = [
     path('', include('social_django.urls', namespace='social')),
     path('api/social/', include('rest_framework_social_oauth2.urls')),
     # path('accounts/', include('allauth.urls')),
-    path("accounts/", include("django.contrib.auth.urls")),
+    # path("accounts/", include("django.contrib.auth.urls")),
     path('', views.home),
    
-    path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  
-        activate, name='activate'),  
+    # path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  
+    #     activate, name='activate'),  
+    path('activate/<uidb64>/<token>/', views.activate, name='activate'),
+    path("password_reset", views.password_reset_request, name="password_reset"),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name="registration/password_reset_confirm.html"), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),  
+    
     
     path('sign-in/', auth_views.LoginView.as_view(template_name="sign_in.html")),
     path('sign-out/', auth_views.LogoutView.as_view(next_page="/")),
@@ -73,6 +81,9 @@ urlpatterns = [
     path('dashboard/', include((dashboard_urlpatterns, 'dashboard'))),
     path('firebase-messaging-sw.js', (TemplateView.as_view(template_name="firebase-messaging-sw.js", content_type="application/javascript",))),
     
+    
+    # ------------------------ APIS -------------------------
+    
     path('api/customer/restaurants/', apis.customer_get_restaurants),
     path('api/customer/meals/<int:restaurant_id>', apis.customer_get_meals),
     path('api/customer/order/add/', apis.customer_add_order),
@@ -82,8 +93,8 @@ urlpatterns = [
     path('api/customer/payment_intent/', apis.create_payment_intent),
     path('api/dashboard/order/notification/<last_request_time>/', apis.restaurant_order_notification),
     
-    path('api/jobs/available/', courier_apis.available_jobs_api, name="available_jobs_api"),
-    path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),
+    path('api/jobs/available/', courier_views.JobList.as_view(), name="all_jobs_api"),
+    # path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),
     path('api/fcm-token/update/', courier_apis.fcm_token_update_api, name="fcm_token_update_api"),
     
     path('api/driver/order/ready/', apis.driver_get_ready_orders),

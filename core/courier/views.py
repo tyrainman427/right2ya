@@ -7,9 +7,10 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
-
+from core.serializers import JobSerializer
 from core.models import *
 from core.courier import forms
+from rest_framework import generics
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def home(request):
@@ -148,3 +149,12 @@ def payout_method_page(request):
     return render(request, 'courier/payout_method.html', {
         'payout_form': payout_form
     })
+
+class JobList(generics.ListCreateAPIView):
+    queryset = Job.objects.all() #filter(status=Job.PROCESSING_STATUS)
+    serializer_class = JobSerializer
+    
+
+class JobDetailList(generics.RetrieveAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer

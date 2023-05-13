@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework_social_oauth2',
     'allauth',
     'allauth.account',
+    'rest_framework',
 
 
 ]

@@ -13,7 +13,7 @@
     });
 
     // Get available jobs via API
-    fetch("{% url 'available_jobs_api' %}")
+    fetch("{% url 'courier:available_jobs' %}")
       .then(response => response.json())
       .then(json => {
          console.log(json);
