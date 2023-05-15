@@ -2,7 +2,7 @@
 
 {% block script %}
 
-<script>
+ <script>
   $(document).ready(function() {
     var now = new Date();
     setInterval(function() {
@@ -14,12 +14,15 @@
             $('.badge').text('');
           } else {
             $('.badge').text(data['notification']);
+              setTimeout(function(){
+              window.location.reload();
+            });
           }
         }
       })
     }, 3000)
   })
-</script>
+</script> 
 
 {% endblock %}
 

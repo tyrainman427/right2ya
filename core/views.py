@@ -161,17 +161,17 @@ def activate(request, uidb64, token):
     
 from rest_framework import generics
 
-class AvailableJobsAPIView(viewsets.ModelViewSet):
-    queryset = Job.objects.all()
-    serializer_class = JobSerializer
+# class AvailableJobsAPIView(viewsets.ModelViewSet):
+#     queryset = Job.objects.all()
+#     serializer_class = JobSerializer
     
  
 
-class AvailableJobsView(APIView):
-    def get(self, request):
-        pickup_datetime = datetime.now()
-        delivery_datetime = pickup_datetime + timedelta(hours=2)
-        available_jobs = Job.objects.filter(status=Job.PROCESSING_STATUS)
-        # data = [{"id": job.id, "pickup_address": job.pickup_address, "delivery_address": job.delivery_address} for job in available_jobs]
+# class AvailableJobsView(APIView):
+#     def get(self, request):
+#         pickup_datetime = datetime.now()
+#         delivery_datetime = pickup_datetime + timedelta(hours=2)
+#         available_jobs = Job.objects.filter(status=Job.PROCESSING_STATUS)
+#         # data = [{"id": job.id, "pickup_address": job.pickup_address, "delivery_address": job.delivery_address} for job in available_jobs]
        
-        return JsonResponse({"available_jobs": available_jobs})
+#         return JsonResponse({"available_jobs": available_jobs})

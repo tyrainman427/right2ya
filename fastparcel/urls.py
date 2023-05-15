@@ -93,8 +93,8 @@ urlpatterns = [
     path('api/customer/payment_intent/', apis.create_payment_intent),
     path('api/dashboard/order/notification/<last_request_time>/', apis.restaurant_order_notification),
     
-    path('api/jobs/available/', courier_views.JobList.as_view(), name="all_jobs_api"),
-    # path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),
+    path('api/jobs/available/', courier_views.JobList.as_view(), name="jobs_api"),
+    path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),
     path('api/fcm-token/update/', courier_apis.fcm_token_update_api, name="fcm_token_update_api"),
     
     path('api/driver/order/ready/', apis.driver_get_ready_orders),

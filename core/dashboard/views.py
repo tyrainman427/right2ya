@@ -8,7 +8,7 @@ from django.db.models import Sum, Count, Case, When
 
 from core.forms import AccountForm, UserForm, MealForm, RestaurantForm
 from core.models import Meal, Order, Courier
-
+from django.contrib import messages
 
 @login_required(login_url="/sign-in/?next=/dashboard/")
 def home(request):
@@ -80,10 +80,10 @@ def dashboard_order(request):
   if request.method == "POST":
     order = Job.objects.get(id=request.POST["id"])
     print(order)
-    if order.status == Job.PROCESSING:
-       order.status = Job.READY
+    if order.status == "processing":
+       order.status = "ready"
        order.save()
-
+    
   orders = Job.objects.all().order_by("-id") #filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders

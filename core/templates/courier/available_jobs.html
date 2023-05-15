@@ -11,18 +11,23 @@
       zoom: 13,
       center: { lat: 41.7658, lng: -72.6734 },
     });
-
+  
+    console.log("Starting fetch function...")
     // Get available jobs via API
-    fetch("{% url 'courier:available_jobs' %}")
+    fetch("{% url 'jobs_api' %}")
       .then(response => response.json())
       .then(json => {
-         console.log(json);
+        //  console.log("Data:",json);
+        jobs = json
+        console.log(jobs.length);
+       
+        
 
         // Create a new viewpoint bound
         var bounds = new google.maps.LatLngBounds();
-
-        for (let i = 0; i < json.jobs.length; i++) {
-          const job = json.jobs[i];
+        
+        for (let i = 0; i < jobs.length; i++) {
+          const job = jobs[i];
           const position = { lat: job.pickup_lat, lng: job.pickup_lng };
           const marker = new google.maps.Marker({
             position,
@@ -33,7 +38,7 @@
           bounds.extend(position);
 
           new google.maps.InfoWindow({
-            content: "<small><b>" + job.name + "</b></small><br/><small>" + job.distance.toFixed(2) + " mi</small>"
+            content: "<small><b>" + job.name + "</b></small><br/><small>" + job.distance + " Km</small>"
           }).open(map, marker);
 
           // Click event for each job
@@ -45,6 +50,7 @@
           map.fitBounds(bounds);
         }
       })
+      console.log("End of fetch..")
   }
 
   function showJobDetails(job) {
@@ -55,14 +61,74 @@
     $("#pickup-address").html(job.pickup_address);
     $("#delivery-address").html(job.delivery_address);
     $("#duration").html(job.duration);
-    $("#distance").html(job.distance.toFixed(2));
-    $("#price").html(job.price);
+    $("#distance").html(job.distance);
+    $("#price").html(job.price.toFixed(2));
 
     $("#job-details").on("click", function () {
       window.location.href = "/courier/jobs/available/" + job.id + "/";
     })
-
+    console.log("Job",job)
   }
+
+// center: { lat: 41.7658, lng: -72.6734 },
+
+  // function initMap() {
+  //   const map = new google.maps.Map(document.getElementById("map"), {
+  //     zoom: 13,
+  //     center: { lat: 41.7658, lng: -72.6734 },
+  //   });
+
+  //   // Get available jobs via API
+  //   fetch("{% url 'courier:available_jobs' %}")
+  //     .then(response => response.json())
+  //     .then(json => {
+  //        console.log(json);
+
+  //       // Create a new viewpoint bound
+  //       var bounds = new google.maps.LatLngBounds();
+
+  //       for (let i = 0; i < json.jobs.length; i++) {
+  //         const job = json.jobs[i];
+  //         const position = { lat: job.pickup_lat, lng: job.pickup_lng };
+  //         const marker = new google.maps.Marker({
+  //           position,
+  //           map,
+  //         });
+
+  //         // Increase the bounds to take this point
+  //         bounds.extend(position);
+
+  //         new google.maps.InfoWindow({
+  //           content: "<small><b>" + job.name + "</b></small><br/><small>" + job.distance.toFixed(2) + " mi</small>"
+  //         }).open(map, marker);
+
+  //         // Click event for each job
+  //         marker.addListener("click", () => {
+  //           showJobDetails(job);
+  //         });
+
+  //         // Fit these bounds to the map
+  //         map.fitBounds(bounds);
+  //       }
+  //     })
+  // }
+
+  // function showJobDetails(job) {
+  //   $("#job-details").css("display", "block");
+  //   $("#job-name").html(job.name);
+
+  //   $("#job-photo").attr('src', "/media/" + job.photo);
+  //   $("#pickup-address").html(job.pickup_address);
+  //   $("#delivery-address").html(job.delivery_address);
+  //   $("#duration").html(job.duration);
+  //   $("#distance").html(job.distance.toFixed(2));
+  //   $("#price").html(job.price);
+
+  //   $("#job-details").on("click", function () {
+  //     window.location.href = "/courier/jobs/available/" + job.id + "/";
+  //   })
+
+  // }
   const messaging = firebase.messaging();
 
   messaging.onMessage((payload) => {
@@ -126,7 +192,8 @@
 
             </div>
             $<h3 id="price"></h3>
-            <input type="hidden" id="latest-job-id" value="{{ latest_job_id }}">
+            <input type="hidden" id="job-id" value="{{ job_id }}">
+
           </div>
         </div>
       </div>
@@ -148,36 +215,17 @@ function checkForNewJobs() {
   }
 }
 // Call the function to check for new jobs every 5 seconds
+// function checkForJobUpdates(job) {
+//     if (job) {
+//     setTimeout(() => {
+//     document.location.reload();
+//   }, 3000);
+//     console.log("Screen has reloaded")
+     
+//   }
+// }
+  // checkForJobUpdates()
 setInterval(checkForNewJobs, 5000);
-
-  // function checkForJobUpdates() {
-  //     const latestJobId = $('#job-id').val();
-
-  //     console.log(latestJobId)
-  //     $.ajax({
-  //         url: '/courier/jobs/available/',
-  //         data: {'job_id': latestJobId},
-  //         dataType: 'json',
-  //         success: function(data) {
-  //             if (data.has_new_job) {
-  //                 // Display a notification to the user
-  //                 alert('New job available: ' + data.latest_job_description);
-                  
-  //                 // Update the ID of the latest job checked
-  //                 $('#latest-job-id').val(data.latest_job_id);
-  //             }
-  //             else {
-  //               console.log("There is no data")
-  //             }
-  //         }
-  //     });
-  //     if (latestJobId != null) {
-  //       console.log("Screen reloaded")
-  //       location.reload
-  //     }
-      
-  // }
-  // setInterval(checkForJobUpdates, 5000);
   </script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
