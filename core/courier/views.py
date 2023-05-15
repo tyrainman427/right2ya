@@ -18,16 +18,24 @@ def home(request):
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def available_jobs_page(request):
+    print("This code is running")
+    job = Job.objects.filter(status=Job.READY_STATUS).last()
+
+    if job is None:
+        pass
+    print(job)
     return render(request, 'courier/available_jobs.html', {
-        "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY
+        "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY,
+         "job": job,
     })
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def available_job_page(request, id):
-    job = Job.objects.filter(id=id, status=Job.PROCESSING_STATUS).last()
+    job = Job.objects.filter(id=id, status=Job.READY_STATUS).last()
+    print("Job:",job)
 
     if not job:
-        return redirect(reverse('courier:available_jobs'))
+        return redirect(reverse('courier:available_job'))
 
     if request.method == 'POST':
         job.courier = request.user.courier
@@ -48,26 +56,9 @@ def available_job_page(request, id):
         return redirect(reverse('courier:available_jobs'))
 
     return render(request, 'courier/available_job.html', {
-        "job": job
+        "job": job,
+ 
     })
-
-@login_required(login_url="/sign-in/?next=/courier/")
-def check_for_job_updates(request):
-    latest_job_id = request.GET.get('job.id')
-    latest_job = Job.objects.filter(id__gt=latest_job_id, status=Job.PROCESSING_STATUS).last()
-   
-  
-    
-    if latest_job:
-        data = {
-            'has_new_job': True,
-            'latest_job_id': latest_job.id,
-            'latest_job_description': latest_job.description,
-        }
-    else:
-        data = {'has_new_job': False}
-    
-    return JsonResponse(data)
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def current_job_page(request):
@@ -151,7 +142,7 @@ def payout_method_page(request):
     })
 
 class JobList(generics.ListCreateAPIView):
-    queryset = Job.objects.all() #filter(status=Job.PROCESSING_STATUS)
+    queryset = Job.objects.filter(status=Job.READY_STATUS)
     serializer_class = JobSerializer
     
 

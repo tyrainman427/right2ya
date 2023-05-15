@@ -78,3 +78,23 @@
 </body>
 
 </html>
+
+<script>
+
+  $(document).ready(function() {
+    var now = new Date();
+    setInterval(function() {
+      $.ajax({
+        url: '/api/jobs/available/',
+        method: 'GET',
+        success: function(data) {
+          if (data['status'] == 'ready') {
+            setTimeout(function(){
+              window.location.reload();
+            });
+          }
+        }
+      })
+    }, 5000)
+  })
+</script>

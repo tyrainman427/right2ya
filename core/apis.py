@@ -2,7 +2,7 @@ from datetime import time
 import json
 
 from django.http import JsonResponse
-from .models import Order, OrderDetails, Restaurant, Meal
+from .models import *
 from .serializers import OrderCourierSerializer, OrderSerializer, RestaurantSerializer, \
   MealSerializer, OrderStatusSerializer
 
@@ -20,8 +20,8 @@ stripe.api_key = STRIPE_API_PUBLIC_KEY
 # =========
 
 def restaurant_order_notification(request, last_request_time):
-    notification = Order.objects.filter(
-      restaurant = request.user.restaurant, 
+    notification = Job.objects.filter(
+      customer = request.user.customer, 
       created_at__gt = last_request_time
     ).count()
 

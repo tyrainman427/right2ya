@@ -70,6 +70,7 @@ class Job(models.Model):
 
   CREATING_STATUS = 'creating'
   PROCESSING_STATUS = 'processing'
+  READY_STATUS = 'ready'
   PICKING_STATUS = 'picking'
   DELIVERING_STATUS = 'Delivering Order'
   COMPLETED_STATUS = 'completed'
@@ -77,6 +78,7 @@ class Job(models.Model):
   STATUSES = (
     (CREATING_STATUS, 'Creating'),
     (PROCESSING_STATUS, 'Processing'),
+    (READY_STATUS, 'ready'),
     (PICKING_STATUS, 'Picking'),
     (DELIVERING_STATUS, 'Delivering'),
     (COMPLETED_STATUS, 'Completed'),

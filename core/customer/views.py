@@ -269,6 +269,7 @@ def current_jobs_page(request):
         customer=request.user.customer,
         status__in=[
             Job.PROCESSING_STATUS,
+            Job.READY_STATUS,
             Job.PICKING_STATUS,
             Job.DELIVERING_STATUS
         ]
@@ -297,7 +298,7 @@ def archived_jobs_page(request):
 def job_page(request, job_id):
     job = Job.objects.get(id=job_id)
 
-    if request.method == "POST" and job.status == Job.PROCESSING_STATUS:
+    if request.method == "POST" and job.status == Job.READY_STATUS:
         job.status = Job.CANCELED_STATUS
         job.save()
         return redirect(reverse('customer:archived_jobs'))

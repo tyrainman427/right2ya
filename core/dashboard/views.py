@@ -8,7 +8,7 @@ from django.db.models import Sum, Count, Case, When
 
 from core.forms import AccountForm, UserForm, MealForm, RestaurantForm
 from core.models import Meal, Order, Courier
-
+from django.contrib import messages
 
 @login_required(login_url="/sign-in/?next=/dashboard/")
 def home(request):
@@ -35,9 +35,11 @@ def restaurant_account(request):
 
 @login_required(login_url='/dashboard/sign_in/')
 def restaurant_meal(request):
-  meals = Meal.objects.filter(restaurant=request.user.restaurant).order_by("-id")
+  # meals = Meal.objects.filter(restaurant=request.user.restaurant).order_by("-id")
+  jobs = Job.objects.filter(customer=request.user.customer).order_by("-id")
+  
   return render(request, 'dashboard/meal.html', {
-    "meals": meals
+    "jobs": jobs
   })
 
 @login_required(login_url='/dashboard/sign_in/')
@@ -76,12 +78,13 @@ def restaurant_edit_meal(request, meal_id):
 @login_required(login_url='/dashboard/sign_in/')
 def dashboard_order(request):
   if request.method == "POST":
-    order = Order.objects.get(id=request.POST["id"])
-    if order.status == Order.PROCESSING:
-       order.status = Order.READY
+    order = Job.objects.get(id=request.POST["id"])
+    print(order)
+    if order.status == "processing":
+       order.status = "ready"
        order.save()
-
-  orders = Order.objects.filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
+    
+  orders = Job.objects.all().order_by("-id") #filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })

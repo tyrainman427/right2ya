@@ -11,7 +11,8 @@ from core.models import *
 @csrf_exempt
 @login_required(login_url="/courier/sign-in/")
 def available_jobs_api(request):
-  jobs = list(Job.objects.filter(status=Job.PROCESSING_STATUS).values())
+  jobs = list(Job.objects.filter(status=Job.READY_STATUS).values())
+  print("Jobs:",jobs)
 
   return JsonResponse({
     "success": True,
