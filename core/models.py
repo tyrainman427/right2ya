@@ -40,6 +40,7 @@ class Courier(models.Model):
   car_make = models.CharField(max_length=255, blank=True)
   car_model = models.CharField(max_length=255, blank=True)
   plate_number = models.CharField(max_length=255, blank=True)
+  is_available = models.BooleanField(default=False)
 
   def __str__(self):
     return self.user.get_full_name()

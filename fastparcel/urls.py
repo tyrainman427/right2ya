@@ -63,6 +63,8 @@ urlpatterns = [
     # path("accounts/", include("django.contrib.auth.urls")),
     path('', views.home),
    
+    path('update-switch-state/', courier_views.update_switch_state, name='update_switch_state'),
+
     # path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  
     #     activate, name='activate'),  
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),

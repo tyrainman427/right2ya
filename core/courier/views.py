@@ -20,6 +20,7 @@ def home(request):
 def available_jobs_page(request):
     print("This code is running")
     job = Job.objects.filter(status=Job.READY_STATUS).last()
+    courier = request.user.courier
 
     if job is None:
         pass
@@ -27,6 +28,7 @@ def available_jobs_page(request):
     return render(request, 'courier/available_jobs.html', {
         "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY,
          "job": job,
+        "courier": courier,
     })
 
 @login_required(login_url="/sign-in/?next=/courier/")
@@ -114,6 +116,7 @@ def profile_page(request):
         courier=request.user.courier,
         status=Job.COMPLETED_STATUS
     )
+    courier = request.user.courier
 
     total_earnings = round(sum(job.price for job in jobs) * 0.8, 2)
     total_jobs = len(jobs)
@@ -122,7 +125,8 @@ def profile_page(request):
     return render(request, 'courier/profile.html', {
         "total_earnings": total_earnings,
         "total_jobs": total_jobs,
-        "total_km": total_km
+        "total_km": total_km,
+        "courier": courier
     })
 
 @login_required(login_url="/sign-in/?next=/courier/")
@@ -149,3 +153,20 @@ class JobList(generics.ListCreateAPIView):
 class JobDetailList(generics.RetrieveAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
+
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["GET", "POST"]) 
+@login_required
+def update_switch_state(request):
+    if request.method == 'POST':
+        is_available = request.POST.get('is_available')
+        courier = request.user.courier
+
+        # Update the switch state of the courier
+        courier.is_available = is_available
+        courier.save()
+
+        return JsonResponse({'message': 'Switch state updated successfully.'})
+
+    return JsonResponse({'message': 'Invalid request method.'}, status=400)
