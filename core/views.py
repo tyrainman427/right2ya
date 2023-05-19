@@ -13,10 +13,10 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from django.http import JsonResponse
 from datetime import datetime, timedelta
-from .models import Job
+from .models import *
 from .serializers import JobSerializer
 from django.urls import reverse
-
+from django.shortcuts import get_object_or_404
 from . import forms
 from django.conf import settings
 from django.core.mail import send_mail, BadHeaderError
@@ -159,19 +159,41 @@ def activate(request, uidb64, token):
     else:  
         return HttpResponse('Activation link is invalid!') 
     
-from rest_framework import generics
 
-# class AvailableJobsAPIView(viewsets.ModelViewSet):
-#     queryset = Job.objects.all()
-#     serializer_class = JobSerializer
+# def rate_courier(request, courier_id):
+#     if request.method == 'POST':
+#         rating_value = request.POST.get('rating')
+#         print("Rating:", type(rating_value))
+#         if rating_value is not None:
+#             review_text = request.POST.get('comment')
+            
+#             # Fetch the Courier instance from the database
+#             courier = Courier.objects.get(id=courier_id)
+
+#             rating = Rating(courier=courier, rating_value=rating_value, review_text=review_text)
+#             rating.save()
     
- 
+#     return render(request, 'customer/rate_courier.html')
 
-# class AvailableJobsView(APIView):
-#     def get(self, request):
-#         pickup_datetime = datetime.now()
-#         delivery_datetime = pickup_datetime + timedelta(hours=2)
-#         available_jobs = Job.objects.filter(status=Job.PROCESSING_STATUS)
-#         # data = [{"id": job.id, "pickup_address": job.pickup_address, "delivery_address": job.delivery_address} for job in available_jobs]
-       
-#         return JsonResponse({"available_jobs": available_jobs})
+def rate_courier(request, job_id):
+    if request.method == 'POST':
+        rating_value = request.POST.get('rating')
+        review_text = request.POST.get('comment')
+        
+        try:
+            job = Job.objects.get(id=job_id)
+        except Job.DoesNotExist:
+            # Handle the case when the job does not exist
+            pass
+        else:
+            if not job.rated and job.courier:
+                # Create a new Rating instance and save it
+                rating = Rating(courier=job.courier, rating_value=rating_value, review_text=review_text)
+                rating.save()
+                job.rated = True
+                job.status = Job.REVIEWED_STATUS
+                job.save()
+    
+    return render(request, 'customer/jobs.html')
+
+

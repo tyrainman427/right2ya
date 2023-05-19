@@ -162,6 +162,7 @@ def update_switch_state(request):
     if request.method == 'POST':
         is_available = request.POST.get('is_available')
         courier = request.user.courier
+        print("ID: ", courier.id)
 
         # Update the switch state of the courier
         courier.is_available = is_available

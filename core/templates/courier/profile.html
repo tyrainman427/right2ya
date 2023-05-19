@@ -44,6 +44,10 @@
     </div>
   </div>
   <hr />
+  <h3>Courier Details</h3>
+  <p>Average Rating: {{ courier.average_rating }}</p>
+  <p>Total Reviews: {{ courier.total_reviews }}</p>
+  <hr />
   {% if courier.is_available %}
   <div class="form-check form-switch mb-5 text-center">
     <input class="form-check-input" type="checkbox" id="map-toggle" checked>

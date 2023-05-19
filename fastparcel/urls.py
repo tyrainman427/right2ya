@@ -21,10 +21,13 @@ customer_urlpatterns = [
     path('profile/', customer_views.profile_page, name="profile"),
     path('payment_method/', customer_views.payment_method_page, name="payment_method"),
     path('create_job/', customer_views.create_job_page, name="create_job"),
+    
+    
 
     path('jobs/current/', customer_views.current_jobs_page, name="current_jobs"),
     path('jobs/archived/', customer_views.archived_jobs_page, name="archived_jobs"),
     path('jobs/<uuid:job_id>/', customer_views.job_page, name="job"),
+  
     
 ]
 
@@ -64,6 +67,7 @@ urlpatterns = [
     path('', views.home),
    
     path('update-switch-state/', courier_views.update_switch_state, name='update_switch_state'),
+    path('rate-courier/<uuid:job_id>/', views.rate_courier, name='rate_courier'),
 
     # path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',  
     #     activate, name='activate'),  
