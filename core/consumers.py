@@ -10,8 +10,6 @@ class JobConsumer(AsyncConsumer):
   async def websocket_connect(self, event):
         self.job_id = self.scope['url_route']['kwargs']['job_id']
         self.job_group_name = 'job_%s' % self.job_id
-        # self.job = models.Job.objects.get(id=self.job_id)
-        job_id = self.job_id
         
         # Join room group
         await self.channel_layer.group_add(
@@ -21,6 +19,7 @@ class JobConsumer(AsyncConsumer):
         
         await self.send({
             "type": "websocket.accept",
+            'job': self.job_id
         })
         
 

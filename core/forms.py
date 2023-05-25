@@ -9,11 +9,12 @@ class SignUpForm(UserCreationForm):
   first_name = forms.CharField(max_length=150)
   last_name = forms.CharField(max_length=150)
   phone_number = forms.CharField(max_length=11)
+  company = forms.CharField(max_length=150)
 
 
   class Meta:
     model = User
-    fields = ('email', 'first_name', 'last_name', 'password1', 'password2', 'phone_number')
+    fields = ('email','company', 'first_name', 'last_name', 'password1', 'password2', 'phone_number')
 
   def clean_email(self):
     email = self.cleaned_data['email'].lower()

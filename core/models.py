@@ -40,9 +40,30 @@ class Courier(models.Model):
   car_make = models.CharField(max_length=255, blank=True)
   car_model = models.CharField(max_length=255, blank=True)
   plate_number = models.CharField(max_length=255, blank=True)
+  is_available = models.BooleanField(default=False)
+  average_rating = models.FloatField(default=0)  # Field to store the average rating
+  total_reviews = models.IntegerField(default=0) 
+  
+  def calculate_average_rating(self):
+        if self.total_reviews > 0:
+            average = self.ratings.aggregate(models.Avg('rating_value'))['rating_value__avg']
+            self.average_rating = round(average, 2)
+        else:
+            self.average_rating = 0
+            self.save()
 
   def __str__(self):
     return self.user.get_full_name()
+  
+class Rating(models.Model):
+    courier = models.ForeignKey(Courier, on_delete=models.CASCADE, related_name='ratings')
+    rating_value = models.IntegerField(default=0)
+    review_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Rating: {self.rating_value} - Courier: {self.courier}"
+      
 
 class Category(models.Model):
   slug = models.CharField(max_length=255, unique=True)
@@ -74,6 +95,7 @@ class Job(models.Model):
   PICKING_STATUS = 'picking'
   DELIVERING_STATUS = 'Delivering Order'
   COMPLETED_STATUS = 'completed'
+  REVIEWED_STATUS = 'reviewed'
   CANCELED_STATUS = 'canceled'
   STATUSES = (
     (CREATING_STATUS, 'Creating'),
@@ -82,6 +104,7 @@ class Job(models.Model):
     (PICKING_STATUS, 'Picking'),
     (DELIVERING_STATUS, 'Delivering'),
     (COMPLETED_STATUS, 'Completed'),
+    (REVIEWED_STATUS, 'reviewed'),
     (CANCELED_STATUS, 'Canceled'),
   )
 
@@ -131,6 +154,8 @@ class Job(models.Model):
   # Pricing
   service_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
   delivery_fee = models.FloatField(default=0)
+  
+  rated = models.BooleanField(default=False)
   
   def save(self, *args, **kwargs):
     if self.delivery_choice == self.SCHEDULED_DELIVERY:

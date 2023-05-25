@@ -6,6 +6,7 @@ from firebase_admin import credentials, auth, messaging
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.http import HttpResponseRedirect
 from core.customer import forms
 from core.forms import RestaurantForm
 
@@ -286,17 +287,22 @@ def archived_jobs_page(request):
         customer=request.user.customer,
         status__in=[
             Job.COMPLETED_STATUS,
-            Job.CANCELED_STATUS
+            Job.CANCELED_STATUS,
+            Job.REVIEWED_STATUS
         ]
     )
+    
+    courier_id = [job.courier.id for job in jobs] 
 
     return render(request, 'customer/jobs.html', {
-        "jobs": jobs
+        "jobs": jobs,
+        "courier_id": courier_id
     })
 
 @login_required(login_url="/sign-in/?next=/customer/")
 def job_page(request, job_id):
     job = Job.objects.get(id=job_id)
+    
 
     if request.method == "POST" and job.status == Job.READY_STATUS:
         job.status = Job.CANCELED_STATUS
@@ -305,6 +311,21 @@ def job_page(request, job_id):
 
     return render(request, 'customer/job.html', {
         "job": job,
-        "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY
+        "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY,
+     
     })
+
+
+# def rate_courier(request, courier_id):
+#     if request.method == 'POST':
+#         rating_value = int(request.POST.get('rating'))
+#         review_text = request.POST.get('review')
+#         courier = Courier.objects.get(pk=courier_id)
+#         Rating.objects.create(courier=courier, rating_value=rating_value, review_text=review_text)
+#         courier.calculate_average_rating()
+#         return redirect('job.html', courier_id=courier_id)
     
+#     return render(request, 'job.html', {'courier_id': courier_id})
+
+
+

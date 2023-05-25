@@ -1,0 +1,20 @@
+{% extends 'customer/base.html' %}
+
+{% block main %}
+<form method="POST">
+    {% csrf_token %}
+    <label for="rating_value">Rating:</label>
+    <select name="rating_value" id="rating_value">
+        <option value="1">1 Star</option>
+        <option value="2">2 Stars</option>
+        <option value="3">3 Stars</option>
+        <option value="4">4 Stars</option>
+        <option value="5">5 Stars</option>
+    </select>
+
+    <label for="review_text">Review:</label>
+    <textarea name="review_text" id="review_text" rows="4" cols="50"></textarea>
+
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

@@ -112,7 +112,7 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
+os.getenv('EMAIL_HOST_USER')
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
