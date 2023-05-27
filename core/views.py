@@ -9,16 +9,9 @@ from django.http import HttpResponse
 from .token import account_activation_token  
 from django.contrib.auth.models import User  
 from django.core.mail import EmailMessage  
-from rest_framework.views import APIView
-from rest_framework import viewsets
-from django.http import JsonResponse
-from datetime import datetime, timedelta
 from .models import *
-from .serializers import JobSerializer
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
 from . import forms
-from django.conf import settings
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponse
 from django.contrib.auth.forms import PasswordResetForm
@@ -58,27 +51,6 @@ def password_reset_request(request):
 
 def home(request):
     return render(request, 'home.html')
-
-# def sign_up(request):
-#     form = forms.SignUpForm()
-
-#     if request.method == 'POST':
-#         form = forms.SignUpForm(request.POST)
-
-#         if form.is_valid():
-#             email = form.cleaned_data.get('email').lower()
-
-#             user = form.save(commit=False)
-#             user.username = email
-#             user.is_active = False
-#             user.save()
-
-#             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-#             return redirect('/')
-
-#     return render(request, 'sign_up.html', {
-#         'form': form
-#     })
 
 def sign_up(request):  
     if request.method == 'POST':
@@ -159,22 +131,6 @@ def activate(request, uidb64, token):
     else:  
         return HttpResponse('Activation link is invalid!') 
     
-
-# def rate_courier(request, courier_id):
-#     if request.method == 'POST':
-#         rating_value = request.POST.get('rating')
-#         print("Rating:", type(rating_value))
-#         if rating_value is not None:
-#             review_text = request.POST.get('comment')
-            
-#             # Fetch the Courier instance from the database
-#             courier = Courier.objects.get(id=courier_id)
-
-#             rating = Rating(courier=courier, rating_value=rating_value, review_text=review_text)
-#             rating.save()
-    
-#     return render(request, 'customer/rate_courier.html')
-
 def rate_courier(request, job_id):
     if request.method == 'POST':
         rating_value = request.POST.get('rating')
@@ -196,4 +152,24 @@ def rate_courier(request, job_id):
     
     return render(request, 'customer/jobs.html')
 
+# Import Redis client and other necessary libraries
+import redis
+
+# Create a Redis client
+redis_client = redis.Redis()
+
+# Define the function to update templates and publish the message
+def update_templates_and_publish(job_id, new_status):
+    # Update the job status in Redis
+    redis_client.set(f"job:{job_id}:status", new_status)
+
+    # Publish the status change message on the Redis channel
+    redis_client.publish("job_status_updates", f"{job_id}:{new_status}")
+
+# Identify the event or action that triggers the status change
+# and call the update_templates_and_publish function with the appropriate arguments
+
+
+
+    
 

@@ -60,6 +60,12 @@ class Rating(models.Model):
     rating_value = models.IntegerField(default=0)
     review_text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.courier.total_reviews = self.courier.ratings.count()
+        self.courier.average_rating = self.courier.ratings.aggregate(models.Avg('rating_value'))['rating_value__avg']
+        self.courier.save()
 
     def __str__(self):
         return f"Rating: {self.rating_value} - Courier: {self.courier}"

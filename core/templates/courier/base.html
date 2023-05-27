@@ -58,6 +58,8 @@
   <script src="https://unpkg.com/bootoast@1.0.1/dist/bootoast.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/bootoast@1.0.1/dist/bootoast.min.css">
 
+  ¸
+
   <script>
     function toast(message, type) {
       bootoast.toast({
@@ -67,13 +69,6 @@
       });
     }
 
-    {% if messages %}
-
-    {% for message in messages %}
-    toast('{{ message }}', '{{ message.tags }}');
-    {% endfor %}
-
-    {% endif %}
   </script>
 </body>
 
@@ -88,13 +83,16 @@
         url: '/api/jobs/available/',
         method: 'GET',
         success: function(data) {
-          if (data['status'] == 'ready') {
-            setTimeout(function(){
-              window.location.reload();
-            });
+          console.log(data)
+          if (data[0]['status'] == 'ready') {
+            setTimeout(function() {
+              document.location.reload();
+              console.log("Screen should be reloading")
+            }, 5000); // Set the duration to 5000 milliseconds (5 seconds)
           }
         }
-      })
-    }, 5000)
-  })
+      });
+    }, 10000);
+  });
+  
 </script>

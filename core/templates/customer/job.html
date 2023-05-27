@@ -27,28 +27,27 @@
 
 
 <script>
-  var pickupLat = parseFloat(" {{ job.pickup_lat }} ");
-  var pickupLng = parseFloat(" {{ job.pickup_lng }} ");
-  var deliveryLat = parseFloat(" {{ job.delivery_lat }} ");
-  var deliveryLng = parseFloat(" {{ job.delivery_lng }} ");
+  var pickupLat = parseFloat("{{ job.pickup_lat }}");
+  var pickupLng = parseFloat("{{ job.pickup_lng }}");
+  var deliveryLat = parseFloat("{{ job.delivery_lat }}");
+  var deliveryLng = parseFloat("{{ job.delivery_lng }}");
 
-  var courierLat = parseFloat(" {{ job.courier.lat }} ");
-  var courierLng = parseFloat(" {{ job.courier.lng }} ");
+  var courierLat = parseFloat("{{ job.courier.lat }}");
+  var courierLng = parseFloat("{{ job.courier.lng }}");
 
   function initMap() {
-  const directionsService = new google.maps.DirectionsService();
-  const directionsRenderer = new google.maps.DirectionsRenderer();
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 7,
-    center: { lat: 41.85, lng: -87.65 },
-  });
-  directionsRenderer.setMap(map);
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer();
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 7,
+      center: { lat: 41.85, lng: -87.65 },
+    });
+    directionsRenderer.setMap(map);
 
-  calculateAndDisplayRoute(map, directionsService, directionsRenderer);
-}
+    calculateAndDisplayRoute(map, directionsService, directionsRenderer);
+  }
 
-
-function calculateAndDisplayRoute(map, directionsService, directionsRenderer) {
+  function calculateAndDisplayRoute(map, directionsService, directionsRenderer) {
     directionsService.route(
       {
         origin: new google.maps.LatLng(pickupLat, pickupLng),
@@ -92,25 +91,18 @@ function calculateAndDisplayRoute(map, directionsService, directionsRenderer) {
       }
     );
   }
-    
-      
-  
-  
-
 
   const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-  const ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/{{ job.id}}/"; // Production
-  // const ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
+  const ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/{{ job.id }}/";
   const jobSocket = new WebSocket(ws_path);
 
-  // Execute this function whenever this page receives an event from Job Consumer via WebSocket
   jobSocket.onmessage = function (e) {
-    cons("Starting message")
+    console.log("Starting message");
     const data = JSON.parse(e.data);
     const job = data.job;
 
-    if (job.courier_lat && job.courier_lng) {
-      const courierPosition = new google.maps.LatLng(job.courier_lat, job.courier_lng);
+    if (job.courier.lat && job.courier.lng) {
+      const courierPosition = new google.maps.LatLng(job.courier.lat, job.courier.lng);
       window.courierMarker.setPosition(courierPosition);
     }
 
@@ -221,32 +213,33 @@ function calculateAndDisplayRoute(map, directionsService, directionsRenderer) {
 </div>
 
 <!-- RATE COURIER -->
-{% if job.status == 'completed' and not job.rated %}
-    <div class="mt-4 mb-4">
-        <h4 class="text-warning text-center">RATE COURIER</h4>
-        <form method="POST" action="{% url 'rate_courier' job_id=job.id %}">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="rating">Rating:</label>
-                <select name="rating" id="rating" class="form-control">
-                    <option value="0"> Select a Rating  ⭐</option>
-                    <option value="1">⭐ - Bad</option>
-                    <option value="2">⭐⭐ - Poor</option>
-                    <option value="3">⭐⭐⭐ - Good</option>
-                    <option value="4">⭐⭐⭐⭐ - Very Good</option>
-                    <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="comment">Comment:</label>
-                <textarea name="comment" id="comment" class="form-control"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-{% else %}
+{% if job.rated  %}
+<p>You have already rated ⭐ the courier for this job.</p>
 
-  <p>You have already rated ⭐ the courier for this job.</p>
+{% elif job.status == 'completed' %}
+
+<div class="mt-4 mb-4">
+  <h4 class="text-warning text-center">RATE COURIER</h4>
+  <form method="POST" action="{% url 'rate_courier' job_id=job.id %}">
+      {% csrf_token %}
+      <div class="form-group">
+          <label for="rating">Rating:</label>
+          <select name="rating" id="rating" class="form-control">
+              <option value="0"> Select a Rating  ⭐</option>
+              <option value="1">⭐ - Bad</option>
+              <option value="2">⭐⭐ - Poor</option>
+              <option value="3">⭐⭐⭐ - Good</option>
+              <option value="4">⭐⭐⭐⭐ - Very Good</option>
+              <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
+          </select>
+      </div>
+      <div class="form-group">
+          <label for="comment">Comment:</label>
+          <textarea name="comment" id="comment" class="form-control"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
 
 {% endif %}
 
