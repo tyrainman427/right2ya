@@ -55,7 +55,7 @@ dashboard_urlpatterns = [
     path('report/', dashboard_views.dashboard_report, name="dashboard_report"), 
     path('restaurant/account/', dashboard_views.restaurant_account, name='restaurant_account'),
     path('meal/add/', dashboard_views.restaurant_add_meal, name='restaurant_add_meal'),
-    path('meal/edit/<int:meal_id>', dashboard_views.restaurant_edit_meal, name='restaurant_edit_meal'),
+    path('meal/edit/<int:meal_id>/', dashboard_views.restaurant_edit_meal, name='restaurant_edit_meal'),
 ]
 
 urlpatterns = [

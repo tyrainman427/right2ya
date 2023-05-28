@@ -101,10 +101,11 @@
     const data = JSON.parse(e.data);
     const job = data.job;
 
-    if (job.courier.lat && job.courier.lng) {
-      const courierPosition = new google.maps.LatLng(job.courier.lat, job.courier.lng);
-      window.courierMarker.setPosition(courierPosition);
-    }
+    if (job.courier && job.courier.lat && job.courier.lng) {
+    const courierPosition = new google.maps.LatLng(job.courier.lat, job.courier.lng);
+    window.courierMarker.setPosition(courierPosition);
+  }
+
 
     if (job.status) {
       $("#job_status").html(job.status);
@@ -113,6 +114,9 @@
 
     if (job.pickup_photo) {
       $("#pickup_photo").html('<img src="' + job.pickup_photo + '" class="rounded-lg photo" width="130" height="130">');
+    }
+    if (job.delivery_photo) {
+      $("#delivery_photo").html('<img src="' + job.delivery_photo + '" class="rounded-lg photo" width="130" height="130">');
     }
   }
 
