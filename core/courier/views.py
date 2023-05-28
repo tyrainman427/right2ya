@@ -1,6 +1,5 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -11,6 +10,7 @@ from core.serializers import JobSerializer
 from core.models import *
 from core.courier import forms
 from rest_framework import generics
+from core.views import *
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def home(request):
@@ -37,12 +37,13 @@ def available_job_page(request, id):
     print("Job:",job)
 
     if not job:
-        return redirect(reverse('courier:available_job'))
+        return redirect(reverse('courier:available_jobs'))
 
     if request.method == 'POST':
         job.courier = request.user.courier
         job.status = Job.PICKING_STATUS
         job.save()
+        update_templates_and_publish(job.id,job.status)
 
         try:
             layer = get_channel_layer()
@@ -97,6 +98,7 @@ def current_job_take_photo_page(request, id):
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def job_complete_page(request):
+
     return render(request, 'courier/job_complete.html')
 
 @login_required(login_url="/sign-in/?next=/courier/")
@@ -114,11 +116,11 @@ def archived_jobs_page(request):
 def profile_page(request):
     jobs = Job.objects.filter(
         courier=request.user.courier,
-        status=Job.COMPLETED_STATUS
+        status__in=[Job.COMPLETED_STATUS, Job.REVIEWED_STATUS]
     )
     courier = request.user.courier
 
-    total_earnings = round(sum(job.price for job in jobs) * 0.8, 2)
+    total_earnings = round(sum(job.price for job in jobs) * 0.75, 2)
     total_jobs = len(jobs)
     total_km = sum(job.distance for job in jobs)
 

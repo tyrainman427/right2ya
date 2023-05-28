@@ -5,10 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models import Sum, Count, Case, When
-
+from core.views import *
 from core.forms import AccountForm, UserForm, MealForm, RestaurantForm
 from core.models import Meal, Order, Courier
 from django.contrib import messages
+from django.db.models import Q
 
 @login_required(login_url="/sign-in/?next=/dashboard/")
 def home(request):
@@ -84,7 +85,9 @@ def dashboard_order(request):
        order.status = "ready"
        order.save()
     
-  orders = Job.objects.all().order_by("-id") #filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
+    update_templates_and_publish(order.id,order.status)
+    
+  orders = Job.objects.exclude(Q(status="creating")|Q(status="reviewed")).order_by("-id") #filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })
@@ -102,18 +105,28 @@ def dashboard_report(request):
   # print(current_weekdays)
 
   for day in current_weekdays:
-    delivered_orders = Order.objects.filter(
-      status = Order.DELIVERED,
+    delivered_orders = Job.objects.filter(status=Job.REVIEWED_STATUS,
       created_at__year = day.year,
       created_at__month = day.month,
       created_at__day = day.day,
     )
+  #   delivered_orders = Job.objects.filter(
+  #     status = Job.COMPLETED_STATUS,
+  #     rated = True,
+  #     created_at__year = day.year,
+  #     created_at__month = day.month,
+  #     created_at__day = day.day,
+  #   )
+    
 
-    revenue.append(sum(order.total for order in delivered_orders))
-    orders.append(delivered_orders.count())
+  
+
+
+  revenue.append(sum(order.price for order in delivered_orders))
+  orders.append(delivered_orders.count())
 
   # Getting Top 3 Meals
-    top3_meals = Meal.objects.filter(restaurant = request.user.restaurant)\
+  top3_meals = Meal.objects.filter(restaurant = request.user.restaurant)\
     .annotate(total_order = Sum('orderdetails__quantity'))\
     .order_by("-total_order")[:3]
 

@@ -2,19 +2,17 @@
 {% load static %}
 
 {% block head %}
-
 <script
   src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&callback=initMap&libraries=places&v=weekly"
   defer></script>
 
 <script>
-  var pickupLat = parseFloat(" {{ job.pickup_lat }} ");
-  var pickupLng = parseFloat(" {{ job.pickup_lng }} ");
-  var deliveryLat = parseFloat(" {{ job.delivery_lat }} ");
-  var deliveryLng = parseFloat(" {{ job.delivery_lng }} ");
+  var pickupLat = parseFloat("{{ job.pickup_lat }}");
+  var pickupLng = parseFloat("{{ job.pickup_lng }}");
+  var deliveryLat = parseFloat("{{ job.delivery_lat }}");
+  var deliveryLng = parseFloat("{{ job.delivery_lng }}");
 
   function initMap() {
-
     if (!document.getElementById("map")) {
       return;
     }
@@ -47,21 +45,21 @@
             polylineOptions: {
               strokeColor: "#000",
               strokeWeight: 5,
-              strokeOpacity: 0.8
-            }
+              strokeOpacity: 0.8,
+            },
           });
 
           var leg = response.routes[0].legs[0];
           new google.maps.Marker({
             position: leg.start_location,
             map: map,
-            icon: "{% static 'img/start.png' %}".replace(/&amp;/g, "&")
+            icon: "{% static 'img/start.png' %}".replace(/&amp;/g, "&"),
           });
 
           new google.maps.Marker({
             position: leg.end_location,
             map: map,
-            icon: "{% static 'img/end.png' %}".replace(/&amp;/g, "&")
+            icon: "{% static 'img/end.png' %}".replace(/&amp;/g, "&"),
           });
 
           updateCourierPosition(map);
@@ -71,114 +69,71 @@
       }
     );
   }
+
   async function updateCourierPosition(map) {
-  // Create a WebSocket connection to the server
-  const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
-  const ws_path = ws_scheme + "://" + window.location.host + "/ws/jobs/{{ job.id}}/"; // Production
-  const jobSocket = new WebSocket(ws_path);
+    // Create a WebSocket connection to the server
+    const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const ws_path = ws_scheme + "://" + window.location.host + "/ws/jobs/{{ job.id }}/";
+    const jobSocket = new WebSocket(ws_path);
 
-  jobSocket.onmessage = function (e) {
-    // Parse the received message and update the courier position on the map
-    const data = JSON.parse(e.data);
-    const courierPosition = new google.maps.LatLng(data.courier_lat, data.courier_lng);
-    if (!window.courierMarker) {
-      window.courierMarker = new google.maps.Marker({
-        position: courierPosition,
-        map,
-        icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
+    jobSocket.onmessage = function (e) {
+      // Parse the received message and update the courier position on the map
+      const data = JSON.parse(e.data);
+      const courierPosition = new google.maps.LatLng(
+        data.courier_lat,
+        data.courier_lng
+      );
+      if (!window.courierMarker) {
+        window.courierMarker = new google.maps.Marker({
+          position: courierPosition,
+          map,
+          icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
+        });
+      } else {
+        window.courierMarker.setPosition(courierPosition);
+      }
+      map.panTo(courierPosition);
+    };
+
+    jobSocket.onopen = function (e) {
+      console.log("WebSocket connection opened");
+    };
+
+    jobSocket.onerror = function (e) {
+      console.log("WebSocket connection error:", e);
+    };
+
+    jobSocket.onclose = function (e) {
+      console.log("WebSocket connection closed");
+    };
+
+    // Update the courier's position on the map and send it to the server through the WebSocket
+    navigator.geolocation.watchPosition(async (pos) => {
+      const courierPosition = new google.maps.LatLng(
+        pos.coords.latitude,
+        pos.coords.longitude
+      );
+
+      if (!window.courierMarker) {
+        window.courierMarker = new google.maps.Marker({
+          position: courierPosition,
+          map,
+          icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
+        });
+      } else {
+        window.courierMarker.setPosition(courierPosition);
+      }
+
+      map.panTo(courierPosition);
+
+      // Send the courier's position to the server through the WebSocket
+      const message = JSON.stringify({
+        courier_lat: pos.coords.latitude,
+        courier_lng: pos.coords.longitude,
       });
-    } else {
-      window.courierMarker.setPosition(courierPosition);
-    }
-    map.panTo(courierPosition);
-  };
-
-  jobSocket.onopen = function (e) {
-    console.log("WebSocket connection opened");
-  };
-
-  jobSocket.onerror = function (e) {
-    console.log("WebSocket connection error:", e);
-  };
-
-  jobSocket.onclose = function (e) {
-    console.log("WebSocket connection closed");
-  };
-
-  // Update the courier's position on the map and send it to the server through the WebSocket
-  navigator.geolocation.watchPosition(async (pos) => {
-    const courierPosition = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-
-    if (!window.courierMarker) {
-      window.courierMarker = new google.maps.Marker({
-        position: courierPosition,
-        map,
-        icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
-      });
-    } else {
-      window.courierMarker.setPosition(courierPosition);
-    }
-
-    map.panTo(courierPosition);
-
-    // Send the courier's position to the server through the WebSocket
-    const message = JSON.stringify({
-      courier_lat: pos.coords.latitude,
-      courier_lng: pos.coords.longitude,
+      jobSocket.send(message);
     });
-    jobSocket.send(message);
-  });
-}
-
-  // function updateCourierPosition(map) {
-  //   var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-  // var ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/{{ job.id}}/"; // Production
-  // // var ws_path = "ws{% if request.get_host != 'localhost:8000' %}s{% endif %}://" + window.location.host + "/ws/jobs/{{ job.id }}/"
-  //  const jobSocket = new WebSocket(ws_path);
-
-  //   jobSocket.onmessage = function(e) {
-  //     console.log("message",e)
-  //   }
-  //   jobSocket.onopen = function(e) {
-  //     console.log("open",e)
-  //   }
-  //   jobSocket.onerror = function(e) {
-  //     console.log("error",e)
-  //   }
-  //   jobSocket.onclose = function(e) {
-  //     console.log("close",e)
-  //   }
-
-
-  //   navigator.geolocation.watchPosition(
-  //     pos => {
-  //       var courierPostion = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-
-  //       if (!window.courierMarker) {
-  //         window.courierMarker = new google.maps.Marker({
-  //           position: courierPostion,
-  //           map,
-  //           icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&")
-  //         });
-  //       } else {
-  //         window.courierMarker.setPosition(courierPostion);
-  //       }
-
-  //       map.panTo(courierPostion);
-        
-  //       try {
-  //         jobSocket.send(JSON.stringify({    
-  //          job: {
-  //             courier_lat: pos.coords.latitude,
-  //             courier_lng: pos.coords.longitude,
-  //          }
-  //         }))
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     },
-  //     pos => console.log(pos))
-  // }
+  }
 </script>
 
 <style>
@@ -201,16 +156,11 @@
 {% block content %}
 
 <div class="d-flex flex-column h-100" style="padding-bottom: 60px">
-
   <div class="text-center">
-    <div class="btn-group mt-1 mb-1 align-item-center" role="group">
-      <a href="{% url 'courier:current_job' %}" class="btn btn-warning">Current Job</a>
-      <a href="{% url 'courier:archived_jobs' %}" class="btn btn-outline-warning">Archived Jobs</a>
-    </div>
+    <h4 class="mt-1 mb-1">{{ job.scheduled_date }}</h4>
   </div>
 
   {% if job %}
-
   <div id="map"></div>
 
   <div class="card">
@@ -221,7 +171,6 @@
           <b>{{ job.name }}</b>
           <div class="d-flex">
             <div class="flex-grow-1 mr-2">
-
               <small class="text-success">
                 <i class="fas fa-car"></i> <span>{{ job.distance | floatformat:2 }}</span> mi
                 <i class="far fa-clock ml-2"></i> <span>{{ job.duration }}</span> mins
@@ -229,24 +178,26 @@
 
               <div class="d-flex align-items-center mt-2">
                 <i class="fas fa-map-marker-alt"></i>
-                <a href="http://maps.google.com/?q={{ job.pickup_address }}" target=”_blank” > <small class="text-secondary ml-2">{{ job.pickup_address }}</small>  </a>
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-map" viewBox="0 0 16 16">
+                <a href="http://maps.google.com/?q={{ job.pickup_address }}" target="_blank">
+                  <small class="text-secondary ml-2">{{ job.pickup_address }}</small>
+                </a>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-map" viewBox="0 0 16 16">
                   <path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z"/>
                 </svg>
-             
               </div>
 
               <div class="d-flex align-items-center mt-2">
                 <i class="fas fa-flag-checkered"></i>
-                <a href="http://maps.google.com/?q={{ job.delivery_address }}"><small class="text-secondary ml-2">{{ job.delivery_address }}</small></a>
+                <a href="http://maps.google.com/?q={{ job.delivery_address }}" target="_blank">
+                  <small class="text-secondary ml-2">{{ job.delivery_address }}</small>
+                </a>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-map" viewBox="0 0 16 16">
                   <path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z"/>
                 </svg>
               </div>
 
             </div>
-            $<h3>{{ job.price | floatformat:2 }}</h3>
-
+            <h3>${{ job.price | floatformat:2 }}</h3>
           </div>
         </div>
       </div>

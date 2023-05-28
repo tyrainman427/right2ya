@@ -38,7 +38,7 @@
           bounds.extend(position);
 
           new google.maps.InfoWindow({
-            content: "<small><b>" + job.name + "</b></small><br/><small>" + job.distance + " Km</small>"
+            content: "<small><b>" + job.name + "</b></small><br/><small>" + job.distance.toFixed(2) + " Mi</small>"
           }).open(map, marker);
 
           // Click event for each job
@@ -56,12 +56,12 @@
   function showJobDetails(job) {
     $("#job-details").css("display", "block");
     $("#job-name").html(job.name);
-
+    $("#job_id").html(job.id);
     $("#job-photo").attr('src', "/media/" + job.photo);
     $("#pickup-address").html(job.pickup_address);
     $("#delivery-address").html(job.delivery_address);
     $("#duration").html(job.duration);
-    $("#distance").html(job.distance);
+    $("#distance").html(job.distance.toFixed(2));
     $("#price").html(job.price.toFixed(2));
 
     $("#job-details").on("click", function () {
@@ -140,7 +140,7 @@
 
             </div>
             $<h3 id="price"></h3>
-            <input type="hidden" id="job-id" value="{{ job_id }}">
+            <input type="hidden" id="job-id" value="{{ job.id }}">
 
           </div>
         </div>
@@ -151,30 +151,6 @@
 
 {% include 'courier/bottom_tabs.html' %}
 
-<script>
-  // Define a function to check for new jobs
-function checkForNewJobs() {
-  const job = '{{ job_id }}'
-  if (job) {
-    setTimeout(() => {
-    document.location.reload();
-  }, 3000);
-    console.log("Screen has reloaded")
-  }
-}
-// Call the function to check for new jobs every 5 seconds
-// function checkForJobUpdates(job) {
-//     if (job) {
-//     setTimeout(() => {
-//     document.location.reload();
-//   }, 3000);
-//     console.log("Screen has reloaded")
-     
-//   }
-// }
-  // checkForJobUpdates()
-setInterval(checkForNewJobs, 5000);
-  </script>
 
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
