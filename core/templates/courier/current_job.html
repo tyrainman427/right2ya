@@ -180,6 +180,10 @@
 <div class="d-flex flex-column h-100" style="padding-bottom: 60px">
   <div class="text-center">
     <h4 class="mt-1 mb-1">{{ job.scheduled_date }}</h4>
+    <div class="btn-group mt-1 mb-1 align-item-center" role="group">
+      <a href="{% url 'courier:current_job' %}" class="btn btn-warning">Current Job</a>
+      <a href="{% url 'courier:archived_jobs' %}" class="btn btn-outline-warning">Archived Jobs</a>
+    </div>
   </div>
 
   {% if job %}
@@ -233,7 +237,7 @@
   {% else %}
 
   <div id="main" class="text-center">
-    <p>You have no job now. Let's pick a new one.</p>
+    <p>There is no current job please go to the Available Jobs tab to accept jobs.</p>
   </div>
 
   {% endif %}
