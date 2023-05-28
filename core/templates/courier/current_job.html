@@ -12,6 +12,12 @@
   var deliveryLat = parseFloat("{{ job.delivery_lat }}");
   var deliveryLng = parseFloat("{{ job.delivery_lng }}");
 
+  // Log the values to the console for debugging
+  // console.log('pickupLat:', pickupLat);
+  // console.log('pickupLng:', pickupLng);
+  // console.log('deliveryLat:', deliveryLat);
+  // console.log('deliveryLng:', deliveryLng);
+
   function initMap() {
     if (!document.getElementById("map")) {
       return;
@@ -77,23 +83,39 @@
     const jobSocket = new WebSocket(ws_path);
 
     jobSocket.onmessage = function (e) {
-      // Parse the received message and update the courier position on the map
-      const data = JSON.parse(e.data);
-      const courierPosition = new google.maps.LatLng(
-        data.courier_lat,
-        data.courier_lng
-      );
-      if (!window.courierMarker) {
-        window.courierMarker = new google.maps.Marker({
-          position: courierPosition,
-          map,
-          icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
-        });
-      } else {
-        window.courierMarker.setPosition(courierPosition);
-      }
-      map.panTo(courierPosition);
-    };
+      console.log("Received message:", e.data);
+  
+  // Parse the received message and update the courier position on the map
+  const data = JSON.parse(e.data);
+  console.log("Received data:", data); // Debugging statement
+
+  // Check if data.courier_lat and data.courier_lng are valid numbers
+  if (
+    typeof data.courier_lat === "number" &&
+    typeof data.courier_lng === "number" &&
+    !isNaN(data.courier_lat) &&
+    !isNaN(data.courier_lng)
+  ) {
+    const courierPosition = new google.maps.LatLng(
+      data.courier_lat,
+      data.courier_lng
+    );
+
+    if (!window.courierMarker) {
+      window.courierMarker = new google.maps.Marker({
+        position: courierPosition,
+        map,
+        icon: "{% static 'img/courier.png' %}".replace(/&amp;/g, "&"),
+      });
+    } else {
+      window.courierMarker.setPosition(courierPosition);
+    }
+
+    map.panTo(courierPosition);
+  } else {
+    console.error("Invalid courier coordinates"); // Debugging statement
+  }
+};
 
     jobSocket.onopen = function (e) {
       console.log("WebSocket connection opened");

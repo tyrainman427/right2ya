@@ -24,17 +24,22 @@ class JobConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+
     async def receive(self, text_data):
+        print("I can see this")
         text_data_json = json.loads(text_data)
-        job = text_data_json.get('job')
+        courier_lat = text_data_json.get('courier_lat')
+        courier_lng = text_data_json.get('courier_lng')
 
-        if job and 'courier_lat' in job and 'courier_lng' in job:
-            lat = job['courier_lat']
-            lng = job['courier_lng']
+        if courier_lat is not None and courier_lng is not None:
+            try:
+                # Create the job object with the courier coordinates
+                job = {
+                    'courier_lat': courier_lat,
+                    'courier_lng': courier_lng
+                }
 
-            if self.validate_coordinates(lat, lng):
-                await self.save_courier_location(lat, lng)
-                # Send message to job group
+                # Trigger the WebSocket message with the updated courier position
                 await self.channel_layer.group_send(
                     self.job_group_name,
                     {
@@ -42,16 +47,17 @@ class JobConsumer(AsyncWebsocketConsumer):
                         'job': job,
                     }
                 )
-            else:
+            except Exception as e:
                 error_message = {
-                    'error': 'Invalid courier coordinates',
+                    'error': str(e),
                 }
                 await self.send(text_data=json.dumps(error_message))
         else:
             error_message = {
-                'error': 'Invalid job data',
+                'error': 'Invalid courier coordinates',
             }
             await self.send(text_data=json.dumps(error_message))
+
 
     async def job_update(self, event):
         # Send message to WebSocket
