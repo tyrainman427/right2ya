@@ -10,6 +10,8 @@ from core.forms import AccountForm, UserForm, MealForm, RestaurantForm
 from core.models import Meal, Order, Courier
 from django.contrib import messages
 from django.db.models import Q
+from datetime import datetime, timedelta
+from django.http import HttpResponseRedirect
 
 @login_required(login_url="/sign-in/?next=/dashboard/")
 def home(request):
@@ -36,11 +38,12 @@ def restaurant_account(request):
 
 @login_required(login_url='/dashboard/sign_in/')
 def restaurant_meal(request):
-  # meals = Meal.objects.filter(restaurant=request.user.restaurant).order_by("-id")
+  meals = Meal.objects.filter(restaurant=request.user.restaurant).order_by("-id")
   jobs = Job.objects.filter(customer=request.user.customer).order_by("-id")
   
   return render(request, 'dashboard/meal.html', {
-    "jobs": jobs
+    "jobs": jobs,
+    "meals":meals,
   })
 
 @login_required(login_url='/dashboard/sign_in/')
@@ -69,7 +72,7 @@ def restaurant_edit_meal(request, meal_id):
 
     if meal_form.is_valid():
       meal_form.save()
-      return redirect(restaurant_meal)
+      return HttpResponseRedirect(reverse('dashboard:restaurant_meal'))
 
   meal_form = MealForm(instance=Meal.objects.get(id=meal_id))
   return render(request, 'dashboard/edit_meal.html', {
@@ -94,65 +97,54 @@ def dashboard_order(request):
 
 @login_required(login_url='/dashboard/sign_in/')
 def dashboard_report(request):
-  from datetime import datetime, timedelta
+    # Calculate the weekdays
+    revenue = []
+    orders = []
+    today = datetime.now()
+    current_weekdays = [today + timedelta(days=i) for i in range(0 - today.weekday(), 6 - today.weekday())]
 
-  # Calculate the weekdays
-  revenue = []
-  orders = []
-  today = datetime.now()
-  current_weekdays = [today + timedelta(days = i) for i in range(0 - today.weekday(), 6 - today.weekday())]
+    for day in current_weekdays:
+        delivered_orders = Job.objects.filter(
+            status__in=[Job.COMPLETED_STATUS, Job.REVIEWED_STATUS],
+            created_at__year=day.year,
+            created_at__month=day.month,
+            created_at__day=day.day,
+        )
 
-  # print(current_weekdays)
+        revenue.append(sum(order.price for order in delivered_orders))
+        orders.append(delivered_orders.count())
 
-  for day in current_weekdays:
-    delivered_orders = Job.objects.filter(status=Job.REVIEWED_STATUS,
-      created_at__year = day.year,
-      created_at__month = day.month,
-      created_at__day = day.day,
-    )
-  #   delivered_orders = Job.objects.filter(
-  #     status = Job.COMPLETED_STATUS,
-  #     rated = True,
-  #     created_at__year = day.year,
-  #     created_at__month = day.month,
-  #     created_at__day = day.day,
-  #   )
-    
+    total_revenue = sum(revenue)  # Calculate the total revenue
+    print("Revenue:", total_revenue)
 
-  
+    # Getting Top 3 Services
+    top3_meals = Meal.objects.filter(restaurant=request.user.restaurant) \
+        .annotate(total_order=Sum('orderdetails__quantity')) \
+        .order_by("-total_order")[:3]
 
+    meal = {
+        "labels": [meal.name for meal in top3_meals],
+        "data": [meal.total_order or 0 for meal in top3_meals]
+    }
 
-  revenue.append(sum(order.price for order in delivered_orders))
-  orders.append(delivered_orders.count())
+    # Getting Top 3 Drivers
+    top3_drivers = Customer.objects.annotate(
+        total_order=Count(
+            Case(
+                When(order__customer=request.user.customer, then=1)
+            )
+        )
+    ).order_by("-total_order")[:3]
 
-  # Getting Top 3 Meals
-  top3_meals = Meal.objects.filter(restaurant = request.user.restaurant)\
-    .annotate(total_order = Sum('orderdetails__quantity'))\
-    .order_by("-total_order")[:3]
+    driver = {
+        "labels": [d.user.get_full_name() for d in top3_drivers],
+        "data": [d.total_order for d in top3_drivers]
+    }
 
-  meal = {
-    "labels": [meal.name for meal in top3_meals],
-    "data": [meal.total_order or 0 for meal in top3_meals]
-  }
-
-  # Getting Top 3 Drivers
-  top3_drivers = Courier.objects.annotate(
-    total_order = Count(
-      Case (
-        When(order__restaurant = request.user.restaurant, then = 1)
-      )
-    )
-  ).order_by("-total_order")[:3]
-
-  driver = {
-    "labels": [d.user.get_full_name() for d in top3_drivers],
-    "data": [d.total_order for d in top3_drivers]
-  }
-
-  return render(request, 'dashboard/report.html', {
-    "revenue": revenue,
-    "orders": orders,
-    "meal": meal,
-    "driver": driver,
-  })
-
+    return render(request, 'dashboard/report.html', {
+        "revenue": revenue,
+        "total_revenue": total_revenue,  # Pass the total_revenue to the template
+        "orders": orders,
+        "meal": meal,
+        "driver": driver,
+    })
