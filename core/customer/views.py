@@ -3,7 +3,7 @@ import stripe
 import firebase_admin
 from firebase_admin import credentials, auth, messaging
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.http import HttpResponseRedirect
@@ -19,6 +19,7 @@ import random
 import os
 from core.models import *
 from .utils import save
+import psycopg2
 
 
 
@@ -26,6 +27,7 @@ stripe.api_key = settings.STRIPE_API_SECRET_KEY
 
 @login_required()
 def home(request):
+      
     return redirect(reverse('customer:profile'))
 
 @login_required(login_url="/sign-in/?next=/customer/")
@@ -121,16 +123,14 @@ def payment_method_page(request):
 @login_required(login_url="/sign-in/?next=/customer/")
 def create_job_page(request):
     current_customer = request.user.customer
-    total = 0
 
     if not current_customer.stripe_payment_method_id:
         return redirect(reverse('customer:payment_method'))
 
     has_current_job = Job.objects.filter(
-        customer = current_customer,
-        status__in = [
-            # Job.CREATING_STATUS,
-            Job.PROCESSING_STATUS,
+        customer=current_customer,
+        status__in=[
+            Job.READY_STATUS,
             Job.PICKING_STATUS,
             Job.DELIVERING_STATUS
         ]
@@ -153,7 +153,7 @@ def create_job_page(request):
                 creating_job.customer = current_customer
                 creating_job.save()
                 return redirect(reverse('customer:create_job'))
-                
+
         elif request.POST.get('step') == '2':
             step2_form = forms.JobCreateStep2Form(request.POST, instance=creating_job)
             if step2_form.is_valid():
@@ -164,7 +164,7 @@ def create_job_page(request):
             step3_form = forms.JobCreateStep3Form(request.POST, instance=creating_job)
             if step3_form.is_valid():
                 creating_job = step3_form.save()
-                
+
                 try:
                     r = requests.get("https://maps.googleapis.com/maps/api/distancematrix/json?&origins={}&destinations={}&mode=driving&best_guess&departure_time=now&region=us&units=imperial&key={}".format(
                         creating_job.pickup_address,
@@ -173,18 +173,13 @@ def create_job_page(request):
                     ))
 
                     print(r.json()['rows'])
-                    
 
                     distance = r.json()['rows'][0]['elements'][0]['distance']['value']
                     duration = r.json()['rows'][0]['elements'][0]['duration']['value']
                     distance = round(distance / 1000, 2) * 0.62
                     creating_job.distance = distance
                     creating_job.duration = int(duration / 60)
-                    creating_job.price = round(creating_job.distance * 1.5, 2) # $1.50 per mile and $2.99 service fee
-                    print(creating_job.price)
-                    delivery_fee = creating_job.price * 0.25
-                    creating_job.price = creating_job.price + delivery_fee
-                    print(creating_job.price)
+                    creating_job.price = round(creating_job.distance * 1.5, 2)  # $1.50 per mile
                     creating_job.save()
 
                 except Exception as e:
@@ -214,36 +209,16 @@ def create_job_page(request):
                     creating_job.status = Job.PROCESSING_STATUS
                     creating_job.save()
 
-                    # Send Push Notification to all Couriers
-                    # couriers = Courier.objects.all()
-                    # registration_tokens = [i.fcm_token for i in couriers if i.fcm_token]
-
-                    # message = messaging.MulticastMessage(
-                    #     notification = messaging.Notification(
-                    #         title = creating_job.name,
-                    #         body = creating_job.description,
-                    #     ),
-                    #     webpush = messaging.WebpushConfig(
-                    #         notification = messaging.WebpushNotification(
-                    #             icon = creating_job.photo.url,
-                    #         ),
-                    #         fcm_options = messaging.WebpushFCMOptions(
-                    #             link = settings.NOTIFICATION_URL + reverse('courier:available_jobs'),
-                    #         ),
-                    #     ),
-                    #     tokens = registration_tokens 
-                    # )
-                    # response = messaging.send_multicast(message)
-                    # print('{0} messages were sent successfully'.format(response.success_count))
 
                     return redirect(reverse('customer:home'))
 
-                except stripe.error.CardError as e:
-                    err = e.error
-                    # Error code will be authentication_required if authentication is needed
-                    print("Code is: %s" % err.code)
-                    payment_intent_id = err.payment_intent['id']
-                    payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+                except Meal.DoesNotExist:
+                    messages.error(request, "Invalid meal selected.")
+                    return redirect(reverse('customer:create_job'))
+
+            else:
+                messages.error(request, "No meal selected.")
+                return redirect(reverse('customer:create_job'))
 
     # Determine the current step
     if not creating_job:
@@ -316,16 +291,88 @@ def job_page(request, job_id):
     })
 
 
-# def rate_courier(request, courier_id):
-#     if request.method == 'POST':
-#         rating_value = int(request.POST.get('rating'))
-#         review_text = request.POST.get('review')
-#         courier = Courier.objects.get(pk=courier_id)
-#         Rating.objects.create(courier=courier, rating_value=rating_value, review_text=review_text)
-#         courier.calculate_average_rating()
-#         return redirect('job.html', courier_id=courier_id)
+@login_required
+def select_job(request):
+    if request.method == 'POST':
+        delivery_choice = request.POST.get('delivery_choice')
+        
+        if delivery_choice == Job.SAME_DAY_DELIVERY:
+            return redirect('create_job')
+        elif delivery_choice == Job.SCHEDULED_DELIVERY:
+            return redirect('schedule_jobs')
     
-#     return render(request, 'job.html', {'courier_id': courier_id})
+    return render(request, 'customer/select_job.html')
 
+
+def select_service_type(request):
+    if request.method == 'POST':
+        service_type = request.POST.get('service_type')
+        if service_type == 'standard':
+            # Redirect to the standard service page
+            return redirect('customer:create_job')
+        elif service_type == 'scheduled':
+            # Redirect to the scheduled service page
+            return redirect('scheduler:create_job')
+        elif service_type == 'services':
+            # Redirect to the service menu
+            return redirect('customer:choose_meal')
+
+    # If the request method is not POST or the service type is not provided,
+    # render the select service type template again
+    return render(request, 'customer/select_job.html')
+
+
+from .forms import ScheduledJobForm
+
+def create_scheduled_job(request):
+    if request.method == 'POST':
+        form = ScheduledJobForm(request.POST)
+        if form.is_valid():
+            form.instance.customer = request.user.customer  # Set the customer for the job
+            form.save()
+            return redirect('customer:home')  # Replace 'customer_home' with your actual home URL name
+    else:
+        form = ScheduledJobForm()
+
+    return render(request, 'customer/scheduled_service.html', {'form': form})
+
+
+from django.shortcuts import get_object_or_404
+
+def choose_meal(request):
+    if request.method == 'POST':
+        meal_id = request.POST.get('meal_id')
+        hours = request.POST.get('hours')
+
+        # Retrieve the current customer
+        current_customer = request.user.customer
+
+        # Retrieve the selected meal
+        meal = get_object_or_404(Meal, id=meal_id)
+
+        # Calculate the total price based on the meal price and quantity
+        meal_price = meal.price
+        quantity = int(hours)
+        total_price = meal_price * quantity
+
+        # Create a new Job instance and set the meal, customer, and other fields
+        job = Job()
+        job.customer = current_customer
+        job.service_type = 'standard'  # Set the service type accordingly
+        job.quantity = quantity
+        job.price = total_price
+        # Set other job fields accordingly
+
+        # Save the job instance
+        job.save()
+
+        # Redirect to the appropriate page with the price from the selected meal
+        return redirect('customer:create', price=total_price)
+
+    meals = Meal.objects.all()
+    context = {
+        'meals': meals,
+    }
+    return render(request, 'customer/services.html', context)
 
 

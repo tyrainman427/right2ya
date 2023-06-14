@@ -1,0 +1,41 @@
+{% extends 'customer/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h1>Choose a Meal</h1>
+
+  <form method="POST" action="{% url 'customer:create_job' %}">
+    {% csrf_token %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Hours</th>
+          <th>Select</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for meal in meals %}
+        <tr>
+          <td><img src="{{ meal.image.url }}" alt="Meal Image" style="max-width: 150px;"></td>
+          <td>{{ meal.name }}</td>
+          <td>{{ meal.short_description }}</td>
+          <td>${{ meal.price }}</td>
+          <td>
+            <input type="number" class="form-control" name="hours" value="1">
+          </td>
+          <td>
+            <input type="hidden" name="meal_id" value="{{ meal.id }}">
+            <button type="submit" class="btn btn-primary">Select</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </form>
+</div>
+
+{% endblock %}

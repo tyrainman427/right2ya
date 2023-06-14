@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from datetime import datetime, timedelta
 
 # Create your models here.
 class Restaurant(models.Model):
@@ -14,6 +15,14 @@ class Restaurant(models.Model):
 
   def __str__(self):
     return self.name
+  
+class Meal(models.Model):
+  restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='restaurant')
+  name = models.CharField(max_length=255)
+  short_description = models.TextField(max_length=500)
+  image = models.ImageField(upload_to='service_images',blank=True,null=True)
+  price = models.IntegerField(default=0)
+
 
 class Customer(models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer',)
@@ -23,6 +32,7 @@ class Customer(models.Model):
   stripe_customer_id = models.CharField(max_length=255, blank=True)
   stripe_payment_method_id = models.CharField(max_length=255, blank=True)
   stripe_card_last4 = models.CharField(max_length=255, blank=True)
+  is_customer = models.BooleanField(default=True)
 
 
   def __str__(self):
@@ -41,6 +51,7 @@ class Courier(models.Model):
   car_model = models.CharField(max_length=255, blank=True)
   plate_number = models.CharField(max_length=255, blank=True)
   is_available = models.BooleanField(default=False)
+  is_courier = models.BooleanField(default=True)
   average_rating = models.FloatField(default=0)  # Field to store the average rating
   total_reviews = models.IntegerField(default=0) 
   
@@ -89,10 +100,12 @@ class Job(models.Model):
   )
   SAME_DAY_DELIVERY = 'same_day'
   SCHEDULED_DELIVERY = 'scheduled'
-
-  DELIVERY_CHOICES = (
-        (SAME_DAY_DELIVERY, 'Same day delivery'),
-        (SCHEDULED_DELIVERY, 'Scheduled delivery'),
+  SERVICE_DELIVERY = 'services'
+  
+  SERVICE_DELIVERY = (
+        ('standard', 'Standard Delivery'),
+        ('scheduled', 'Scheduled Delivery'),
+        ('services', 'Services'),
     )
 
   CREATING_STATUS = 'creating'
@@ -117,13 +130,14 @@ class Job(models.Model):
   # Step 1
   id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
   customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+  meal = models.ForeignKey(Meal, on_delete=models.CASCADE, null=True, blank=True)
   courier = models.ForeignKey(Courier, on_delete=models.CASCADE, null=True, blank=True)
   name = models.CharField(max_length=255)
   description = models.CharField(max_length=255)
   category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
   size = models.CharField(max_length=20, choices=SIZES, default=MEDIUM_SIZE)
   quantity = models.IntegerField(default=1)
-  photo = models.ImageField(upload_to='job/photos/')
+  photo = models.ImageField(upload_to='job/photos/',null=True,blank=True)
   status = models.CharField(max_length=20, choices=STATUSES, default=CREATING_STATUS)
   created_at = models.DateTimeField(default=timezone.now)
 
@@ -155,30 +169,52 @@ class Job(models.Model):
   
   delivery_date_time = models.DateField(blank=True, null=True)
   delivery_time = models.TimeField(blank=True, null=True)
-  delivery_choice = models.CharField(max_length=20, choices=DELIVERY_CHOICES, default=SAME_DAY_DELIVERY)
+
 
   # Pricing
   service_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
   delivery_fee = models.FloatField(default=0)
-  
+  service_type = models.CharField(choices=SERVICE_DELIVERY, default='standard', max_length=20)
+  meal_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
   rated = models.BooleanField(default=False)
   
-  def save(self, *args, **kwargs):
-    if self.delivery_choice == self.SCHEDULED_DELIVERY:
-        self.service_fee = 60.00
-        self.delivery_fee = 0.25 * self.service_fee
-        self.price = self.service_fee + self.delivery_fee
-    else:
-        print('save() is called.')
-        self.service_fee = self.price - (self.price*0.25)
-        self.delivery_fee = 0.25 * self.price
 
-    
+  def save(self, *args, **kwargs):
+    if self.delivery_date_time and self.delivery_time:
+        pickup_datetime = datetime.combine(self.delivery_date_time, self.delivery_time)
+        pickup_datetime = timezone.make_aware(pickup_datetime, timezone.get_current_timezone())  # Convert to offset-aware datetime
+
+        current_datetime = timezone.now()
+
+        # Display the job on the map one hour before the pickup time
+        if pickup_datetime - current_datetime <= timedelta(hours=1):
+            self.status = self.READY_STATUS
+            self.calculate_price()  # Recalculate price for display
+
+    else:
+        self.status = self.CREATING_STATUS
+        self.calculate_price()  # Calculate price for non-scheduled delivery
+
     super().save(*args, **kwargs)
 
 
+  def calculate_price(self):
+        # Pricing logic for scheduled delivery
+        if self.delivery_date_time and self.delivery_time:
+            self.service_fee = self.price
+            self.delivery_fee = 0.25 * self.service_fee
+        # Pricing logic for services with a selected meal
+        elif self.service_type == 'services' and self.meal is not None:
+            self.service_fee = self.meal.price
+            self.price = self.service_fee
+            self.delivery_fee = 0.25 * self.service_fee
+        # Pricing logic for same day delivery
+        else:
+            self.service_fee = self.price - (self.price * 0.25)
+            self.delivery_fee = 0.25 * self.price
+
   def __str__(self):
-      return f"{self.name} - {self.delivery_choice}"
+      return f"{self.name}"
 
 class Transaction(models.Model):
   IN_STATUS = "in"
@@ -207,12 +243,6 @@ class Dashboard(models.Model):
     return self.jobs.name
       
 
-class Meal(models.Model):
-  restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='restaurant')
-  name = models.CharField(max_length=255)
-  short_description = models.TextField(max_length=500)
-  image = models.ImageField(upload_to='service_images',blank=True,null=True)
-  price = models.IntegerField(default=0)
 
   def __str__(self):
     return self.name    

@@ -21,9 +21,10 @@ customer_urlpatterns = [
     path('profile/', customer_views.profile_page, name="profile"),
     path('payment_method/', customer_views.payment_method_page, name="payment_method"),
     path('create_job/', customer_views.create_job_page, name="create_job"),
-    
-    
-
+    path('select_job/', customer_views.select_job, name="select_job"),
+    path('select-service-type/', customer_views.select_service_type, name='select_service_type'),
+    path('scheduled_service/', customer_views.create_scheduled_job, name='scheduled_service'),
+    path('choose-meal/', customer_views.choose_meal, name='choose_meal'),
     path('jobs/current/', customer_views.current_jobs_page, name="current_jobs"),
     path('jobs/archived/', customer_views.archived_jobs_page, name="archived_jobs"),
     path('jobs/<uuid:job_id>/', customer_views.job_page, name="job"),
@@ -38,6 +39,9 @@ websocket_urlpatterns = [
 
 courier_urlpatterns = [
     path('', courier_views.home, name="home"),
+    path('welcome/', courier_views.onboarding_welcome, name="onboarding_welcome"),
+    path('onboarding_steps/', courier_views.onboarding_steps, name="onboarding_steps"),
+    path('onboarding_safety/', courier_views.onboarding_safety, name="onboarding_safety"),
     path('jobs/available/', courier_views.available_jobs_page, name="available_jobs"),
     path('jobs/available/<id>/', courier_views.available_job_page, name="available_job"),
     path('jobs/current/', courier_views.current_job_page, name="current_job"),
@@ -61,6 +65,7 @@ dashboard_urlpatterns = [
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('social_django.urls', namespace='social')),
+    path('scheduler/', include('scheduler.urls')),
     path('api/social/', include('rest_framework_social_oauth2.urls')),
     # path('accounts/', include('allauth.urls')),
     # path("accounts/", include("django.contrib.auth.urls")),

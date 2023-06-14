@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from core.models import Restaurant, Meal
 
+
 class SignUpForm(UserCreationForm):
   email = forms.EmailField(max_length=250)
   first_name = forms.CharField(max_length=150)

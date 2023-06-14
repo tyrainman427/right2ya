@@ -1,0 +1,26 @@
+{% extends 'customer/base.html' %}
+
+{% block head %}
+
+<title>Driving Onboarding - Steps</title>
+
+{% endblock%}
+
+{% block content %}
+
+<div class="container">
+    <h1 class="mt-5">Onboarding Steps - Accepting Jobs</h1>
+    <h2>Step 1: Accepting Jobs</h2>
+    <p>In this step, you will learn how to accept delivery jobs:</p>
+    <ol>
+        <li>Open the app and log in to your driver account.</li>
+        <li>Check the available jobs in your area.</li>
+        <li>Review the job details, including pickup and drop-off locations.</li>
+        <li>Accept the job if you are available and willing to complete it.</li>
+        <li>Follow the provided directions to the pickup location.</li>
+        <li>Complete the delivery and mark the job as finished in the app.</li>
+    </ol>
+    <a class="btn btn-primary" href="{% url 'courier:onboarding_safety' %}">Next</a>
+</div>
+
+{% endblock %}

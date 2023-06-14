@@ -1,19 +1,13 @@
 from django import forms
-from django.forms import ModelForm
-from django.contrib.auth.models import User
+from .models import ScheduledJob
+from core.models import Job
 
-from core.models import *
+class ScheduledJobForm(forms.ModelForm):
+    class Meta:
+        model = ScheduledJob
+        fields = ['pickup_address', 'delivery_address', 'scheduled_datetime']
 
-class BasicUserForm(forms.ModelForm):
-  class Meta:
-    model = User
-    fields = ('first_name', 'last_name')
-
-class BasicCustomerForm(forms.ModelForm):
-  class Meta:
-    model = Customer
-    fields = ('avatar',)
-    
+    # Add any additional form fields or customization as needed
 class DateInput(forms.DateInput):
     input_type = 'date'
         
@@ -23,20 +17,20 @@ class TimeInput(forms.TimeInput):
 
 class JobCreateStep1Form(forms.ModelForm):
   class Meta:
-    model = Job
-    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo')
+    model = ScheduledJob
+    fields = ('name', 'description', 'category','quantity', 'photo','delivery_date_time','delivery_time')
     widgets = {
             'delivery_date_time': DateInput(),
             'delivery_time': TimeInput(),
         }
-
+    
 class JobCreateStep2Form(forms.ModelForm):
   pickup_address = forms.CharField(required=True)
   pickup_name = forms.CharField(required=True)
   pickup_phone = forms.CharField(required=True)
 
   class Meta:
-    model = Job
+    model = ScheduledJob
     fields = ('pickup_address', 'pickup_lat', 'pickup_lng', 'pickup_name', 'pickup_phone')
 
 class JobCreateStep3Form(forms.ModelForm):
@@ -45,17 +39,5 @@ class JobCreateStep3Form(forms.ModelForm):
   delivery_phone = forms.CharField(required=True)
 
   class Meta:
-    model = Job
+    model = ScheduledJob
     fields = ('delivery_address', 'delivery_lat', 'delivery_lng', 'delivery_name', 'delivery_phone')
-    
-class ScheduledJobForm(forms.ModelForm):
-
-    class Meta:
-        model = Job
-        fields = ['delivery_date_time', 'delivery_time']
-        widgets = {
-            'delivery_date_time': DateInput(),
-            'delivery_time': TimeInput(),
-        }
-
-

@@ -1,0 +1,20 @@
+{% extends 'customer/base.html' %}
+
+{% block head %}
+
+<title>Driving Onboarding - Welcome</title>
+
+{% endblock%}
+
+{% block content %}
+
+<div class="container">
+    <h1 class="mt-5">Welcome to the Delivery App</h1>
+    <p>We're excited to have you join our team of drivers!</p>
+    <p>Let's get started on your onboarding process.</p>
+    <a class="btn btn-primary" href="{% url 'courier:onboarding_steps' %}">Next</a>
+</div>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock %}

@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    
+    'scheduler',
     'bootstrap4',
     'social_django',
     'core.apps.CoreConfig',

@@ -1,0 +1,26 @@
+{% extends 'customer/base.html' %}
+
+{% block head %}
+
+<title>Driving Onboarding - Safety</title>
+
+{% endblock%}
+
+{% block content %}
+
+<div class="container">
+    <h1 class="mt-5">Onboarding Safety and Concerns</h1>
+    <h2>Step 2: Safety and Concerns</h2>
+    <p>Your safety and the safety of others is a top priority. Here are some important guidelines:</p>
+    <ul>
+        <li>Follow all traffic laws and regulations.</li>
+        <li>Use your seatbelt at all times.</li>
+        <li>Do not use your mobile device while driving.</li>
+        <li>Be aware of your surroundings and drive defensively.</li>
+        <li>If you encounter any issues or concerns during a delivery, contact our support team immediately.</li>
+    </ul>
+    <p>If you have any questions or need assistance, please don't hesitate to reach out.</p>
+    <a class="btn btn-primary" href="{% url 'courier:available_jobs' %}">Finish</a>
+</div>
+
+{% endblock %}

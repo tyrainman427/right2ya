@@ -1,0 +1,29 @@
+{% extends 'customer/base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Please Select A Service Type</h4>
+          </div>
+          <div class="card-body">
+            <form action="{% url 'customer:select_service_type' %}" method="POST">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="service_type">Delivery Type:</label>
+                <select name="service_type" id="service_type" class="form-control">
+                  <option value="standard">Standard</option>
+                  <option value="scheduled">Scheduled</option>
+                  <option value="services">Service Based</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Continue</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

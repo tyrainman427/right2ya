@@ -14,7 +14,20 @@ from core.views import *
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def home(request):
-    return redirect(reverse('courier:available_jobs'))
+    return redirect(reverse('courier:onboarding_welcome'))
+
+@login_required
+def onboarding_welcome(request):
+    return render(request,'courier/onboarding_welcome.html')
+
+@login_required
+def onboarding_steps(request):
+    return render(request,'courier/onboarding_steps.html')
+
+@login_required
+def onboarding_safety(request):
+    return render(request,'courier/onboarding_safety.html')
+
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def available_jobs_page(request):

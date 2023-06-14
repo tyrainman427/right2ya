@@ -18,6 +18,7 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.db.models.query_utils import Q
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -130,7 +131,8 @@ def activate(request, uidb64, token):
         return HttpResponse(f"Thank you for your email confirmation. Now you can login your account.")  
     else:  
         return HttpResponse('Activation link is invalid!') 
-    
+
+@login_required    
 def rate_courier(request, job_id):
     if request.method == 'POST':
         rating_value = request.POST.get('rating')
@@ -168,6 +170,7 @@ def update_templates_and_publish(job_id, new_status):
 
 # Identify the event or action that triggers the status change
 # and call the update_templates_and_publish function with the appropriate arguments
+
 
 
 
