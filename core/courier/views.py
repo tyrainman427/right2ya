@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from core.serializers import JobSerializer
 from core.models import *
-from core.courier import forms
+from .forms import PayoutForm
 from rest_framework import generics
 from core.views import *
 
@@ -133,7 +133,7 @@ def profile_page(request):
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def payout_method_page(request):
-    payout_form = forms.PayoutForm(instance=request.user.courier)
+    payout_form = PayoutForm(instance=request.user.courier)
 
     if request.method == 'POST':
         payout_form = forms.PayoutForm(request.POST, instance=request.user.courier)

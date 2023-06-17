@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Restaurant, Customer, Courier, Order, OrderDetails, Meal, Job
+from .models import Restaurant, Customer, Courier,Meal, Job
 
 class RestaurantSerializer(serializers.ModelSerializer):
   logo = serializers.SerializerMethodField()
@@ -54,29 +54,29 @@ class OrderMealSerializer(serializers.ModelSerializer):
     model = Meal
     fields = ("id", "name", "price")
 
-class OrderDetailsSerializer(serializers.ModelSerializer):
-  meal = OrderMealSerializer()
-  class Meta:
-    model = OrderDetails
-    fields = ("id", "meal", "quantity", "sub_total")
+# class OrderDetailsSerializer(serializers.ModelSerializer):
+#   meal = OrderMealSerializer()
+#   class Meta:
+#     model = OrderDetails
+#     fields = ("id", "meal", "quantity", "sub_total")
 
-class OrderSerializer(serializers.ModelSerializer):
-  customer = OrderCustomerSerializer()
-  courier = OrderCourierSerializer()
-  restaurant = OrderRestaurantSerializer()
-  order_details = OrderDetailsSerializer(many=True)
-  status = serializers.ReadOnlyField(source="get_status_display")
+# class OrderSerializer(serializers.ModelSerializer):
+#   customer = OrderCustomerSerializer()
+#   courier = OrderCourierSerializer()
+#   restaurant = OrderRestaurantSerializer()
+#   order_details = OrderDetailsSerializer(many=True)
+#   status = serializers.ReadOnlyField(source="get_status_display")
 
-  class Meta:
-    model = Order
-    fields = ("id", "customer", "restaurant", "courier", "order_details", "total", "status", "address")
+#   class Meta:
+#     model = Order
+#     fields = ("id", "customer", "restaurant", "courier", "order_details", "total", "status", "address")
 
-class OrderStatusSerializer(serializers.ModelSerializer):
-  status = serializers.ReadOnlyField(source="get_status_display")
+# class OrderStatusSerializer(serializers.ModelSerializer):
+#   status = serializers.ReadOnlyField(source="get_status_display")
 
-  class Meta:
-    model = Order
-    fields = ("id", "status")
+#   class Meta:
+#     model = Order
+#     fields = ("id", "status")
 
 class JobSerializer(serializers.ModelSerializer):
     class Meta:

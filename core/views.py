@@ -83,39 +83,18 @@ def sign_up(request):
             })
             full_activation_url = request.build_absolute_uri(activation_url)
             print('Activation URL:', full_activation_url)
-            return HttpResponse('Please confirm your email address to complete the registration')
+            home_url = '/'  # Replace '/' with the actual URL of your home screen
+    
+            # Create the HTML code for the hyperlink
+            link_html = f'<a href="{home_url}">Go to Home Screen</a>'
+            
+            # Combine the link HTML with the response message
+            response_message = 'Please confirm your email address to complete the registration. ' + link_html
+            return HttpResponse(response_message)
     else:
         form = forms.SignUpForm()
     return render(request, 'sign_up.html', {'form': form})
 
-    # if request.method == 'POST':  
-    #     form = forms.SignUpForm(request.POST)  
-        
-    #     if form.is_valid():  
-    #         email = form.cleaned_data.get('email').lower()
-    #         # save form in the memory not in database  
-    #         user = form.save(commit=False)  
-    #         user.username = email
-    #         user.is_active = False  
-    #         user.save()  
-    #         # to get the domain of the current site  
-    #         current_site = get_current_site(request)  
-    #         mail_subject = 'Welcome to Right 2 Ya Beta!'  
-    #         message = render_to_string('acc_active_email.html', {  
-    #             'user': user,  
-    #             'domain': current_site.domain,  
-    #             'uid':urlsafe_base64_encode(force_bytes(user.pk)),  
-    #             'token':account_activation_token.make_token(user),  
-    #         })  
-    #         to_email = form.cleaned_data.get('email')  
-    #         email = EmailMessage(  
-    #                     mail_subject, message, to=[to_email]  
-    #         )  
-    #         email.send()  
-    #         return HttpResponse('Please confirm your email address to complete the registration')  
-    # else:  
-    #     form = forms.SignUpForm()  
-    # return render(request, 'sign_up.html', {'form': form})  
 
 def activate(request, uidb64, token):  
     User = get_user_model()  
@@ -127,7 +106,14 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):  
         user.is_active = True  
         user.save()  
-        return HttpResponse(f"Thank you for your email confirmation. Now you can login your account.")  
+        home_url = '/'  # Replace '/' with the actual URL of your home screen
+    
+        # Create the HTML code for the hyperlink
+        link_html = f'<a href="{home_url}">Go to Home Screen</a>'
+        
+        # Combine the link HTML with the response message
+        response_message = 'Thank you for your email confirmation. Now you can login your account ' + link_html
+        return HttpResponse(response_message)  
     else:  
         return HttpResponse('Activation link is invalid!') 
     

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum, Count, Case, When
 from core.views import *
 from core.forms import AccountForm, UserForm, MealForm, RestaurantForm
-from core.models import Meal, Order, Courier
+from core.models import Meal, Courier
 from django.contrib import messages
 from django.db.models import Q
 from datetime import datetime, timedelta

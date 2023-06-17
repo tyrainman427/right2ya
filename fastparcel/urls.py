@@ -92,10 +92,10 @@ urlpatterns = [
     
     path('api/customer/restaurants/', apis.customer_get_restaurants),
     path('api/customer/meals/<int:restaurant_id>', apis.customer_get_meals),
-    path('api/customer/order/add/', apis.customer_add_order),
-    path('api/customer/order/latest/', apis.customer_get_latest_order),
-    path('api/customer/order/latest_status/', apis.customer_get_latest_order_status),
-    path('api/customer/driver/location/', apis.customer_get_driver_location),
+    # path('api/customer/order/add/', apis.customer_add_order),
+    # path('api/customer/order/latest/', apis.customer_get_latest_order),
+    # path('api/customer/order/latest_status/', apis.customer_get_latest_order_status),
+    # path('api/customer/driver/location/', apis.customer_get_driver_location),
     path('api/customer/payment_intent/', apis.create_payment_intent),
     path('api/dashboard/order/notification/<last_request_time>/', apis.restaurant_order_notification),
     
@@ -103,15 +103,15 @@ urlpatterns = [
     path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),
     path('api/fcm-token/update/', courier_apis.fcm_token_update_api, name="fcm_token_update_api"),
     
-    path('api/driver/order/ready/', apis.driver_get_ready_orders),
-    path('api/driver/order/pick/', apis.driver_pick_order),
-    path('api/driver/order/latest/', apis.driver_get_latest_order),
-    path('api/driver/order/complete/', apis.driver_complete_order),
-    path('api/driver/revenue/', apis.driver_get_revenue),
+    # path('api/driver/order/ready/', apis.driver_get_ready_orders),
+    # path('api/driver/order/pick/', apis.driver_pick_order),
+    # path('api/driver/order/latest/', apis.driver_get_latest_order),
+    # path('api/driver/order/complete/', apis.driver_complete_order),
+    # path('api/driver/revenue/', apis.driver_get_revenue),
     path('api/driver/location/update/', apis.driver_update_location),
-    path('api/driver/profile/', apis.driver_get_profile),
-    path('api/driver/profile/update/', apis.driver_update_profile),
-]
+#     path('api/driver/profile/', apis.driver_get_profile),
+#     path('api/driver/profile/update/', apis.driver_update_profile),
+ ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
