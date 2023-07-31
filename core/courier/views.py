@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from core.serializers import JobSerializer
 from core.models import *
-from core.courier import forms
+from .forms import *
 from rest_framework import generics
 from core.views import *
 

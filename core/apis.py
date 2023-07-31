@@ -19,13 +19,28 @@ stripe.api_key = STRIPE_API_PUBLIC_KEY
 # RESTAURANT
 # =========
 
-def restaurant_order_notification(request, last_request_time):
-    notification = Job.objects.filter(
-      customer = request.user.customer, 
-      created_at__gt = last_request_time
+def restaurant_order_notification(request):
+    # Query the database for unread notifications for the current user
+    notification_count = Notification.objects.filter(
+      user=request.user, 
+      read=False
     ).count()
+    
+    print("Notification count: ", notification_count)
 
-    return JsonResponse({"notification": notification})
+    return JsonResponse({"notification": notification_count})
+
+
+@csrf_exempt
+def mark_notification_as_read(request, notification_id):
+    if request.method == "POST":
+        try:
+            notification = Notification.objects.get(id=notification_id)
+            notification.read = True
+            notification.save()
+            return JsonResponse({"status": "success"})
+        except Notification.DoesNotExist:
+            return JsonResponse({"status": "failed", "error": "Notification does not exist"})
 
 
 # =========

@@ -1,28 +1,36 @@
 {% extends 'dashboard/layout.html' %}
-
+{% load static %}
 {% block script %}
 
- <script>
+<script>
   $(document).ready(function() {
-    var now = new Date();
     setInterval(function() {
       $.ajax({
-        url: '/api/dashboard/order/notification/' + now.toISOString() + '/',
+        url: '/api/dashboard/order/notification/',
         method: 'GET',
         success: function(data) {
-          if (data['notification'] === 0) {
-            $('.badge').text('');
-          } else {
+          if (data['notification'] > 0) {
             $('.badge').text(data['notification']);
-              setTimeout(function(){
-              window.location.reload();
-            });
+            if (data['new_job_created']) {
+              // Fetch the new job data and update the DOM
+              $.ajax({
+                url: '/api/dashboard/job/',  // Replace with your actual API endpoint
+                method: 'GET',
+                success: function(jobData) {
+                  $('.badge').text(data['notification']);
+                }
+              });
+            }
+          } else {
+            $('.badge').text('');
           }
         }
       })
     }, 3000)
   })
 </script> 
+
+
 
 {% endblock %}
 
@@ -36,7 +44,8 @@
 {% url 'dashboard_account' as dashboard_account_url %}
 
 <div class="text-center mt-4">
-  <img src="{{ request.user.restaurant.logo.url }}" class="rounded-circle" width="80" height="80" alt="">
+  
+  <img src="{% if request.user.customer.avatar %}{{ request.user.customer.avatar.url }}{% else %}{% static 'img/avatar.png' %}{% endif %}" class="rounded-circle" width="80" height="80" alt="">
   <br><br>
   <h5>{{ request.user.get_full_name }}</h5>
  <h6>{{ request.user.restaurant.name }}</h6> 

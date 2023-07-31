@@ -12,17 +12,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
-from decouple import config
+from dotenv import load_dotenv
 
-DEBUG = config('DEBUG', default=False, cast=bool)
-
-ALLOWED_HOSTS = ["68.183.20.15","beta.right2ya.com","localhost",]
-
-ROOT_URLCONF = 'fastparcel.urls'
-
-WSGI_APPLICATION = 'fastparcel.wsgi.application'
-
-ASGI_APPLICATION = 'fastparcel.asgi.application'
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,13 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'f88mj#!)pv2_jx8d^58+roz4rv2fuhx!@n7%7#lo$6fgy@(h&v'
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2_+&k3q+pmu)5%asj6yjpkag')
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
+DEBUG = True
 
-
+ALLOWED_HOSTS = ['*',]
 SECURE_SSL_REDIRECT=False
 
 # Application definition
@@ -52,19 +42,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'django.contrib.sites',
+
     'bootstrap4',
-    'social_django',
     'core.apps.CoreConfig',
     'daphne',
     'oauth2_provider',
-    'rest_framework_social_oauth2',
-    "fcm_django",
+    'allauth',
+    'allauth.account',
+    'rest_framework',
+
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,8 +67,7 @@ MIDDLEWARE = [
   
 ]
 
-
-
+ROOT_URLCONF = 'fastparcel.urls'
 
 TEMPLATES = [
     {
@@ -89,12 +80,13 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
+    
             ],
         },
     },
 ]
+
+WSGI_APPLICATION = 'fastparcel.wsgi.application'
 
 
 # Database
@@ -102,21 +94,22 @@ TEMPLATES = [
 
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'postgres',
-#         'USER': 'postgres',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
-
+os.getenv('EMAIL_HOST_USER')
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -141,7 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -155,54 +148,51 @@ USE_TZ = True
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/sign-in/'
 LOGIN_REDIRECT_URL = '/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
+
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY ")
-SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET")
-SOCIAL_AUTH_FACEBOOK_SCOPE = os.environ.get("SOCIAL_AUTH_FACEBOOK_SCOPE ")
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email, picture.type(large)'
-}
 
+# The ID of the current site
+SITE_ID = 2
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'tyraineytech@gmail.com'
-EMAIL_HOST_PASSWORD = 'opbtdmygboipgaer'
-DEFAULT_FROM_EMAIL = 'Right 2 Ya Beta <no-reply@beta.right2ya.com>' 
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'Right2ya Beta <no-reply@beta.right2ya.com>' 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-BASE_URL = "http://localhost:8000"
+STRIPE_API_PUBLIC_KEY = os.getenv('STRIPE_API_PUBLIC_KEY')
+STRIPE_API_SECRET_KEY = os.getenv('STRIPE_API_SECRET_KEY')
 
-FIREBASE_ADMIN_CREDENTIAL = os.path.join(BASE_DIR,"fastparcel-1c719-firebase-adminsdk-drpt3-5f3aba66ac.json")
-
-STRIPE_API_PUBLIC_KEY = os.environ.get("pk_test_51MUlhfBtiQxYzJ3O8kUqgiIiXr2suu56rZUF1pjTzWPeEADWruq5Jf80wbFlbBtAU45no3hXLy6ODExte7rqmqe200IpeLD7EP")
-STRIPE_API_SECRET_KEY = os.environ.get("sk_test_51MUlhfBtiQxYzJ3OsK6lu0vGJKkOBNegdDmT4bqZhmnoZl11RLFZu8JFakKv9UTpqc2KBWBpnAyOgmFKxh3dIxmj00nU8hBkKM")
-
-GOOGLE_MAP_API_KEY = os.environ.get("AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go")
+GOOGLE_MAP_API_KEY = os.getenv('GOOGLE_MAP_API_KEY')
 
 PAYPAL_MODE = "sandbox"
-GOOGLE_MAP_API_KEY = os.environ.get("AIzaSyBERO5oiERPINlBa8uA7hAnTK2pV_bS2go")
-PAYPAL_CLIENT_ID = os.environ.get("AST3b8FkMxJBbggL2n9Guh1CljnhXkf9JNF-o8MlqBL7nDQW7zd0q2Dqm4xp0lwA7vTVwu6qSwvbbEgu")
-PAYPAL_CLIENT_SECRET = os.environ.get("EPT-wklTzxuFMddgyzDxXIuQnJhWuHMMsjPprEM2QFdrZ3GLA0ZHxwUfBOj25-byjT0z8G_dGFoFiJSE")
+PAYPAL_CLIENT_ID = os.getenv('PAYPAL_CLIENT_ID')
+PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET')
 
-NOTIFICATION_URL = "https://beta.right2ya.com/"
+NOTIFICATION_URL = "http://beta.right2ya.com/"
+
+
+ASGI_APPLICATION = "fastparcel.asgi.application"
 
 
 # Channels
@@ -239,9 +229,7 @@ CACHES = {
         "LOCATION": os.environ.get("REDIS_URL", "redis://localhost:6379/0"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "KEY_PREFIX": "fastparcel",
-        "TIMEOUT": 300,
+        }
     }
 }
 
@@ -250,33 +238,37 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-# AWS_STORAGE_BUCKET_NAME = os.environ.get('right2ya')
-# AWS_S3_SIGNATURE_VERSION = os.environ.get('s3v4')
-# AWS_S3_REGION_NAME = os.environ.get('us-east-1')
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
-AWS_S3_VERIFY = True
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+AWS_S3_CUSTOM_DOMAIN = 'right2ya.s3.amazonaws.com'
 
-AWS_ACCESS_KEY_ID = 'DO00ACXPJ7WW9WXTGBV6'
-AWS_SECRET_ACCESS_KEY = 'D6/usUJe/pzr5kDAWRZdaHg7XS0vfOXxaZH9h5c82EY'
-AWS_STORAGE_BUCKET_NAME = 'right2ya-images'
-AWS_S3_ENDPOINT_URL = 'https://right2ya-images.nyc3.digitaloceanspaces.com'
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-AWS_LOCATION = 'right2ya-static'
+# Set the static and media URLs
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 
+# Set the location of static and media files in S3
+STATICFILES_LOCATION = 'static'
+MEDIAFILES_LOCATION = 'media'
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True
+# Set the storage engine for static and media files
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
+# Set the bucket access permissions
+AWS_DEFAULT_ACL = 'public-read'
 
-#Activate Django Heroku
-# import django_on_heroku
-# django_on_heroku.settings(locals())
+# SENDSMS_BACKEND = 'sendsms.backends.console.SmsBackend'
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER= os.getenv('TWILIO_PHONE_NUMBER')
 
-# Update database configuration from $DATABASE_URL.
-import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300 # in seconds

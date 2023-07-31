@@ -43,13 +43,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'scheduler',
+
     'bootstrap4',
-    'social_django',
     'core.apps.CoreConfig',
     'daphne',
     'oauth2_provider',
-    'rest_framework_social_oauth2',
     'allauth',
     'allauth.account',
     'rest_framework',
@@ -82,8 +80,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
+    
             ],
         },
     },
@@ -137,7 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -166,17 +163,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
 
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-SOCIAL_AUTH_FACEBOOK_KEY = "1943959652602864"
-SOCIAL_AUTH_FACEBOOK_SECRET = "fe886e5bb0b3db8542d428640e6a241b"
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email, picture.type(large)'
-}
 
 # The ID of the current site
 SITE_ID = 2
@@ -274,11 +264,6 @@ AWS_DEFAULT_ACL = 'public-read'
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER= os.getenv('TWILIO_PHONE_NUMBER')
-
-
-#Activate Django Heroku
-# import django_on_heroku
-# django_on_heroku.settings(locals())
 
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True

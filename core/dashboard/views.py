@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum, Count, Case, When
 from core.views import *
 from core.forms import AccountForm, UserForm, MealForm, RestaurantForm
-from core.models import Meal, Order, Courier
+from core.models import Meal, Order, Courier, Notification
 from django.contrib import messages
 from django.db.models import Q
 from datetime import datetime, timedelta
@@ -83,17 +83,26 @@ def restaurant_edit_meal(request, meal_id):
 def dashboard_order(request):
   if request.method == "POST":
     order = Job.objects.get(id=request.POST["id"])
-    print(order)
+    notification = Notification.objects.filter(job=order).first()
+    if notification:
+      notification.read = True
+      notification.save()
+    else:
+      print("No notification found for this job.")
+
     if order.status == "processing":
        order.status = "ready"
        order.save()
+       
+       if notification:  # Check if notification is not None before accessing its attributes
+         notification.read = True
+         notification.save()
     
-    update_templates_and_publish(order.id,order.status)
-    
-  orders = Job.objects.exclude(Q(status="creating")|Q(status="reviewed")).order_by("-id") #filter(restaurant = request.user.restaurant).order_by("-id") #Order.objects.all().order_by("-id")
+  orders = Job.objects.exclude(Q(status="creating")|Q(status="reviewed")).order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })
+
 
 @login_required(login_url='/dashboard/sign_in/')
 def dashboard_report(request):

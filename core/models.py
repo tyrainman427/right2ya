@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 # Create your models here.
 class Restaurant(models.Model):
@@ -11,11 +14,10 @@ class Restaurant(models.Model):
   name = models.CharField(max_length=255)
   phone = models.CharField(max_length=255)
   address = models.CharField(max_length=255)
-  logo = models.ImageField(upload_to='rest_images',blank=True,null=True)
 
   def __str__(self):
     return self.name
-  
+      
 class Meal(models.Model):
   restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='restaurant')
   name = models.CharField(max_length=255)
@@ -171,6 +173,7 @@ class Job(models.Model):
   delivery_time = models.TimeField(blank=True, null=True)
 
 
+
   # Pricing
   service_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
   delivery_fee = models.FloatField(default=0)
@@ -180,38 +183,129 @@ class Job(models.Model):
   
 
   def save(self, *args, **kwargs):
-    if self.delivery_date_time and self.delivery_time:
-        pickup_datetime = datetime.combine(self.delivery_date_time, self.delivery_time)
-        pickup_datetime = timezone.make_aware(pickup_datetime, timezone.get_current_timezone())  # Convert to offset-aware datetime
+    # if self.delivery_date_time and self.delivery_time:
+    #     pickup_datetime = datetime.combine(self.delivery_date_time, self.delivery_time)
+    #     pickup_datetime = timezone.make_aware(pickup_datetime, timezone.get_current_timezone())  # Convert to offset-aware datetime
 
-        current_datetime = timezone.now()
+    #     current_datetime = timezone.now()
 
         # Display the job on the map one hour before the pickup time
-        if pickup_datetime - current_datetime <= timedelta(hours=1):
-            self.status = self.READY_STATUS
-            self.calculate_price()  # Recalculate price for display
+        # if pickup_datetime - current_datetime <= timedelta(hours=1):
+        #     self.status = self.READY_STATUS
+        #     self.calculate_price()  # Recalculate price for display
 
-    else:
-        self.status = self.CREATING_STATUS
+  
+    if self.service_type == 'standard':
         self.calculate_price()  # Calculate price for non-scheduled delivery
+
 
     super().save(*args, **kwargs)
 
 
+  # Assuming the hourly rates are defined as follows:
+  # 1-2 hours: $70 per hour
+  # 2-3 hours: $80 per hour
+  # More than 4 hours: $140 per hour
+  # Service fee: 25% of the base price
+
   def calculate_price(self):
-        # Pricing logic for scheduled delivery
-        if self.delivery_date_time and self.delivery_time:
-            self.service_fee = self.price
-            self.delivery_fee = 0.25 * self.service_fee
-        # Pricing logic for services with a selected meal
-        elif self.service_type == 'services' and self.meal is not None:
-            self.service_fee = self.meal.price
-            self.price = self.service_fee
-            self.delivery_fee = 0.25 * self.service_fee
-        # Pricing logic for same day delivery
-        else:
-            self.service_fee = self.price - (self.price * 0.25)
-            self.delivery_fee = 0.25 * self.price
+    # Get the total duration in minutes
+    total_duration_minutes = self.duration
+    new_price = 0
+  
+
+    # Calculate the base price based on the duration
+    if total_duration_minutes <= 60:
+        base_price = 60
+    elif total_duration_minutes <= 120:
+        base_price = 70
+    elif total_duration_minutes <= 180:
+        base_price = 80
+    else:
+        base_price = 140
+
+    # Calculate the total number of hours the job is
+    total_hours = total_duration_minutes / 60
+    
+    if total_hours <= 1:
+        service_fee = base_price * 0.25 # service fees
+        total_price = base_price + service_fee # total price
+        self.service_fee = base_price
+        self.delivery_fee = service_fee
+        self.price = total_price
+        print("Price", self.price)
+  
+    else:
+        # Calculate the new price for additional hours (base price * total_hours)
+        new_price = base_price * (total_hours)
+
+        # Calculate the service fee (25% of the new price)
+        service_fee = new_price * 0.25
+
+        # If the service fee is more than $100, apply a lower service fee (15% of the new price)
+        if service_fee > 100:
+            service_fee = new_price * 0.15
+
+        # Calculate the total price including the service fee and the number of hours the job is
+        total_price = new_price + service_fee
+
+        # Set the total price including the service fee
+        self.service_fee = new_price
+        self.delivery_fee = service_fee
+        self.price = total_price
+    super().save()
+    return total_price
+
+  # def calculate_price(self):
+  #   # Get the total duration in minutes
+  #   total_duration_minutes = self.duration /60
+
+  #   # Calculate the base price based on the duration
+  #   if total_duration_minutes <= 1:
+  #       base_price = 60
+  #   elif total_duration_minutes <= 2:
+  #       base_price = 70
+  #   elif total_duration_minutes <= 3:
+  #       base_price = 80
+  #   else:
+  #       base_price = 140
+        
+  #   # Add extra fees for bulky or heavy packages
+  #   # if self.weight > 10:
+  #   #     extra_weight_fee = (self.weight - 10) * 0.25
+  #   # else:
+  #   #     extra_weight_fee = 0
+
+  #   # Add extra fee for expedited weekend deliveries
+  #   # if self.delivery_date_time and self.delivery_date_time.weekday() in [5, 6]:  # Saturday or Sunday
+  #   #     weekend_delivery_fee = total_duration_hours * 25
+  #   # else:
+  #   #     weekend_delivery_fee = 0
+
+  #   # Add spill charge
+  #   # if self.has_spill:
+  #   #     spill_charge = 50
+  #   # else:
+  #   #     spill_charge = 0
+
+    
+  #   # Calculate the service fee (25% of the base price)
+  #   service_fee = base_price * 0.25
+
+  #   # Add any additional fees based on package weight, expedited weekend delivery, etc. (if applicable)
+  #   # (Add the relevant logic for these fees here)
+
+  #   # Calculate the total price including the service fee and any additional fees
+  #   total_price = base_price + service_fee
+
+  #   # Set the total price including the service fee and any additional fees
+  #   self.service_fee = base_price
+  #   self.delivery_fee = service_fee
+  #   self.price = total_price # + extra_weight_fee + weekend_delivery_fee + spill_charge
+
+  #   super().save()
+  #   return total_price
+
 
   def __str__(self):
       return f"{self.name}"
@@ -246,6 +340,12 @@ class Dashboard(models.Model):
 
   def __str__(self):
     return self.name    
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True)  # Add this line
+    created_at = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
 
 class Order(models.Model):
   PROCESSING = 1
@@ -282,3 +382,19 @@ class OrderDetails(models.Model):
     return str(self.id)
 
 
+@receiver(post_save, sender=User)
+def create_customer_and_restaurant(sender, instance, created, **kwargs):
+    if created:
+        # Create a Customer instance for the newly created User
+        Customer.objects.create(user=instance)
+
+        # Create a Restaurant instance for the newly created User
+        Restaurant.objects.create(user=instance, name="Default Restaurant", phone='', address='')
+
+
+
+@receiver(post_save, sender=User)
+def save_customer_and_restaurant(sender, instance, **kwargs):
+    # Save the Customer and Restaurant instances whenever the User instance is saved
+    instance.customer.save()
+    instance.restaurant.save()

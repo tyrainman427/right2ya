@@ -2,7 +2,7 @@ import requests
 import stripe
 import firebase_admin
 from firebase_admin import credentials, auth, messaging
-
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
@@ -130,6 +130,7 @@ def create_job_page(request):
     has_current_job = Job.objects.filter(
         customer=current_customer,
         status__in=[
+            Job.PROCESSING_STATUS,
             Job.READY_STATUS,
             Job.PICKING_STATUS,
             Job.DELIVERING_STATUS
@@ -179,7 +180,8 @@ def create_job_page(request):
                     distance = round(distance / 1000, 2) * 0.62
                     creating_job.distance = distance
                     creating_job.duration = int(duration / 60)
-                    creating_job.price = round(creating_job.distance * 1.5, 2)  # $1.50 per mile
+                    creating_job.price = creating_job.calculate_price()
+                    print(creating_job.price)
                     creating_job.save()
 
                 except Exception as e:
@@ -205,20 +207,20 @@ def create_job_page(request):
                         job = creating_job,
                         amount = creating_job.price,
                     )
-
+                   
                     creating_job.status = Job.PROCESSING_STATUS
+                    print("Creating a job save", creating_job.status)
                     creating_job.save()
-
+                    print("Created a job save", creating_job.status)
 
                     return redirect(reverse('customer:home'))
 
-                except Meal.DoesNotExist:
-                    messages.error(request, "Invalid meal selected.")
-                    return redirect(reverse('customer:create_job'))
-
-            else:
-                messages.error(request, "No meal selected.")
-                return redirect(reverse('customer:create_job'))
+                except stripe.error.CardError as e:
+                    err = e.error
+                    # Error code will be authentication_required if authentication is needed
+                    print("Code is: %s" % err.code)
+                    payment_intent_id = err.payment_intent['id']
+                    payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
 
     # Determine the current step
     if not creating_job:
@@ -250,7 +252,7 @@ def current_jobs_page(request):
             Job.DELIVERING_STATUS
         ]
     )
-  
+    print(jobs)
     return render(request, 'customer/jobs.html', {
         "jobs": jobs,
 
@@ -376,3 +378,31 @@ def choose_meal(request):
     return render(request, 'customer/services.html', context)
 
 
+def job_summary(request, job_id):
+    try:
+        job = Job.objects.get(pk=job_id)
+    except Job.DoesNotExist:
+        return redirect('customer:create_job')
+
+    return render(request, 'customer/job_summary.html', {'job': job})
+
+def make_payment(request, job_id):
+    try:
+        job = Job.objects.get(pk=job_id)
+    except Job.DoesNotExist:
+        return redirect('customer:create_job')
+
+    # Logic to create a payment intent and handle the payment process with Stripe
+    # (You can use the existing code for this part)
+
+    # After successful payment, send an email as a receipt
+    send_mail(
+        'Job Receipt',
+        'Thank you for your payment. Here is the receipt for your job:\n\n' + str(job),
+        'noreply@example.com',
+        [job.customer.email],
+        fail_silently=False,
+    )
+
+    # Redirect to a thank you page after successful payment
+    return redirect('customer:home')

@@ -12,7 +12,6 @@ from core.views import *
 from core.customer import views as customer_views
 from core.dashboard import views as dashboard_views
 from core.courier import views as courier_views, apis as courier_apis
-from allauth.account.views import ConfirmEmailView
 
 
 
@@ -29,7 +28,8 @@ customer_urlpatterns = [
     path('jobs/archived/', customer_views.archived_jobs_page, name="archived_jobs"),
     path('jobs/<uuid:job_id>/', customer_views.job_page, name="job"),
   
-    
+    path('job_summary/<int:job_id>/', customer_views.job_summary, name='job_summary'),
+    path('make_payment/<int:job_id>/', customer_views.make_payment, name='make_payment'),
 ]
 
 websocket_urlpatterns = [
@@ -64,11 +64,6 @@ dashboard_urlpatterns = [
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('social_django.urls', namespace='social')),
-    path('scheduler/', include('scheduler.urls')),
-    path('api/social/', include('rest_framework_social_oauth2.urls')),
-    # path('accounts/', include('allauth.urls')),
-    # path("accounts/", include("django.contrib.auth.urls")),
     path('', views.home),
    
     path('update-switch-state/', courier_views.update_switch_state, name='update_switch_state'),
@@ -102,7 +97,11 @@ urlpatterns = [
     path('api/customer/order/latest_status/', apis.customer_get_latest_order_status),
     path('api/customer/driver/location/', apis.customer_get_driver_location),
     path('api/customer/payment_intent/', apis.create_payment_intent),
-    path('api/dashboard/order/notification/<last_request_time>/', apis.restaurant_order_notification),
+    path('api/dashboard/order/notification/', apis.restaurant_order_notification),
+    path('api/notification/<int:notification_id>/read/', apis.mark_notification_as_read, name='mark_notification_as_read'),
+
+    # path('api/dashboard/order/notification/<str:timestamp>/', views.order_notification, name='order_notification'),
+
     
     path('api/jobs/available/', courier_views.JobList.as_view(), name="jobs_api"),
     path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),

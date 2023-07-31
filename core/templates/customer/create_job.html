@@ -212,7 +212,7 @@
                     <dt class="col-sm-3">Total:</dt>
                     <dd class="col-sm-9 blockquote bg-warning rounded text-right"> ${{ job.price|floatformat:2 }}</dd>
                     <dt class="col-sm-3">Services:</dt>
-                    <dd class="col-sm-9 blockquote text-right"> ${{ job.service_fee }}</dd>
+                    <dd class="col-sm-9 blockquote text-right"> ${{ job.service_fee|floatformat:2 }}</dd>
                     <dt class="col-sm-3">Service Fees
                         <!-- Button trigger modal -->
                           <a type="button" class="" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -238,7 +238,7 @@
                             </div>
                           </div>
                       :</dt>
-                    <dd class="col-sm-9 blockquote text-right"> ${{ job.delivery_fee }}</dd>
+                    <dd class="col-sm-9 blockquote text-right"> ${{ job.delivery_fee|floatformat:2 }}</dd>
                   </dl>
                   
                 </div>

@@ -15,7 +15,7 @@ class SignUpForm(UserCreationForm):
 
   class Meta:
     model = User
-    fields = ('email','company', 'first_name', 'last_name', 'password1', 'password2', 'phone_number')
+    fields = ('email','first_name', 'last_name', 'password1', 'password2', 'phone_number','company')
 
   def clean_email(self):
     email = self.cleaned_data['email'].lower()
@@ -34,7 +34,7 @@ class UserForm(forms.ModelForm):
 class RestaurantForm(forms.ModelForm):
   class Meta:
     model = Restaurant
-    fields = ("name", "phone", "address", "logo")
+    fields = ("name", "phone", "address")
 
 class AccountForm(forms.ModelForm):
   email = forms.CharField(max_length=100, required=True)
@@ -48,3 +48,9 @@ class MealForm(forms.ModelForm):
     model = Meal
     exclude = ("restaurant",)
     
+from core.models import Courier
+
+class PayoutForm(forms.ModelForm):
+  class Meta:
+    model = Courier
+    fields = ('paypal_email',)

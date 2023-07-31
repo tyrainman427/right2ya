@@ -30,7 +30,7 @@ class UserForm(forms.ModelForm):
 class RestaurantForm(forms.ModelForm):
   class Meta:
     model = Restaurant
-    fields = ("name", "phone", "address", "logo")
+    fields = ("name", "phone", "address")
 
 class AccountForm(forms.ModelForm):
   email = forms.CharField(max_length=100, required=True)

@@ -5,7 +5,7 @@ from django.conf import settings
 from paypalrestsdk import configure, Payout
 
 from .models import *
-from scheduler.models import *
+
 
 configure({
   "mode": settings.PAYPAL_MODE,
@@ -96,4 +96,4 @@ admin.site.register(OrderDetails)
 admin.site.register(Restaurant)
 admin.site.register(Meal)
 admin.site.register(Rating)
-admin.site.register(ScheduledJob)
+admin.site.register(Notification)
