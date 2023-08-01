@@ -22,12 +22,11 @@ customer_urlpatterns = [
     path('create_job/', customer_views.create_job_page, name="create_job"),
     path('select_job/', customer_views.select_job, name="select_job"),
     path('select-service-type/', customer_views.select_service_type, name='select_service_type'),
-    path('scheduled_service/', customer_views.create_scheduled_job, name='scheduled_service'),
     path('choose-meal/', customer_views.choose_meal, name='choose_meal'),
     path('jobs/current/', customer_views.current_jobs_page, name="current_jobs"),
     path('jobs/archived/', customer_views.archived_jobs_page, name="archived_jobs"),
     path('jobs/<uuid:job_id>/', customer_views.job_page, name="job"),
-  
+    path('jobs/<uuid:job_id>/add_tip/', customer_views.add_tip, name='add_tip'),
     path('job_summary/<int:job_id>/', customer_views.job_summary, name='job_summary'),
     path('make_payment/<int:job_id>/', customer_views.make_payment, name='make_payment'),
 ]

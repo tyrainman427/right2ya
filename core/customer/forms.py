@@ -24,10 +24,10 @@ class TimeInput(forms.TimeInput):
 class JobCreateStep1Form(forms.ModelForm):
   class Meta:
     model = Job
-    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo')
+    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo','weight', 'has_spill','scheduled_time','scheduled_date')
     widgets = {
-            'delivery_date_time': DateInput(),
-            'delivery_time': TimeInput(),
+            'scheduled_date': DateInput(),
+            'scheduled_time': TimeInput(),
         }
 
 class JobCreateStep2Form(forms.ModelForm):
@@ -48,14 +48,6 @@ class JobCreateStep3Form(forms.ModelForm):
     model = Job
     fields = ('delivery_address', 'delivery_lat', 'delivery_lng', 'delivery_name', 'delivery_phone')
     
-class ScheduledJobForm(forms.ModelForm):
 
-    class Meta:
-        model = Job
-        fields = ['delivery_date_time', 'delivery_time']
-        widgets = {
-            'delivery_date_time': DateInput(),
-            'delivery_time': TimeInput(),
-        }
-
-
+class AddTipForm(forms.Form):
+    tip = forms.DecimalField(max_digits=6, decimal_places=2)

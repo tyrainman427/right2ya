@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from core.customer import forms
 from core.forms import RestaurantForm
-
+from stripe.error import CardError
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -209,9 +209,11 @@ def create_job_page(request):
                     )
                    
                     creating_job.status = Job.PROCESSING_STATUS
-                    print("Creating a job save", creating_job.status)
+                    creating_job.paid_status = Job.PAID_STATUS
                     creating_job.save()
-                    print("Created a job save", creating_job.status)
+                    
+                
+         
 
                     return redirect(reverse('customer:home'))
 
@@ -305,7 +307,7 @@ def select_job(request):
     
     return render(request, 'customer/select_job.html')
 
-
+@login_required
 def select_service_type(request):
     if request.method == 'POST':
         service_type = request.POST.get('service_type')
@@ -324,22 +326,6 @@ def select_service_type(request):
     return render(request, 'customer/select_job.html')
 
 
-from .forms import ScheduledJobForm
-
-def create_scheduled_job(request):
-    if request.method == 'POST':
-        form = ScheduledJobForm(request.POST)
-        if form.is_valid():
-            form.instance.customer = request.user.customer  # Set the customer for the job
-            form.save()
-            return redirect('customer:home')  # Replace 'customer_home' with your actual home URL name
-    else:
-        form = ScheduledJobForm()
-
-    return render(request, 'customer/scheduled_service.html', {'form': form})
-
-
-from django.shortcuts import get_object_or_404
 
 def choose_meal(request):
     if request.method == 'POST':
@@ -406,3 +392,55 @@ def make_payment(request, job_id):
 
     # Redirect to a thank you page after successful payment
     return redirect('customer:home')
+
+def get_default_card(customer_id):
+    customer = stripe.Customer.retrieve(customer_id)
+    if 'default_source' in customer and customer['default_source'] is not None:
+        card = stripe.Customer.retrieve_source(
+            customer_id,
+            customer['default_source'],
+        )
+        return card
+    else:
+        return None
+
+def add_tip(request, job_id):
+    current_customer = request.user.customer
+    job = get_object_or_404(Job, pk=job_id)
+
+    if request.method == 'POST':
+        form = forms.AddTipForm(request.POST)
+        if form.is_valid():
+            tip = form.cleaned_data['tip']
+            job.tip = tip
+            job.save()
+
+       
+            stripe.api_key = settings.STRIPE_API_SECRET_KEY
+                        # Retrieve the customer's default card
+            card = get_default_card(job.customer.stripe_customer_id)
+
+             
+            if card is not None:   
+                charge = stripe.PaymentIntent.create(
+                        amount=int(tip.price * 100),
+                        currency='usd',
+                        customer=current_customer.stripe_customer_id,
+                        payment_method=current_customer.stripe_payment_method_id,
+                        off_session=True,
+                        confirm=True,
+                )
+                Transaction.objects.create(
+                        stripe_payment_intent_id = charge['id'],
+                        tip = job,
+                        amount = job.price,
+                    )
+   
+
+                return redirect('customer:job', job_id=job.id)
+            else:
+                messages.error(request, "No active card found for the customer.")
+    else:
+        form = forms.AddTipForm()
+
+    return render(request, 'customer/add_tip.html', {'form': form, 'job': job})

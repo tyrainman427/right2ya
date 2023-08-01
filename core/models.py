@@ -129,6 +129,13 @@ class Job(models.Model):
     (CANCELED_STATUS, 'Canceled'),
   )
 
+  UNPAID_STATUS = 'unpaid'
+  PAID_STATUS = 'paid'
+  STATUS_CHOICES = [
+        (UNPAID_STATUS, 'Unpaid'),
+        (PAID_STATUS, 'Paid'),
+    ]
+  
   # Step 1
   id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
   customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -160,7 +167,7 @@ class Job(models.Model):
   # Step 4
   duration = models.IntegerField(default=0)
   distance = models.FloatField(default=0)
-  price = models.FloatField(default=0)
+  price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
   # Extra info
   pickup_photo = models.ImageField(upload_to='job/pickup_photos/', null=True, blank=True)
@@ -170,7 +177,7 @@ class Job(models.Model):
   delivered_at = models.DateTimeField(null=True, blank=True)
   
   delivery_date_time = models.DateField(blank=True, null=True)
-  delivery_time = models.TimeField(blank=True, null=True)
+  scheduled_time = models.TimeField(blank=True, null=True)
 
 
 
@@ -181,20 +188,20 @@ class Job(models.Model):
   meal_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
   rated = models.BooleanField(default=False)
   
+  weight = models.FloatField(default=0)
+  has_spill = models.BooleanField(default=False)
+  
+  scheduled_date = models.DateTimeField(null=True, blank=True)
+  paid_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=UNPAID_STATUS)
+
+
+  def get_todays_jobs():
+    now = timezone.now()
+    start_of_day = timezone.make_aware(datetime.datetime(now.year, now.month, now.day))
+    end_of_day = start_of_day + datetime.timedelta(days=1)
+    return Job.objects.filter(scheduled_time__range=(start_of_day, end_of_day))
 
   def save(self, *args, **kwargs):
-    # if self.delivery_date_time and self.delivery_time:
-    #     pickup_datetime = datetime.combine(self.delivery_date_time, self.delivery_time)
-    #     pickup_datetime = timezone.make_aware(pickup_datetime, timezone.get_current_timezone())  # Convert to offset-aware datetime
-
-    #     current_datetime = timezone.now()
-
-        # Display the job on the map one hour before the pickup time
-        # if pickup_datetime - current_datetime <= timedelta(hours=1):
-        #     self.status = self.READY_STATUS
-        #     self.calculate_price()  # Recalculate price for display
-
-  
     if self.service_type == 'standard':
         self.calculate_price()  # Calculate price for non-scheduled delivery
 
@@ -223,16 +230,34 @@ class Job(models.Model):
         base_price = 80
     else:
         base_price = 140
+        
+      # Add extra fees for bulky or heavy packages
+    if self.weight > 10:
+        extra_weight_fee = (self.weight - 10) * 0.25
+    else:
+        extra_weight_fee = 0
+
+    # Add extra fee for expedited weekend deliveries
+    if self.delivery_date_time and self.delivery_date_time.weekday() in [5, 6]:  # Saturday or Sunday
+        weekend_delivery_fee = total_duration_minutes * 25
+    else:
+        weekend_delivery_fee = 0
+
+    # Add spill charge
+    if self.has_spill:
+        spill_charge = 50
+    else:
+        spill_charge = 0
 
     # Calculate the total number of hours the job is
     total_hours = total_duration_minutes / 60
     
     if total_hours <= 1:
         service_fee = base_price * 0.25 # service fees
-        total_price = base_price + service_fee # total price
-        self.service_fee = base_price
+        total_price = base_price + service_fee # total price 
+        self.service_fee = base_price + extra_weight_fee + weekend_delivery_fee + spill_charge
         self.delivery_fee = service_fee
-        self.price = total_price
+        self.price = total_price + extra_weight_fee + weekend_delivery_fee + spill_charge
         print("Price", self.price)
   
     else:
@@ -252,63 +277,18 @@ class Job(models.Model):
         # Set the total price including the service fee
         self.service_fee = new_price
         self.delivery_fee = service_fee
-        self.price = total_price
+        self.price = total_price + extra_weight_fee + weekend_delivery_fee + spill_charge
     super().save()
     return total_price
 
-  # def calculate_price(self):
-  #   # Get the total duration in minutes
-  #   total_duration_minutes = self.duration /60
-
-  #   # Calculate the base price based on the duration
-  #   if total_duration_minutes <= 1:
-  #       base_price = 60
-  #   elif total_duration_minutes <= 2:
-  #       base_price = 70
-  #   elif total_duration_minutes <= 3:
-  #       base_price = 80
-  #   else:
-  #       base_price = 140
-        
-  #   # Add extra fees for bulky or heavy packages
-  #   # if self.weight > 10:
-  #   #     extra_weight_fee = (self.weight - 10) * 0.25
-  #   # else:
-  #   #     extra_weight_fee = 0
-
-  #   # Add extra fee for expedited weekend deliveries
-  #   # if self.delivery_date_time and self.delivery_date_time.weekday() in [5, 6]:  # Saturday or Sunday
-  #   #     weekend_delivery_fee = total_duration_hours * 25
-  #   # else:
-  #   #     weekend_delivery_fee = 0
-
-  #   # Add spill charge
-  #   # if self.has_spill:
-  #   #     spill_charge = 50
-  #   # else:
-  #   #     spill_charge = 0
-
-    
-  #   # Calculate the service fee (25% of the base price)
-  #   service_fee = base_price * 0.25
-
-  #   # Add any additional fees based on package weight, expedited weekend delivery, etc. (if applicable)
-  #   # (Add the relevant logic for these fees here)
-
-  #   # Calculate the total price including the service fee and any additional fees
-  #   total_price = base_price + service_fee
-
-  #   # Set the total price including the service fee and any additional fees
-  #   self.service_fee = base_price
-  #   self.delivery_fee = service_fee
-  #   self.price = total_price # + extra_weight_fee + weekend_delivery_fee + spill_charge
-
-  #   super().save()
-  #   return total_price
 
 
   def __str__(self):
       return f"{self.name}"
+    
+  def pay(self):
+        self.paid_status = self.PAID_STATUS
+        self.save()
 
 class Transaction(models.Model):
   IN_STATUS = "in"
@@ -398,3 +378,7 @@ def save_customer_and_restaurant(sender, instance, **kwargs):
     # Save the Customer and Restaurant instances whenever the User instance is saved
     instance.customer.save()
     instance.restaurant.save()
+
+class Tip(models.Model):
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=6, decimal_places=2)

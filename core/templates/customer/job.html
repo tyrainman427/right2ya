@@ -216,6 +216,13 @@
   </div>
 </div>
 
+<!-- Link to add a tip -->
+{% comment %} {% if tip %} {% endcomment %}
+{% comment %} <a href="{% url 'customer:add_tip' job.id %}">Add a Tip</a> {% endcomment %}
+{% comment %} {% else %} {% endcomment %}
+{% comment %} <p>You have already tipped the courier for this job.</p> {% endcomment %}
+{% comment %} {% endif %} {% endcomment %}
+
 <!-- RATE COURIER -->
 {% if job.rated  %}
 <p>You have already rated ⭐ the courier for this job.</p>
