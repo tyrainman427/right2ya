@@ -29,6 +29,9 @@
 <script>
   var pickupLat = parseFloat("{{ job.pickup_lat }}");
   var pickupLng = parseFloat("{{ job.pickup_lng }}");
+  console.log("Courier Lat: ", courierLat);  // Print the courier's latitude
+  console.log("Courier Lng: ", courierLng); 
+
   var deliveryLat = parseFloat("{{ job.delivery_lat }}");
   var deliveryLng = parseFloat("{{ job.delivery_lng }}");
 
@@ -85,6 +88,8 @@
             map,
             icon: '{% static "img/courier.png" %}',
           })
+          console.log("Courier Marker: ", window.courierMarker);  // Print the courier marker
+
         } else {
           window.alert("Directions request failed due to " + status);
         }
@@ -97,14 +102,19 @@
   const jobSocket = new WebSocket(ws_path);
 
   jobSocket.onmessage = function (e) {
-    console.log("Starting message");
+    console.log("Received a WebSocket message");
     const data = JSON.parse(e.data);
+    console.log("Parsed data: ", data);
     const job = data.job;
+    console.log("Job: ", job);
 
-    if (job.courier && job.courier.lat && job.courier.lng) {
-    const courierPosition = new google.maps.LatLng(job.courier.lat, job.courier.lng);
-    window.courierMarker.setPosition(courierPosition);
+    if (job.courier_lat && job.courier_lng) {
+      const courierPosition = new google.maps.LatLng(job.courier_lat, job.courier_lng);
+      window.courierMarker.setPosition(courierPosition);
+      console.log("Updated courier's marker to: ", courierPosition);
   }
+  
+  
 
 
     if (job.status) {

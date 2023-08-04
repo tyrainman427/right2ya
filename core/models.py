@@ -67,6 +67,12 @@ class Courier(models.Model):
 
   def __str__(self):
     return self.user.get_full_name()
+
+
+  def on_job(self):
+      return self.job_set.filter(status__in=[Job.PROCESSING_STATUS, Job.PICKING_STATUS, Job.DELIVERING_STATUS]).exists()
+
+    
   
 class Rating(models.Model):
     courier = models.ForeignKey(Courier, on_delete=models.CASCADE, related_name='ratings')
