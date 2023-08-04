@@ -11,6 +11,7 @@ from core.models import *
 from .forms import *
 from rest_framework import generics
 from core.views import *
+from decimal import Decimal
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def home(request):
@@ -55,8 +56,10 @@ def available_job_page(request, id):
     if request.method == 'POST':
         job.courier = request.user.courier
         job.status = Job.PICKING_STATUS
+        job.courier_lat = request.user.courier.lat  # Add the courier's latitude
+        job.courier_lng = request.user.courier.lng  
         job.save()
-        update_templates_and_publish(job.id,job.status)
+ 
 
         try:
             layer = get_channel_layer()
@@ -133,7 +136,7 @@ def profile_page(request):
     )
     courier = request.user.courier
 
-    total_earnings = round(sum(job.price for job in jobs) * 0.75, 2)
+    total_earnings = round(sum(job.price for job in jobs) * Decimal('0.75'), 2)
     total_jobs = len(jobs)
     total_km = sum(job.distance for job in jobs)
 

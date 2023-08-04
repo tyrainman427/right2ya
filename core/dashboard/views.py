@@ -15,7 +15,7 @@ from django.http import HttpResponseRedirect
 
 @login_required(login_url="/sign-in/?next=/dashboard/")
 def home(request):
-    return render(request, 'dashboard/meal.html')
+    return render(request, 'dashboard/order.html')
 
 @login_required(login_url='/restaurant/sign_in/')
 def restaurant_account(request):
@@ -98,7 +98,7 @@ def dashboard_order(request):
          notification.read = True
          notification.save()
     
-  orders = Job.objects.exclude(Q(status="creating")|Q(status="reviewed")).order_by("-id")
+  orders = Job.objects.exclude(Q(status="creating")|Q(status="reviewed")|Q(status="completed")).order_by("-id")
   return render(request, 'dashboard/order.html', {
     "orders": orders
   })
@@ -157,3 +157,17 @@ def dashboard_report(request):
         "meal": meal,
         "driver": driver,
     })
+
+@login_required(login_url='/dashboard/sign_in/')
+def available_drivers(request):
+    all_drivers = Courier.objects.all()
+    available_drivers = [driver for driver in all_drivers if driver.is_available and not driver.on_job()]
+    unavailable_drivers = [driver for driver in all_drivers if not driver.is_available]
+    on_job_drivers = [driver for driver in all_drivers if driver.is_available and driver.on_job()]
+
+    return render(request, 'dashboard/available_drivers.html', {
+        "available_drivers": available_drivers,
+        'unavailable_drivers': unavailable_drivers,
+        'on_job_drivers': on_job_drivers,
+    })
+

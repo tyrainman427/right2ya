@@ -245,6 +245,7 @@ def create_job_page(request):
 
 @login_required(login_url="/sign-in/?next=/customer/")
 def current_jobs_page(request):
+    
     jobs = Job.objects.filter(
         customer=request.user.customer,
         status__in=[
@@ -254,7 +255,7 @@ def current_jobs_page(request):
             Job.DELIVERING_STATUS
         ]
     )
-    print(jobs)
+
     return render(request, 'customer/jobs.html', {
         "jobs": jobs,
 
@@ -281,7 +282,10 @@ def archived_jobs_page(request):
 @login_required(login_url="/sign-in/?next=/customer/")
 def job_page(request, job_id):
     job = Job.objects.get(id=job_id)
-    
+    print("Job: ", job)
+    print("Courier: ", job.courier)
+    print("Courier Lat: ", job.courier.lat)
+    print("Courier Lng: ", job.courier.lng)
 
     if request.method == "POST" and job.status == Job.READY_STATUS:
         job.status = Job.CANCELED_STATUS

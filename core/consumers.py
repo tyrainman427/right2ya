@@ -28,6 +28,7 @@ class JobConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         print("I can see this")
         text_data_json = json.loads(text_data)
+        print(text_data_json)
         courier_lat = text_data_json.get('courier_lat')
         courier_lng = text_data_json.get('courier_lng')
 
@@ -60,6 +61,7 @@ class JobConsumer(AsyncWebsocketConsumer):
 
 
     async def job_update(self, event):
+        print("Received a job update")
         # Send message to WebSocket
         await self.send(text_data=json.dumps(event))
 

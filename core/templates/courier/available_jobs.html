@@ -62,7 +62,7 @@
     $("#delivery-address").html(job.delivery_address);
     $("#duration").html(job.duration);
     $("#distance").html(job.distance.toFixed(2));
-    $("#price").html(job.price.toFixed(2));
+    // $("#price").html(job.price.toFixed(2));
 
     $("#job-details").on("click", function () {
       window.location.href = "/courier/jobs/available/" + job.id + "/";

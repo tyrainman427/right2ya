@@ -20,3 +20,5 @@ class ProfileMiddleware:
     # the view is called.
 
     return response
+  
+  
