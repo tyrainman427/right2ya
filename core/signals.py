@@ -32,8 +32,9 @@ def create_or_update_notification(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Job)
 def send_receipt_email(sender, instance, **kwargs):
-    print(instance.customer.user.email)
-    if instance.paid_status == 'paid':  # replace with the actual status for 'Paid'
+ 
+    if instance.paid_status == 'paid': 
+        print(instance.customer.user.email)# replace with the actual status for 'Paid'
         subject = f'Receipt for job {instance.name}'
         body = f'Thank you for your payment. This email is a receipt for your job {instance.name}.\n\n' \
                f'Description: {instance.description}\n' \
@@ -78,5 +79,5 @@ def send_update_email(sender, instance, **kwargs):
         subject = f'Job status changed to {instance.status}'
         body = f'Your order {instance.name} has been updated and its status has changed to {instance.status}.'
         from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = ['info@worknscrubs.com']
+        recipient_list = [instance.customer.user.email]
         send_mail(subject, body, from_email, recipient_list)

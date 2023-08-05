@@ -89,34 +89,6 @@ def sign_up(request):
         form = forms.SignUpForm()
     return render(request, 'sign_up.html', {'form': form})
 
-    # if request.method == 'POST':  
-    #     form = forms.SignUpForm(request.POST)  
-        
-    #     if form.is_valid():  
-    #         email = form.cleaned_data.get('email').lower()
-    #         # save form in the memory not in database  
-    #         user = form.save(commit=False)  
-    #         user.username = email
-    #         user.is_active = False  
-    #         user.save()  
-    #         # to get the domain of the current site  
-    #         current_site = get_current_site(request)  
-    #         mail_subject = 'Welcome to Right 2 Ya Beta!'  
-    #         message = render_to_string('acc_active_email.html', {  
-    #             'user': user,  
-    #             'domain': current_site.domain,  
-    #             'uid':urlsafe_base64_encode(force_bytes(user.pk)),  
-    #             'token':account_activation_token.make_token(user),  
-    #         })  
-    #         to_email = form.cleaned_data.get('email')  
-    #         email = EmailMessage(  
-    #                     mail_subject, message, to=[to_email]  
-    #         )  
-    #         email.send()  
-    #         return HttpResponse('Please confirm your email address to complete the registration')  
-    # else:  
-    #     form = forms.SignUpForm()  
-    # return render(request, 'sign_up.html', {'form': form})  
 
 def activate(request, uidb64, token):  
     User = get_user_model()  
@@ -154,22 +126,7 @@ def rate_courier(request, job_id):
     
     return render(request, 'customer/jobs.html')
 
-# Import Redis client and other necessary libraries
-import redis
 
-# Create a Redis client
-redis_client = redis.Redis()
-
-# Define the function to update templates and publish the message
-def update_templates_and_publish(job_id, new_status):
-    # Update the job status in Redis
-    redis_client.set(f"job:{job_id}:status", new_status)
-
-    # Publish the status change message on the Redis channel
-    redis_client.publish("job_status_updates", f"{job_id}:{new_status}")
-
-# Identify the event or action that triggers the status change
-# and call the update_templates_and_publish function with the appropriate arguments
 
 
 

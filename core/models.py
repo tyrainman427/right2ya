@@ -332,6 +332,9 @@ class Notification(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True)  # Add this line
     created_at = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
+    
+    def __str__(self):
+      return f"Job: {self.job} - Customer: {self.user}"
 
 class Order(models.Model):
   PROCESSING = 1

@@ -137,9 +137,9 @@ def create_job_page(request):
         ]
     ).exists()
 
-    if has_current_job:
-        messages.warning(request, "You currently have a processing job.")
-        return redirect(reverse('customer:current_jobs'))
+    # if has_current_job:
+    #     messages.warning(request, "You currently have a processing job.")
+    #     return redirect(reverse('customer:current_jobs'))
 
     creating_job = Job.objects.filter(customer=current_customer, status=Job.CREATING_STATUS).last()
     step1_form = forms.JobCreateStep1Form(instance=creating_job)
@@ -284,8 +284,7 @@ def job_page(request, job_id):
     job = Job.objects.get(id=job_id)
     print("Job: ", job)
     print("Courier: ", job.courier)
-    print("Courier Lat: ", job.courier.lat)
-    print("Courier Lng: ", job.courier.lng)
+
 
     if request.method == "POST" and job.status == Job.READY_STATUS:
         job.status = Job.CANCELED_STATUS
