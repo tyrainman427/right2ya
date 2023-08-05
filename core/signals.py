@@ -30,6 +30,19 @@ def create_or_update_notification(sender, instance, created, **kwargs):
         print("Job notification updated")
 
 
+@receiver(post_save, sender=Job)
+def send_receipt_email(sender, instance, **kwargs):
+    print(instance.customer.user.email)
+    if instance.paid_status == 'paid':  # replace with the actual status for 'Paid'
+        subject = f'Receipt for job {instance.name}'
+        body = f'Thank you for your payment. This email is a receipt for your job {instance.name}.\n\n' \
+               f'Description: {instance.description}\n' \
+               f'Price: ${instance.price}\n'  # replace with the actual field for the job's price
+        from_email = settings.DEFAULT_FROM_EMAIL  # replace with your email
+        recipient_list = [instance.customer.user.email]  # replace with the customer's email field
+
+        send_mail(subject, body, from_email, recipient_list)
+
 
 # @receiver(post_save, sender=User)
 # def send_welcome_email(sender, instance, created, **kwargs):
@@ -48,22 +61,22 @@ def create_or_update_notification(sender, instance, created, **kwargs):
 #             [instance.email],
 #             fail_silently=False,
         # )
-# @receiver(post_save, sender=Job)
-# def send_update_email(sender, instance, **kwargs):   
-#     if instance.status != instance.CREATING_STATUS:
-#         #print('Sending update email')
-#         TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-#         TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-#         client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+@receiver(post_save, sender=Job)
+def send_update_email(sender, instance, **kwargs):   
+    if instance.status != instance.CREATING_STATUS:
+        #print('Sending update email')
+        TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+        TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-#         message = client.messages.create(
-#                                 body=f'Your order has been updated and its status has changed to {instance.status}. If you need further information please check the app.',
-#                                 from_='+18446702408',
-#                                 to='+12037150447' 
-#                             )
+        message = client.messages.create(
+                                body=f'Your order has been updated and its status has changed to {instance.status}. If you need further information please check the app.',
+                                from_='+18446702408',
+                                to='+12037150447' 
+                            )
  
-#         subject = f'Job status changed to {instance.status}'
-#         body = f'Your order {instance.name} has been updated and its status has changed to {instance.status}.'
-#         from_email = settings.DEFAULT_FROM_EMAIL
-#         recipient_list = ['info@worknscrubs.com']
-#         send_mail(subject, body, from_email, recipient_list)
+        subject = f'Job status changed to {instance.status}'
+        body = f'Your order {instance.name} has been updated and its status has changed to {instance.status}.'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = ['info@worknscrubs.com']
+        send_mail(subject, body, from_email, recipient_list)
