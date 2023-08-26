@@ -26,7 +26,7 @@
           }
         }
       })
-    }, 3000)
+    }, 10000) // Check for notification every 10 secs for now
   })
 </script> 
 
@@ -57,8 +57,8 @@
 <div class="list-group">
   <span class="text-uppercase">Dashboard</span>
 
-  <a href="{% url 'dashboard:restaurant_meal' %}" 
-    class="list-group-item {% if request.path == restaurant_service_url %} active {% endif %}">Services</a>
+  {% comment %} <a href="{% url 'dashboard:restaurant_meal' %}" 
+    class="list-group-item {% if request.path == restaurant_service_url %} active {% endif %}">Services</a> {% endcomment %}
   <a href="{% url 'dashboard:dashboard_order' %}" 
     class="list-group-item {% if request.path == restaurant_order_url %} active {% endif %}">
     Orders
@@ -75,7 +75,7 @@
 </div>
 
 <div class="text-center my-3 mx-3">
-  <a href="" class="btn btn-warning btn-block">Logout</a>
+  <a href="/sign-out/" class="btn btn-warning btn-block">Logout</a>
 </div>
 
 {% endblock %}

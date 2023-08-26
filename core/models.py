@@ -106,32 +106,34 @@ class Job(models.Model):
     (MEDIUM_SIZE, 'Medium'),
     (LARGE_SIZE, 'Large'),
   )
-  SAME_DAY_DELIVERY = 'same_day'
+  SAME_DAY_DELIVERY = 'standard'
   SCHEDULED_DELIVERY = 'scheduled'
-  SERVICE_DELIVERY = 'services'
   
   SERVICE_DELIVERY = (
         ('standard', 'Standard Delivery'),
         ('scheduled', 'Scheduled Delivery'),
-        ('services', 'Services'),
     )
 
   CREATING_STATUS = 'creating'
   PROCESSING_STATUS = 'processing'
   READY_STATUS = 'ready'
   PICKING_STATUS = 'picking'
-  DELIVERING_STATUS = 'Delivering Order'
+  DELIVERING_STATUS = 'delivering'
   COMPLETED_STATUS = 'completed'
   REVIEWED_STATUS = 'reviewed'
   CANCELED_STATUS = 'canceled'
+  ARRIVED_STATUS = 'arrived'
+  SIGNED_STATUS = 'signed'
   STATUSES = (
     (CREATING_STATUS, 'Creating'),
     (PROCESSING_STATUS, 'Processing'),
-    (READY_STATUS, 'ready'),
+    (READY_STATUS, 'Ready'),
     (PICKING_STATUS, 'Picking'),
+    (ARRIVED_STATUS,'Arrived'),
     (DELIVERING_STATUS, 'Delivering'),
+    (SIGNED_STATUS,"Signed"),
     (COMPLETED_STATUS, 'Completed'),
-    (REVIEWED_STATUS, 'reviewed'),
+    (REVIEWED_STATUS, 'Reviewed'),
     (CANCELED_STATUS, 'Canceled'),
   )
 
@@ -182,15 +184,13 @@ class Job(models.Model):
   delivery_photo = models.ImageField(upload_to='job/delivery_photos/', null=True, blank=True)
   delivered_at = models.DateTimeField(null=True, blank=True)
   
-  delivery_date_time = models.DateField(blank=True, null=True)
   scheduled_time = models.TimeField(blank=True, null=True)
-
-
+  signature = models.ImageField(upload_to='job/signatures/', null=True, blank=True)
 
   # Pricing
   service_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
   delivery_fee = models.FloatField(default=0)
-  service_type = models.CharField(choices=SERVICE_DELIVERY, default='standard', max_length=20)
+  service_type = models.CharField(choices=SERVICE_DELIVERY, default=SAME_DAY_DELIVERY, max_length=20)
   meal_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
   rated = models.BooleanField(default=False)
   
@@ -199,6 +199,12 @@ class Job(models.Model):
   
   scheduled_date = models.DateTimeField(null=True, blank=True)
   paid_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=UNPAID_STATUS)
+  previous_status = models.CharField(max_length=100, blank=True, null=True)
+  
+
+  arrived_at_destination_time = models.DateTimeField(null=True, blank=True)
+  waiting_end_time = models.DateTimeField(null=True, blank=True)
+
 
 
   def get_todays_jobs():
@@ -222,72 +228,65 @@ class Job(models.Model):
   # Service fee: 25% of the base price
 
   def calculate_price(self):
+    # Enforce standard pricing on weekends
+    if self.scheduled_date and self.scheduled_date.weekday() in [5, 6]:
+        self.service_type = self.SAME_DAY_DELIVERY
+
     # Get the total duration in minutes
     total_duration_minutes = self.duration
-    new_price = 0
-  
+    total_hours = total_duration_minutes / 60
 
-    # Calculate the base price based on the duration
-    if total_duration_minutes <= 60:
-        base_price = 60
-    elif total_duration_minutes <= 120:
-        base_price = 70
-    elif total_duration_minutes <= 180:
-        base_price = 80
-    else:
-        base_price = 140
-        
-      # Add extra fees for bulky or heavy packages
-    if self.weight > 10:
-        extra_weight_fee = (self.weight - 10) * 0.25
-    else:
-        extra_weight_fee = 0
+    # Determine the base price based on the duration and service type
+    base_price = self._get_base_price(total_hours)
+
+    # Calculate the new price for additional hours or use base price if under an hour
+    new_price = base_price * total_hours if total_hours > 1 else base_price
+
+    # Add extra fees for bulky or heavy packages
+    extra_weight_fee = max(0, (self.weight - 10) * 0.25)
 
     # Add extra fee for expedited weekend deliveries
-    if self.delivery_date_time and self.delivery_date_time.weekday() in [5, 6]:  # Saturday or Sunday
-        weekend_delivery_fee = total_duration_minutes * 25
-    else:
-        weekend_delivery_fee = 0
+    weekend_delivery_fee = 25 if self.scheduled_date and self.scheduled_date.weekday() in [5, 6] else 0
+
+    # Calculate the waiting time in minutes
+    waiting_minutes = 0
+    if self.arrived_at_destination_time and self.waiting_end_time:
+        waiting_minutes = (self.waiting_end_time - self.arrived_at_destination_time).total_seconds() // 60 - 10
+    
+    # Calculate the waiting fee
+    waiting_fee = max(0, waiting_minutes // 5) * 5
 
     # Add spill charge
-    if self.has_spill:
-        spill_charge = 50
-    else:
-        spill_charge = 0
+    spill_charge = 50 if self.has_spill else 0
 
-    # Calculate the total number of hours the job is
-    total_hours = total_duration_minutes / 60
-    
-    if total_hours <= 1:
-        service_fee = base_price * 0.25 # service fees
-        total_price = base_price + service_fee # total price 
-        self.service_fee = base_price + extra_weight_fee + weekend_delivery_fee + spill_charge
-        self.delivery_fee = service_fee
-        self.price = total_price + extra_weight_fee + weekend_delivery_fee + spill_charge
-        print("Price", self.price)
-  
-    else:
-        # Calculate the new price for additional hours (base price * total_hours)
-        new_price = base_price * (total_hours)
+    # Subtotal before service fee
+    subtotal = new_price + extra_weight_fee + weekend_delivery_fee + spill_charge + waiting_fee
 
-        # Calculate the service fee (25% of the new price)
-        service_fee = new_price * 0.25
+    # Calculate the service fee
+    service_fee = subtotal * 0.25 if subtotal * 0.25 <= 100 else subtotal * 0.15
 
-        # If the service fee is more than $100, apply a lower service fee (15% of the new price)
-        if service_fee > 100:
-            service_fee = new_price * 0.15
+    # Calculate the total price including all fees
+    total_price = subtotal + service_fee
 
-        # Calculate the total price including the service fee and the number of hours the job is
-        total_price = new_price + service_fee
+    # Set the total price including the service fee
+    self.service_fee = subtotal
+    self.delivery_fee = service_fee
+    self.price = total_price
 
-        # Set the total price including the service fee
-        self.service_fee = new_price
-        self.delivery_fee = service_fee
-        self.price = total_price + extra_weight_fee + weekend_delivery_fee + spill_charge
     super().save()
     return total_price
 
-
+  def _get_base_price(self, total_hours):
+    if total_hours <= 1:
+        return 60 if self.service_type != 'scheduled' else 40
+    elif total_hours <= 2:
+        return 70 if self.service_type != 'scheduled' else 50
+    elif total_hours <= 3:
+        return 100 if self.service_type != 'scheduled' else 70
+    elif total_hours <= 4:
+        return 140 if self.service_type != 'scheduled' else 110
+    else:
+        return 140 if self.service_type != 'scheduled' else 110 # For over 4 hours
 
   def __str__(self):
       return f"{self.name}"
@@ -332,6 +331,9 @@ class Notification(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True)  # Add this line
     created_at = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
+    
+    def __str__(self):
+      return f"Job: {self.job} - Customer: {self.user}"
 
 class Order(models.Model):
   PROCESSING = 1
@@ -388,3 +390,4 @@ def save_customer_and_restaurant(sender, instance, **kwargs):
 class Tip(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=6, decimal_places=2)
+

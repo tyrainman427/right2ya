@@ -17,22 +17,6 @@
 
   {% include 'load_firebase.html' %}
 
-  {% comment %} <script>
-    const messaging = firebase.messaging();
-    messaging
-      .getToken({
-        validKey: "BAJ27Hzz47Ijj7xAScGWgTBvsSJC2ZubWTK_ug7rKhwwqXr5LznaCnIgJ07yrsTtVcCFlqoUlamGo0VcqfBgq0g"
-      })
-      .then((currentToken) => {
-        console.log(currentToken);
-        if (currentToken) {
-          fetch('{% url "fcm_token_update_api" %}?fcm_token=' + currentToken);
-        }
-      })
-      .catch((err) => {
-        console.log('An error occured while retrieving token. ', err);
-      })
-  </script> {% endcomment %}
 
   <script>
     let vh = window.innerHeight * 0.01;
@@ -75,24 +59,25 @@
 </html>
 
 <script>
-
   $(document).ready(function() {
-    var now = new Date();
+    var lastJobId = null; // Variable to keep track of the last job that triggered a reload
+
     setInterval(function() {
       $.ajax({
         url: '/api/jobs/available/',
         method: 'GET',
         success: function(data) {
-          console.log(data)
-          if (data[0]['status'] == 'ready') {
+          console.log(data);
+          if (data[0]['status'] == 'ready' && data[0]['job_id'] != lastJobId) { // Check if the job is different from the last one
+            lastJobId = data[0]['job_id']; // Update the last job ID
             setTimeout(function() {
+              console.log("Screen should be reloading");
               document.location.reload();
-              console.log("Screen should be reloading")
+              
             }, 5000); // Set the duration to 5000 milliseconds (5 seconds)
           }
         }
       });
     }, 10000);
   });
-  
 </script>
