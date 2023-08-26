@@ -27,7 +27,9 @@ def current_job_update_api(request, id):
     courier=request.user.courier,
     status__in=[
       Job.PICKING_STATUS,
-      Job.DELIVERING_STATUS
+      Job.DELIVERING_STATUS,
+      Job.SIGNED_STATUS,
+      Job.ARRIVED_STATUS,
     ]
   ).last()
 
@@ -51,7 +53,7 @@ def current_job_update_api(request, id):
     except:
       pass
 
-  elif job.status == Job.DELIVERING_STATUS:
+  elif job.status == Job.SIGNED_STATUS:
     job.delivery_photo = request.FILES['delivery_photo']
     job.delivered_at = timezone.now()
     job.status = Job.COMPLETED_STATUS

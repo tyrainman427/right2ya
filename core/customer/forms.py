@@ -24,7 +24,7 @@ class TimeInput(forms.TimeInput):
 class JobCreateStep1Form(forms.ModelForm):
   class Meta:
     model = Job
-    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo','weight', 'has_spill','scheduled_time','scheduled_date')
+    fields = ('name', 'description', 'category', 'size', 'quantity', 'photo','weight', 'has_spill','service_type','scheduled_time','scheduled_date')
     widgets = {
             'scheduled_date': DateInput(),
             'scheduled_time': TimeInput(),

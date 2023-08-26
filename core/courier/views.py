@@ -12,6 +12,11 @@ from .forms import *
 from rest_framework import generics
 from core.views import *
 from decimal import Decimal
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.core.files.base import ContentFile
+import base64
+import json
 
 @login_required(login_url="/sign-in/?next=/courier/")
 def home(request):
@@ -85,7 +90,9 @@ def current_job_page(request):
         courier=request.user.courier,
         status__in = [
             Job.PICKING_STATUS,
-            Job.DELIVERING_STATUS
+            Job.DELIVERING_STATUS,
+            Job.ARRIVED_STATUS,
+            Job.SIGNED_STATUS,
         ]
     ).last()
 
@@ -101,7 +108,9 @@ def current_job_take_photo_page(request, id):
         courier=request.user.courier,
         status__in=[
             Job.PICKING_STATUS,
-            Job.DELIVERING_STATUS
+            Job.DELIVERING_STATUS,
+            Job.SIGNED_STATUS,
+            Job.ARRIVED_STATUS
         ]
     ).last()
 
@@ -189,3 +198,62 @@ def update_switch_state(request):
         return JsonResponse({'message': 'Switch state updated successfully.'})
 
     return JsonResponse({'message': 'Invalid request method.'}, status=400)
+
+
+
+@csrf_exempt
+def save_signature(request, job_id):
+    if request.method == 'POST':
+        body_unicode = request.body.decode('utf-8')
+        body_data = json.loads(body_unicode)
+        signature_data = body_data.get('signature')
+        job = Job.objects.get(pk=job_id)
+
+        # Remove header of data URL
+        signature_file = ContentFile(base64.b64decode(signature_data.split(',')[1]))
+        filename = f'signature_{job_id}.png'
+
+        # Save the signature image to the job
+        job.signature.save(filename, signature_file)
+        
+        # Update the status as needed
+        job.status = 'signed'
+
+        # Mark the time the waiting ends (which is now)
+        job.waiting_end_time = timezone.now()
+
+        job.save()
+
+        return redirect(reverse('courier:current_job'))
+
+
+from django.utils import timezone
+
+# In your Django view
+@login_required(login_url="/sign-in/?next=/courier/")
+def arrive_at_destination(request, job_id):
+    job = Job.objects.filter(
+        id=job_id,
+        courier=request.user.courier,
+        status__in=[
+            Job.PICKING_STATUS,
+            Job.DELIVERING_STATUS,
+            Job.SIGNED_STATUS,
+            Job.ARRIVED_STATUS
+        ]
+    ).last()
+
+    if not job:
+        return redirect(reverse('courier:current_job'))
+
+    if request.method == 'POST':
+        print("Posted")
+        if job.status == 'delivering':
+            job.status = 'arrived'
+            job.arrived_at_destination_time = timezone.now()
+            job.save()
+            return redirect('courier:current_job')
+
+        return redirect(reverse('courier:current_job'))
+
+    # Your existing code to render the template, etc.

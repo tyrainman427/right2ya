@@ -34,6 +34,8 @@ class JobConsumer(AsyncWebsocketConsumer):
 
         if courier_lat is not None and courier_lng is not None:
             try:
+                await self.save_courier_location(courier_lat, courier_lng)
+
                 # Create the job object with the courier coordinates
                 job = {
                     'courier_lat': courier_lat,
@@ -62,8 +64,10 @@ class JobConsumer(AsyncWebsocketConsumer):
 
     async def job_update(self, event):
         print("Received a job update")
+        job = event['job']
+     
         # Send message to WebSocket
-        await self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps(job))
 
     @database_sync_to_async
     def save_courier_location(self, lat, lng):

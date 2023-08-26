@@ -180,6 +180,7 @@
 <div class="d-flex flex-column h-100" style="padding-bottom: 60px">
   <div class="text-center">
     <h4 class="mt-1 mb-1">{{ job.scheduled_date }}</h4>
+    <h4 class="mt-1 mb-1">{{ job.scheduled_time }}</h4>
     <div class="btn-group mt-1 mb-1 align-item-center" role="group">
       <a href="{% url 'courier:current_job' %}" class="btn btn-warning">Current Job</a>
       <a href="{% url 'courier:archived_jobs' %}" class="btn btn-outline-warning">Archived Jobs</a>
@@ -227,22 +228,79 @@
           </div>
         </div>
       </div>
-
+      {% comment %} PICKING_STATUS = 'picking'
+      DELIVERING_STATUS = 'delivering'
+      COMPLETED_STATUS = 'completed'
+      REVIEWED_STATUS = 'reviewed'
+      CANCELED_STATUS = 'canceled'
+      ARRIVED_STATUS = 'arrived' {% endcomment %}
+      {% if job.status == 'picking' %}
       <a href="{% url 'courier:current_job_take_photo' job.id %}" class="btn btn-block btn-warning btn-md mt-3">
-        {% if job.status == 'picking' %}Pickup{% else %}Drop-off{% endif %}
+        Pick Up
       </a>
+      {% elif job.status == 'delivering' %}
+      <form method="post" action="{% url 'courier:arrive_at_destination' job.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-block btn-info btn-md mt-3">
+          Arrive at Destination
+        </button>
+      </form>
+    {% elif job.status == 'signed' %}
+      <a href="{% url 'courier:current_job_take_photo' job.id %}" class="btn btn-block btn-warning btn-md mt-3">
+        Drop-off
+      </a>
+    {% elif job.status == 'arrived' %}
+    {% if job.id %}
+    <!-- Signature Section -->
+    <div class="signature-section">
+      <canvas id="signature-pad" class="signature-pad" width="400" height="200"></canvas>
+      <button id="save-signature" class="btn btn-success">Save Signature</button>
+      <button id="clear-signature" class="btn btn-danger">Clear Signature</button>
     </div>
-  </div>
-
-  {% else %}
-
-  <div id="main" class="text-center">
-    <p>There is no current job please go to the Available Jobs tab to accept jobs.</p>
-  </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <script>
+      // Initialize Signature Pad
+      var signaturePad = new SignaturePad(document.getElementById('signature-pad'));
+    
+      // Handle save signature button click
+      document.getElementById('save-signature').addEventListener('click', function () {
+        var signatureData = signaturePad.toDataURL(); // Get signature as data URL
+    
+        // Send the data to the server
+        fetch("{% url 'courier:save_signature' job.id %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({ signature: signatureData })
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Handle success, such as redirecting or showing a success message
+          if (data.status === 'success') {
+            // Update the job status in the UI
+            document.getElementById('job-status').innerText = 'Signed';
+            location.reload()
+            window.location.reload()
+            document.location.reload(); // Reload the current page
+            // Optionally, redirect to another page or show a success message
+          }
+        })
+        .catch(error => {
+          console.error('Error saving signature:', error);
+        });
+      });
+    
+        // Handle clear signature button click
+        document.getElementById('clear-signature').addEventListener('click', function () {
+          signaturePad.clear(); // Clear the signature pad
+        });
+    </script>
+    <!-- Handle the case where job.id is None -->
+    {% endif %}
   {% endif %}
-
-</div>
+  {% endif %}
 
 {% include 'courier/bottom_tabs.html' %}
 

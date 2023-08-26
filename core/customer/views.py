@@ -20,7 +20,11 @@ import os
 from core.models import *
 from .utils import save
 import psycopg2
-
+from django.utils import timezone
+from django.db.models import Q
+from .forms import JobCreateStep1Form, JobCreateStep2Form, JobCreateStep3Form
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 
 
 stripe.api_key = settings.STRIPE_API_SECRET_KEY
@@ -137,34 +141,42 @@ def create_job_page(request):
         ]
     ).exists()
 
-    # if has_current_job:
-    #     messages.warning(request, "You currently have a processing job.")
-    #     return redirect(reverse('customer:current_jobs'))
-
     creating_job = Job.objects.filter(customer=current_customer, status=Job.CREATING_STATUS).last()
-    step1_form = forms.JobCreateStep1Form(instance=creating_job)
-    step2_form = forms.JobCreateStep2Form(instance=creating_job)
-    step3_form = forms.JobCreateStep3Form(instance=creating_job)
+    
+    if creating_job:  # Check if creating_job is not None
+        if request.POST.get('service_type') == 'scheduled':
+            if creating_job.scheduled_date:
+                creating_job.service_type = 'scheduled'
+            else:
+                creating_job.service_type = 'standard'
+
+    
+    
+    step1_form = JobCreateStep1Form(instance=creating_job)
+    step2_form = JobCreateStep2Form(instance=creating_job)
+    step3_form = JobCreateStep3Form(instance=creating_job)
 
     if request.method == "POST":
+
         if request.POST.get('step') == '1':
-            step1_form = forms.JobCreateStep1Form(request.POST, request.FILES, instance=creating_job)
+            step1_form = JobCreateStep1Form(request.POST, request.FILES, instance=creating_job)
             if step1_form.is_valid():
                 creating_job = step1_form.save(commit=False)
                 creating_job.customer = current_customer
+                creating_job.scheduled_date = step1_form.cleaned_data['scheduled_date']
                 creating_job.save()
                 return redirect(reverse('customer:create_job'))
 
         elif request.POST.get('step') == '2':
-            step2_form = forms.JobCreateStep2Form(request.POST, instance=creating_job)
+            step2_form = JobCreateStep2Form(request.POST, instance=creating_job)
             if step2_form.is_valid():
-                creating_job = step2_form.save()
+                creating_job.save()
                 return redirect(reverse('customer:create_job'))
 
         elif request.POST.get('step') == '3':
-            step3_form = forms.JobCreateStep3Form(request.POST, instance=creating_job)
+            step3_form = JobCreateStep3Form(request.POST, instance=creating_job)
             if step3_form.is_valid():
-                creating_job = step3_form.save()
+                creating_job.save()
 
                 try:
                     r = requests.get("https://maps.googleapis.com/maps/api/distancematrix/json?&origins={}&destinations={}&mode=driving&best_guess&departure_time=now&region=us&units=imperial&key={}".format(
@@ -173,15 +185,12 @@ def create_job_page(request):
                         settings.GOOGLE_MAP_API_KEY,
                     ))
 
-                    print(r.json()['rows'])
-
                     distance = r.json()['rows'][0]['elements'][0]['distance']['value']
                     duration = r.json()['rows'][0]['elements'][0]['duration']['value']
                     distance = round(distance / 1000, 2) * 0.62
                     creating_job.distance = distance
                     creating_job.duration = int(duration / 60)
                     creating_job.price = creating_job.calculate_price()
-                    print(creating_job.price)
                     creating_job.save()
 
                 except Exception as e:
@@ -203,24 +212,19 @@ def create_job_page(request):
                     )
 
                     Transaction.objects.create(
-                        stripe_payment_intent_id = payment_intent['id'],
-                        job = creating_job,
-                        amount = creating_job.price,
+                        stripe_payment_intent_id=payment_intent['id'],
+                        job=creating_job,
+                        amount=creating_job.price,
                     )
-                   
+
                     creating_job.status = Job.PROCESSING_STATUS
                     creating_job.paid_status = Job.PAID_STATUS
                     creating_job.save()
-                    
-                
-         
 
                     return redirect(reverse('customer:home'))
 
                 except stripe.error.CardError as e:
                     err = e.error
-                    # Error code will be authentication_required if authentication is needed
-                    print("Code is: %s" % err.code)
                     payment_intent_id = err.payment_intent['id']
                     payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
 
@@ -240,12 +244,12 @@ def create_job_page(request):
         "step1_form": step1_form,
         "step2_form": step2_form,
         "step3_form": step3_form,
-        "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY
+        "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY,
     })
 
 @login_required(login_url="/sign-in/?next=/customer/")
 def current_jobs_page(request):
-    
+    current_date = timezone.localtime().date()
     jobs = Job.objects.filter(
         customer=request.user.customer,
         status__in=[
@@ -254,11 +258,13 @@ def current_jobs_page(request):
             Job.PICKING_STATUS,
             Job.DELIVERING_STATUS
         ]
+    ).filter(
+        Q(scheduled_date__date=current_date, service_type='scheduled') |
+        Q(service_type='standard')
     )
 
     return render(request, 'customer/jobs.html', {
         "jobs": jobs,
-
     })
 
 @login_required(login_url="/sign-in/?next=/customer/")
@@ -282,10 +288,8 @@ def archived_jobs_page(request):
 @login_required(login_url="/sign-in/?next=/customer/")
 def job_page(request, job_id):
     job = Job.objects.get(id=job_id)
-    print("Job: ", job)
-    print("Courier: ", job.courier)
 
-
+    
     if request.method == "POST" and job.status == Job.READY_STATUS:
         job.status = Job.CANCELED_STATUS
         job.save()
@@ -303,30 +307,33 @@ def select_job(request):
     if request.method == 'POST':
         delivery_choice = request.POST.get('delivery_choice')
         
+        # Store the selected delivery choice in the session
+        request.session['delivery_choice'] = delivery_choice
+
         if delivery_choice == Job.SAME_DAY_DELIVERY:
-            return redirect('create_job')
+            return redirect('select_service_type')
         elif delivery_choice == Job.SCHEDULED_DELIVERY:
-            return redirect('schedule_jobs')
+            return redirect('select_service_type')
     
     return render(request, 'customer/select_job.html')
+
+from django.shortcuts import redirect
 
 @login_required
 def select_service_type(request):
     if request.method == 'POST':
         service_type = request.POST.get('service_type')
         if service_type == 'standard':
-            # Redirect to the standard service page
+            # Redirect to the standard service page (create_job view)
             return redirect('customer:create_job')
         elif service_type == 'scheduled':
-            # Redirect to the scheduled service page
-            return redirect('scheduler:create_job')
-        elif service_type == 'services':
-            # Redirect to the service menu
-            return redirect('customer:choose_meal')
+            # Redirect to the scheduled service page (create_job view)
+            return redirect('customer:create_job')
 
     # If the request method is not POST or the service type is not provided,
     # render the select service type template again
     return render(request, 'customer/select_job.html')
+
 
 
 

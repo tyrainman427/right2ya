@@ -29,42 +29,34 @@ def create_or_update_notification(sender, instance, created, **kwargs):
         Notification.objects.filter(user=instance.customer.user, job=instance).update(read=True)
         print("Job notification updated")
 
+@receiver(pre_save, sender=Job)
+def set_previous_status(sender, instance, **kwargs):
+    try:
+        obj = sender.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        # Object is new, so field hasn't technically changed, but you may want to do something else here.
+        pass
+    else:
+        instance.previous_status = obj.paid_status  # Store the previous value
+
 
 @receiver(post_save, sender=Job)
 def send_receipt_email(sender, instance, **kwargs):
- 
-    if instance.paid_status == 'paid': 
+    if instance.paid_status == 'paid' and instance.previous_status != 'paid':
         print(instance.customer.user.email)# replace with the actual status for 'Paid'
         subject = f'Receipt for job {instance.name}'
         body = f'Thank you for your payment. This email is a receipt for your job {instance.name}.\n\n' \
                f'Description: {instance.description}\n' \
-               f'Price: ${instance.price}\n'  # replace with the actual field for the job's price
+               f'Price: ${instance.price}\n' 
         from_email = settings.DEFAULT_FROM_EMAIL  # replace with your email
         recipient_list = [instance.customer.user.email]  # replace with the customer's email field
 
         send_mail(subject, body, from_email, recipient_list)
 
 
-# @receiver(post_save, sender=User)
-# def send_welcome_email(sender, instance, created, **kwargs):
-#     if created and instance.email:
-#         body = render_to_string(
-#             'welcome_email_template.html',
-#             {
-#                 'name': instance.get_full_name
-#             }
-#         )
-#         # send welcome email
-#         send_mail(
-#             'Welcome to Right 2 Ya Beta',
-#             body,
-#             settings.DEFAULT_FROM_EMAIL,
-#             [instance.email],
-#             fail_silently=False,
-        # )
 @receiver(post_save, sender=Job)
 def send_update_email(sender, instance, **kwargs):   
-    if instance.status != instance.CREATING_STATUS:
+    if instance.status != instance.CREATING_STATUS and instance.status != instance.previous_status and instance.status != instance.REVIEWED_STATUS:
         #print('Sending update email')
         TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
         TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
@@ -81,3 +73,12 @@ def send_update_email(sender, instance, **kwargs):
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [instance.customer.user.email]
         send_mail(subject, body, from_email, recipient_list)
+        
+
+@receiver(pre_save, sender=Job)
+def store_previous_status(sender, instance, **kwargs):
+    try:
+        obj = sender.objects.get(pk=instance.pk)
+        instance.previous_status = obj.status
+    except sender.DoesNotExist:
+        pass
