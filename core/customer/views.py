@@ -6,7 +6,8 @@ from django.core.mail import send_mail
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseNotAllowed
+from django.views.decorators.http import require_POST
 from core.customer import forms
 from core.forms import RestaurantForm
 from stripe.error import CardError
@@ -454,3 +455,16 @@ def add_tip(request, job_id):
         form = forms.AddTipForm()
 
     return render(request, 'customer/add_tip.html', {'form': form, 'job': job})
+
+@login_required
+@require_POST
+def cancel_job(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+
+    if job.customer.user != request.user or job.status != 'processing':
+        return HttpResponseNotAllowed('Cannot cancel this job')
+
+    job.status = 'canceled'
+    job.save()
+
+    return redirect('customer:home') 

@@ -146,8 +146,9 @@
   <div class="media-body">
 
     {% if job.status == 'processing' %}
-    <form method="POST" class="float-right">
+    <form method="POST" action="{% url 'customer:cancel_job' job.id %}" class="float-right">
       {% csrf_token %}
+      <input type="hidden" name="job_id" value="{{ job.id }}">
       <button type="submit" class="btn btn-warning">Cancel Job</button>
     </form>
     {% endif %}

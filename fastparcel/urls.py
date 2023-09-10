@@ -29,6 +29,7 @@ customer_urlpatterns = [
     path('jobs/<uuid:job_id>/add_tip/', customer_views.add_tip, name='add_tip'),
     path('job_summary/<int:job_id>/', customer_views.job_summary, name='job_summary'),
     path('make_payment/<int:job_id>/', customer_views.make_payment, name='make_payment'),
+    path('jobs/<uuid:job_id>/cancel_job/', customer_views.cancel_job, name='cancel_job'),
     
 
 ]
