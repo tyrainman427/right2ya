@@ -238,6 +238,19 @@
 {% comment %} <p>You have already tipped the courier for this job.</p> {% endcomment %}
 {% comment %} {% endif %} {% endcomment %}
 
+<!-- Signature -->
+{% if job.signature %}
+<h4 class="mb-3">Signature</h4>
+<div class="row">
+  <div class="col-lg-12">
+    <img src="{{ job.signature.url }}" class="rounded-lg" width="300" height="150">
+  </div>
+</div>
+{% else %}
+<div class="photo-blank">Signature Will Appear Here</div>
+{% endif %}
+
+
 <!-- RATE COURIER -->
 {% if job.rated  %}
 <p>You have already rated ⭐ the courier for this job.</p>

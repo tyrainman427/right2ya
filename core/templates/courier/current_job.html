@@ -265,6 +265,7 @@
       // Handle save signature button click
       document.getElementById('save-signature').addEventListener('click', function () {
         var signatureData = signaturePad.toDataURL(); // Get signature as data URL
+        location.reload()
     
         // Send the data to the server
         fetch("{% url 'courier:save_signature' job.id %}", {

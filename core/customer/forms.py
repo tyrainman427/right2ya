@@ -29,6 +29,9 @@ class JobCreateStep1Form(forms.ModelForm):
             'scheduled_date': DateInput(),
             'scheduled_time': TimeInput(),
         }
+    labels = {
+            'name': 'Item Name',
+        }
 
 class JobCreateStep2Form(forms.ModelForm):
   pickup_address = forms.CharField(required=True)

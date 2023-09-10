@@ -289,7 +289,7 @@ class Job(models.Model):
         return 140 if self.service_type != 'scheduled' else 110 # For over 4 hours
 
   def __str__(self):
-      return f"{self.name}"
+      return f"Job - {self.name} - {self.status}"
     
   def pay(self):
         self.paid_status = self.PAID_STATUS

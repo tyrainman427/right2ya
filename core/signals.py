@@ -41,39 +41,14 @@ def set_previous_status(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Job)
-def send_receipt_email(sender, instance, **kwargs):
-    if instance.paid_status == 'paid' and instance.previous_status != 'paid':
-        print(instance.customer.user.email)# replace with the actual status for 'Paid'
-        subject = f'Receipt for job {instance.name}'
-        body = f'Thank you for your payment. This email is a receipt for your job {instance.name}.\n\n' \
-               f'Description: {instance.description}\n' \
-               f'Price: ${instance.price}\n' 
-        from_email = settings.DEFAULT_FROM_EMAIL  # replace with your email
-        recipient_list = [instance.customer.user.email]  # replace with the customer's email field
+def handle_job_update(sender, instance, **kwargs):
+    # For receipt email
+    if instance.status == instance.COMPLETED_STATUS:
+        send_receipt_email(instance)
 
-        send_mail(subject, body, from_email, recipient_list)
-
-
-@receiver(post_save, sender=Job)
-def send_update_email(sender, instance, **kwargs):   
-    if instance.status != instance.CREATING_STATUS and instance.status != instance.previous_status and instance.status != instance.REVIEWED_STATUS:
-        #print('Sending update email')
-        TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-        TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-
-        message = client.messages.create(
-                                body=f'Your order has been updated and its status has changed to {instance.status}. If you need further information please check the app.',
-                                from_='+18446702408',
-                                to='+12037150447' 
-                            )
- 
-        subject = f'Job status changed to {instance.status}'
-        body = f'Your order {instance.name} has been updated and its status has changed to {instance.status}.'
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [instance.customer.user.email]
-        send_mail(subject, body, from_email, recipient_list)
-        
+    # For status update email
+    if instance.status != instance.CREATING_STATUS and instance.status != instance.previous_status:
+        send_status_update_email(instance)
 
 @receiver(pre_save, sender=Job)
 def store_previous_status(sender, instance, **kwargs):
@@ -82,3 +57,29 @@ def store_previous_status(sender, instance, **kwargs):
         instance.previous_status = obj.status
     except sender.DoesNotExist:
         pass
+
+def send_receipt_email(instance):
+    subject = f'Receipt for job {instance.name}'
+    body = f'Thank you for your payment. This email is a receipt for your job {instance.name}.\n\n' \
+           f'Description: {instance.description}\n' \
+           f'Price: ${instance.price}\n'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [instance.customer.user.email]
+    send_mail(subject, body, from_email, recipient_list)
+
+def send_status_update_email(instance):
+    TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+    TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+    message = client.messages.create(
+        body=f'Your order has been updated and its status has changed to {instance.status}. If you need further information please check the app.',
+        from_='+18446702408',
+        to=[instance.customer.phone_number]
+    )
+
+    subject = f'Job status changed to {instance.status}'
+    body = f'Your order {instance.name} has been updated and its status has changed to {instance.status}.'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [instance.customer.user.email]
+    send_mail(subject, body, from_email, recipient_list)

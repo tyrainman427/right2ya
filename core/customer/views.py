@@ -279,7 +279,8 @@ def archived_jobs_page(request):
         ]
     )
     
-    courier_id = [job.courier.id for job in jobs] 
+    courier_id = [job.courier.id for job in jobs if job.courier is not None]
+
 
     return render(request, 'customer/jobs.html', {
         "jobs": jobs,
