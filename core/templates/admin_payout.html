@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Admin Payout</h1>
+
+    <!-- Form for selecting couriers and initiating payout -->
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll">
+                                <label class="form-check-label" for="selectAll">Select All</label>
+                            </div>
+                        </th>
+                        <th scope="col">Courier</th>
+                        <th scope="col">PayPal Email</th>
+                        <th scope="col">Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for courier in couriers %}
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input courier-checkbox" type="checkbox" name="selected_couriers" value="{{ courier.id }}" id="courier{{ courier.id }}">
+                                </div>
+                            </td>
+                            <td>{{ courier.user.get_full_name }}</td>
+                            <td>{{ courier.paypal_email }}</td>
+                            <td>{{ courier.balance }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-primary">Payout to Couriers</button>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    // JavaScript to handle "Select All" functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const courierCheckboxes = document.querySelectorAll('.courier-checkbox');
+
+        selectAllCheckbox.addEventListener('change', function() {
+            courierCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
+
+

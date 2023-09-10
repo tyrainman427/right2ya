@@ -72,6 +72,8 @@ class Courier(models.Model):
   def on_job(self):
       return self.job_set.filter(status__in=[Job.PROCESSING_STATUS, Job.PICKING_STATUS, Job.DELIVERING_STATUS]).exists()
 
+  def balance(self):
+        return round(sum(t.amount for t in Transaction.objects.filter(job__courier=self, status=Transaction.IN_STATUS)) * 0.75, 2)
     
   
 class Rating(models.Model):

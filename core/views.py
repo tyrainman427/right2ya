@@ -19,6 +19,12 @@ from django.db.models.query_utils import Q
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from paypalrestsdk import Payout
+import random
+import string
+from django.contrib import messages
+
 
 
 
@@ -128,6 +134,60 @@ def rate_courier(request, job_id):
 
 
 
+@staff_member_required
+def admin_payout(request):
+    if request.method == 'POST':
+        payout_items = []
+        transaction_querysets = []
+
+        # Step 1 - Get all the valid couriers
+        couriers = Courier.objects.all()
+        for courier in couriers:
+            if courier.paypal_email:
+                courier_in_transactions = Transaction.objects.filter(
+                    job__courier=courier,
+                    status=Transaction.IN_STATUS
+                )
+
+                if courier_in_transactions:
+                    transaction_querysets.append(courier_in_transactions)
+                    balance = sum(i.amount for i in courier_in_transactions)
+                    payout_items.append({
+                        "recipient_type": "EMAIL",
+                        "amount": {
+                            "value": "{:.2f}".format(balance * 0.75),
+                            "currency": "USD"
+                        },
+                        "receiver": courier.paypal_email,
+                        "note": "Thank you.",
+                        "sender_item_id": str(courier.id)
+                    })
+
+        # Step 2 - Send payout batch + email to receivers
+        sender_batch_id = ''.join(random.choice(string.ascii_uppercase) for i in range(12))
+        payout = Payout({
+            "sender_batch_header": {
+                "sender_batch_id": sender_batch_id,
+                "email_subject": "You have a payment"
+            },
+            "items": payout_items
+        })
+
+        # Step 3 - Execute Payout process and Update transactions' status to "OUT" if success
+        try:
+            if payout.create():
+                for t in transaction_querysets:
+                    t.update(status=Transaction.OUT_STATUS)
+                messages.success(request, "Payout created successfully")
+            else:
+                messages.error(request, payout.error)
+        except Exception as e:
+            messages.error(request, str(e))
+
+        return redirect('admin_payout')
+
+    couriers = Courier.objects.all()
+    return render(request, 'admin_payout.html', {'couriers': couriers})
 
 
 
