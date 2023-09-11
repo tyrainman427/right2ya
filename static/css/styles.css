@@ -35,7 +35,7 @@ body {
 	top: 0;
 	left: 0;
 	padding: 0;
-	background-color: #1cc88a;
+	background-color: #355E3B;
 	background-image: linear-gradient(180deg, #1cc88a, #13855c 100%);
 	background-size: cover;
 	overflow: auto;
@@ -72,7 +72,7 @@ body {
 .sidebar .list-group .list-group-item.active,
 .sidebar .list-group .list-group-item:focus,
 .sidebar .list-group .list-group-item:hover {
-	background-color: #097d53;
+	background-color: #355E3B;
 	color: white;
 }
 
