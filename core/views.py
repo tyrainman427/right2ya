@@ -57,7 +57,17 @@ def password_reset_request(request):
 	return render(request=request, template_name="registration/password_reset.html", context={"password_reset_form":password_reset_form})
 
 def home(request):
-    return render(request, 'home.html')
+    home_url = '/'
+    if hasattr(request.user, 'customer') and request.user.customer.is_customer:
+        home_url = '/customer/home/'
+    elif hasattr(request.user, 'courier') and request.user.courier.is_courier:
+        home_url = '/courier/home/'
+
+    context = {
+        'home_url': home_url,
+    }
+
+    return render(request, 'home.html', context)
 
 def sign_up(request):  
     if request.method == 'POST':

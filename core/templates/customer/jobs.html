@@ -5,6 +5,13 @@
  {% url 'customer:current_jobs' as current_jobs_url %} 
 {% url 'customer:archived_jobs' as archived_jobs_url %}
 
+<style>
+  .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    color: #fff;
+    background-color: #355E3B;
+}
+</style>
+
 <!-- TABS -->
 <div class="container">
   <ul class="nav nav-pills nav-fill">

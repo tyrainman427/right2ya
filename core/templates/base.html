@@ -1,4 +1,7 @@
 {% load static %}
+ {% load bootstrap4 %}
+{% bootstrap_css %} 
+{% comment %} {% bootstrap_javascript jquery='full' %} {% endcomment %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,9 +12,33 @@
   <title>Home</title>
   <link rel="shortcut icon" href="{% static 'img/logo.png' %}">
 
-  {% load bootstrap4 %}
-  {% bootstrap_css %}
-  {% bootstrap_javascript jquery='full' %}
+  <style>
+    .hunter-green {
+      background-color: #355E3B;
+    }
+    .card-container {
+      margin-top: 20px; /* Add top margin */
+    }
+    .card-text,
+    .card-title {
+      color: black; /* Make text readable */
+    }
+    .hunter-green-button {
+      background-color: #355E3B;
+      border: none;
+    }
+    .navbar-light .navbar-brand,
+    .navbar-light .navbar-nav .nav-link .nav-item {
+    color: #ffffff; /* or you can use 'white' */
+    }
+    .navbar {
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    /* Override color for navbar links */
+    .navbar-light .navbar-nav .nav-link {
+      color: white !important;
+    }
+  </style>
 
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css">
 
@@ -19,14 +46,10 @@
 </head>
 
 <body>
-  <nav class="navbar {% if not request.user.is_authenticated %} navbar-expand-lg {% endif%} navbar-light bg-warning">
-    <a class="navbar-brand" href="/">Right2Ya</a>
+  <nav class="navbar navbar-expand-lg navbar-light hunter-green">
+    <a class="navbar-brand" href="">Right2Ya</a>
 
-    {% if request.user.is_staff %}
-         <a href="{% url 'admin_payout' %}">Admin Payout</a>
-    {% endif %}
-
-    {% if not request.user.is_authenticated %}
+    <!-- Add conditions to show buttons -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -34,18 +57,14 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav">
-        <li class="nav-item {% if request.GET.next != '/courier/' %}active{% endif %}">
-          <a class="nav-link active" aria-current="page" href="/sign-in/?next=/customer/">Customer</a>
-        </li>
-        <li class="nav-item {% if request.GET.next == '/courier/' %}active{% endif %}">
-          <a class="nav-link active" aria-current="page" href="/sign-in/?next=/courier/">Courier</a>
-        </li>
+     
       </ul>
     </div>
-    {% else %}
+
+    {% if request.user.is_authenticated %}
     <form class="form-inline">
-      <span class="mr-4">{{ request.user.get_full_name|title }}</span>
-      <a href="/sign-out" class="btn btn-outline-dark">Sign Out</a>
+      <span class="mr-4 text-white">{{ request.user.get_full_name|title }}</span>
+      <a href="/sign-out" class="btn btn-outline-light">Sign Out</a>
     </form>
     {% endif %}
   </nav>

@@ -1,33 +1,76 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
-<div class="container">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="text-center mt-5 mb-5">Right2Ya Beta</h1>
-		</div>
+<style>
+  .hunter-green {
+    background-color: #355E3B;
+  }
+  .card-container {
+    margin-top: 50px;
+  }
+  .card-img-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-title,
+  .card-text {
+    color: tan;
+    text-align: center;
+  }
+  .hunter-green-button {
+    background-color: #355E3B;
+    border: none;
+  }
+  .card {
+    height: 400px;  /* Fixed height */
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.5);  /* Add shadow */
+  }
+  .card-img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;  /* This will make sure the image covers the card fully */
+  }
+  .card:hover .card-img-overlay {
+    background: rgba(0,0,0,0.5);  /* light gray overlay */
+  }
+  .navbar {
+	box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+  }
+  /* Override color for navbar links */
+  .navbar-light .navbar-nav .nav-link {
+	color: white !important;
+  }
+</style>
 
-		<div class="col-lg-6 mb-4">
-			<div class="card">
-				<div class="card-body">
-					<h5 class="card-title">CUSTOMER</h5>
-					<p class="card-text">Create delivery jobs.</p>
-					<a href="{% url 'customer:home' %}" class="btn btn-warning">Details</a>
-				</div>
-			</div>
-		</div>
-
-		<div class="col-lg-6 mb-4">
-			<div class="card">
-				<div class="card-body">
-					<h5 class="card-title">COURIER</h5>
-					<p class="card-text">Accept courier jobs.</p>
-					<a href="{% url 'courier:home' %}" class="btn btn-warning">Details</a>
-				</div>
-			</div>
-		</div>
-	</div>
+<div class="container card-container mt-5">
+  <div class="row">
+    <div class="col-md-5 mb-4 mx-auto">
+      <div class="card">
+        <img src="{% static 'assets/img/delivery-van.jpeg' %}" class="card-img img-responsive" alt="...">
+        <div class="card-img-overlay">
+          <h5 class="card-title">COMPANY</h5>
+          {% comment %} <p class="card-text">Create delivery jobs.</p> {% endcomment %}
+          <a href="{% url 'customer:home' %}" class="btn hunter-green-button text-white">Enter</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5 mb-4 mx-auto">
+      <div class="card">
+        <img src="{% static 'assets/img/delivery-man.jpeg' %}" class="card-img img-responsive" alt="...">
+        <div class="card-img-overlay">
+          <h5 class="card-title">DRIVERS</h5>
+          {% comment %} <p class="card-text">Accept delivery jobs.</p> {% endcomment %}
+          <a href="{% url 'courier:home' %}" class="btn hunter-green-button text-white">Enter</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
+
+

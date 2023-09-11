@@ -3,6 +3,15 @@
 
 {% block content %}
 
+<style>
+  .list-group-item.active {
+    z-index: 2;
+    color: #fff;
+    background-color: #355E3B;
+    border-color: #007bff;
+}
+</style>
+
 {% url 'customer:create_job' as create_job_url %}
 {% url 'customer:profile' as profile_url %}
 {% url 'customer:current_jobs' as current_jobs_url %}
