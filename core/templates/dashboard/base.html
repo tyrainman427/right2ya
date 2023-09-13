@@ -2,14 +2,21 @@
 {% load static %}
 {% block script %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
 <script>
   $(document).ready(function() {
+    var alertShown = false;  // Variable to track if the alert has been shown
+  
     setInterval(function() {
       $.ajax({
         url: '/api/dashboard/order/notification/',
         method: 'GET',
         success: function(data) {
           if (data['notification'] > 0) {
+            // Show alert only if it has not been shown for this batch of new orders
+         
             $('.badge').text(data['notification']);
             if (data['new_job_created']) {
               // Fetch the new job data and update the DOM
@@ -23,11 +30,13 @@
             }
           } else {
             $('.badge').text('');
+            alertShown = false;  // Reset the variable when there are no new orders
           }
         }
-      })
-    }, 10000) // Check for notification every 10 secs for now
-  })
+      });
+    }, 10000);  // Check for notification every 10 secs for now
+  });
+  
 </script> 
 
 

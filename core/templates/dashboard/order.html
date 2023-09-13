@@ -3,6 +3,39 @@
 {% block title %} Orders {% endblock %}
 
 {% block body %}
+<script>
+  function initializeWebSocket(orderId) {
+    const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    const ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/" + orderId + "/";
+    console.log("WebSocket path: ", ws_path);  // Debug line
+    
+    const jobSocket = new WebSocket(ws_path);
+    
+    jobSocket.onopen = function(e) {
+      console.log("WebSocket connection opened:", e);
+    };
+    
+    jobSocket.onerror = function(e) {
+      console.error("WebSocket error:", e);
+    };
+    
+    jobSocket.onmessage = function(e) {
+      console.log("Received WebSocket message:", e.data);
+      const data = JSON.parse(e.data);
+      
+      if (data.job_id && data.new_status) {
+        console.log("Updating job ID:", data.job_id, "New Status:", data.new_status);
+        document.getElementById('order-status').innerText = data.new_status;
+
+      }
+    };
+    
+    jobSocket.onclose = function(e) {
+      console.log("WebSocket connection closed:", e);
+    };
+  }
+  
+  </script>
 
 <div class="row">
   <div class="col-md-10 offset-md-1">
@@ -14,7 +47,6 @@
         <table class="table table-striped table-hover table-bordered">
           <thead>
             <tr>
-              {% comment %} <th scope="col">ID</th> {% endcomment %}
               <th scope="col">Details</th>
               <th scope="col">Customer</th>
               <th scope="col">Driver</th>
@@ -26,26 +58,30 @@
           {% if orders %}
           <tbody>
             {% for order in orders %}
-              <tr class="align-middle">
-                {% comment %} <th scope="row">{{ order.id }}</th> {% endcomment %}
+           <script> initializeWebSocket("{{ order.id }}"); </script>
+
+              <tr class="align-middle" id="order-row-{{ order.id }}">
                 <td>
                   <ul>
-                    {% comment %} {% for od in order.order_details.all %} {% endcomment %}
-                     <li>{{ order.name }} : ${{ order.delivery_fee|floatformat:2 }} + {{ order.service_fee|floatformat:2 }} = ${{ order.price |floatformat:2 }}</li>
-                    {% comment %} {% endfor %} {% endcomment %}
+                     <li>{{ order.name }} :${{ order.price }}</li>
                   </ul>
                 </td>
                 <td>{{ order.customer}}</td>
                 <td>{{ order.courier }}</td>
                 <td class="text-right">${{ order.price|floatformat:2}}</td>
-                <td>{{ order.get_status_display }}</td>
+                <td id="order-status">{{ order.get_status_display }}</td>
                 <td>
                   {% if order.status == 'processing' %}
                     <form action="" method="post">
                       {% csrf_token %}
                       <input name="id" value="{{ order.id }}" hidden>
-                      <button class="btn btn-black btn-sm">Ready</button>
+                      <button class="btn btn-black btn-sm">Send to Driver</button>
                     </form>
+                    {% elif order.status != 'processing' %}
+                    <!-- Reload Page Button -->
+                    <button class="btn btn-primary btn-md" onclick="location.reload();">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
                   {% endif %}
                 </td>
               </tr>
@@ -55,11 +91,10 @@
           </tbody>
         {% endif%}
         </table>
-        
-        
       </div>
     </div>
   </div>
 </div>
 
 {% endblock %}
+

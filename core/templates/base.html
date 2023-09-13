@@ -10,7 +10,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home</title>
-  <link rel="shortcut icon" href="{% static 'img/logo.png' %}">
+  <link rel="shortcut icon" href="{% static 'assets/img/appstore.png' %}">
 
   <style>
     .hunter-green {
@@ -47,24 +47,24 @@
 
 <body>
   <nav class="navbar navbar-expand-lg navbar-light hunter-green">
-    <a class="navbar-brand" href="">Right2Ya</a>
+    <a class="navbar-brand" href="/">Right2Ya</a>
 
     <!-- Add conditions to show buttons -->
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+   {% comment %} <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
-    </button>
+    </button>  {% endcomment %}
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav">
      
       </ul>
-    </div>
+    </div> 
 
     {% if request.user.is_authenticated %}
     <form class="form-inline">
       <span class="mr-4 text-white">{{ request.user.get_full_name|title }}</span>
-      <a href="/sign-out" class="btn btn-outline-light">Sign Out</a>
+      <a href="/sign-out" class="btn btn-outline-dark">Sign Out</a>
     </form>
     {% endif %}
   </nav>

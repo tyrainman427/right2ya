@@ -106,9 +106,6 @@ urlpatterns = [
     path('api/dashboard/order/notification/', apis.restaurant_order_notification),
     path('api/notification/<int:notification_id>/read/', apis.mark_notification_as_read, name='mark_notification_as_read'),
 
-    # path('api/dashboard/order/notification/<str:timestamp>/', views.order_notification, name='order_notification'),
-
-    
     path('api/jobs/available/', courier_views.JobList.as_view(), name="jobs_api"),
     path('api/jobs/current/<id>/update/', courier_apis.current_job_update_api, name="current_job_update_api"),
     path('api/fcm-token/update/', courier_apis.fcm_token_update_api, name="fcm_token_update_api"),

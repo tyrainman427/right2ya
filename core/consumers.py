@@ -28,9 +28,34 @@ class JobConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         print("I can see this")
         text_data_json = json.loads(text_data)
-        print(text_data_json)
+        print("Text Data:", text_data_json)
         courier_lat = text_data_json.get('courier_lat')
         courier_lng = text_data_json.get('courier_lng')
+        new_status = text_data_json.get('status') 
+        print("Status",new_status)
+        
+        if new_status:
+            try:
+
+                # Create the job object with the new status
+                job = {
+                    'job_id': self.job_id,
+                    'status': new_status,  # Directly use 'status' here
+                }
+
+                # Trigger the WebSocket message with the updated job status
+                await self.channel_layer.group_send(
+                    self.job_group_name,
+                    {
+                        'type': 'job_update',
+                        'job': job,
+                    }
+                )
+            except Exception as e:
+                error_message = {
+                    'error': str(e),
+                }
+                await self.send(text_data=json.dumps(error_message))
 
         if courier_lat is not None and courier_lng is not None:
             try:
