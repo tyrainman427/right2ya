@@ -18,25 +18,36 @@
         </div>
         <div class="card-body">
           <canvas id="revenueChart" height="100"></canvas>
+    
+
           <script>
-          const ctx = document.getElementById('revenueChart').getContext('2d');
-          const revenueChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-              datasets: [{
-                label: '$ Amount',
-                data: {{ revenue }},
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.2)',
-                ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                ],
-                borderWidth: 1
-              }]
-            }
-          });
+            const revenueArray = JSON.parse("{{ revenue_json|safe }}");
+           
+        
+
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: '$ Amount',
+                        data: revenueArray,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
           </script>
         </div>
       </div>
@@ -45,27 +56,28 @@
     <div class="col-md-4">
       <div class="card shadow text-white mb-3 mt-5">
         <div class="card-header text-center">
-          <h5 class="m-0 font-weight-bold text-black">Top 3 Services</h5>
+          <h5 class="m-0 font-weight-bold text-black">Top 3 Customers</h5>
         </div>
         <div class="card-body">
-          <canvas id="mealsChart" height="100"></canvas>
+          <canvas id="customerChart" height="100"></canvas>
           <script>
-          const ctx2 = document.getElementById('mealsChart').getContext('2d');
-          const mealsChart = new Chart(ctx2, {
-            type: 'pie',
-            data: {
-              labels: {{ meal.labels | safe }},
-              datasets: [{
-                data: {{ meal.data }},
-                backgroundColor: [
-                    'rgba(255, 99, 132)',
-                    'rgba(54, 162, 235)',
-                    'rgba(255, 205, 86)'
-                ],
-                hoverOffset: 4
-              }]
-            }
-          });
+            const ctx2 = document.getElementById('customerChart').getContext('2d');
+            const mealsChart = new Chart(ctx2, {
+              type: 'pie',
+              data: {
+                labels: {{ customer.labels | safe }},
+                datasets: [{
+                  data: {{ customer.data }},
+                  backgroundColor: [
+                      'rgba(255, 99, 132)',
+                      'rgba(54, 162, 235)',
+                      'rgba(255, 205, 86)'
+                  ],
+                  hoverOffset: 4
+                }]
+              }
+            });
+            
           </script>
         </div>
       </div>
