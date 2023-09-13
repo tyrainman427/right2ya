@@ -7,15 +7,34 @@
   function initializeWebSocket(orderId) {
     const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
     const ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/" + orderId + "/";
+    console.log("WebSocket path: ", ws_path);  // Debug line
+    
     const jobSocket = new WebSocket(ws_path);
     
-    jobSocket.onmessage = function (e) {
+    jobSocket.onopen = function(e) {
+      console.log("WebSocket connection opened:", e);
+    };
+    
+    jobSocket.onerror = function(e) {
+      console.error("WebSocket error:", e);
+    };
+    
+    jobSocket.onmessage = function(e) {
+      console.log("Received WebSocket message:", e.data);
       const data = JSON.parse(e.data);
+      
       if (data.job_id && data.new_status) {
-        document.getElementById('order-status-' + data.job_id).innerText = data.new_status;
+        console.log("Updating job ID:", data.job_id, "New Status:", data.new_status);
+        document.getElementById('order-status').innerText = data.new_status;
+
       }
     };
+    
+    jobSocket.onclose = function(e) {
+      console.log("WebSocket connection closed:", e);
+    };
   }
+  
   </script>
 
 <div class="row">
@@ -50,14 +69,19 @@
                 <td>{{ order.customer}}</td>
                 <td>{{ order.courier }}</td>
                 <td class="text-right">${{ order.price|floatformat:2}}</td>
-                <td id="order-status-{{ order.id }}">{{ order.get_status_display }}</td>
+                <td id="order-status">{{ order.get_status_display }}</td>
                 <td>
                   {% if order.status == 'processing' %}
                     <form action="" method="post">
                       {% csrf_token %}
                       <input name="id" value="{{ order.id }}" hidden>
-                      <button class="btn btn-black btn-sm">Ready</button>
+                      <button class="btn btn-black btn-sm">Send to Driver</button>
                     </form>
+                    {% elif order.status != 'processing' %}
+                    <!-- Reload Page Button -->
+                    <button class="btn btn-primary btn-md" onclick="location.reload();">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
                   {% endif %}
                 </td>
               </tr>
