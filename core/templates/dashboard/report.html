@@ -11,8 +11,9 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-8">
-      <div class="card shadow text-white mb-3 mt-5">
+    <!-- Revenue Card -->
+    <div class="col-12 col-md-8 mb-4">
+      <div class="card shadow h-100 mt-5">
         <div class="card-header text-center">
           <h5 class="m-0 font-weight-bold text-black">This week's revenue</h5>
         </div>
@@ -53,8 +54,9 @@
       </div>
     </div>
   
-    <div class="col-md-4">
-      <div class="card shadow text-white mb-3 mt-5">
+    <!-- Customer Card -->
+    <div class="col-12 col-md-4 mb-4">
+      <div class="card shadow h-100 mt-5">
         <div class="card-header text-center">
           <h5 class="m-0 font-weight-bold text-black">Top 3 Customers</h5>
         </div>
@@ -83,11 +85,11 @@
       </div>
     </div>
   
-  </div>
+
   
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card shadow text-white mb-3 mt-5">
+    <!-- Orders Card -->
+    <div class="col-12 col-md-8 mb-4">
+      <div class="card shadow h-100 mt-5">
         <div class="card-header text-center">
           <h5 class="m-0 font-weight-bold text-black">Orders by week</h5>
         </div>
@@ -116,10 +118,11 @@
       </div>
     </div>
   
-    <div class="col-md-4">
-      {% comment %} <div class="card shadow text-white mb-3 mt-5">
+    <!-- Drivers Card -->
+    <div class="col-12 col-md-4 ">
+      <div class="card shadow h-100 mt-5">
         <div class="card-header text-center">
-          <h5 class="m-0 font-weight-bold text-black">Top 3 Customers</h5>
+          <h5 class="m-0 font-weight-bold text-black">Top 3 Drivers</h5>
         </div>
         <div class="card-body">
           <canvas id="driversChart" height="100"></canvas>
@@ -144,7 +147,7 @@
         </div>
       </div>
     </div>
-  </div> {% endcomment %}
+  </div> 
 </div>
 
 {% endblock %}

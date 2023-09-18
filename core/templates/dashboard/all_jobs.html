@@ -1,0 +1,64 @@
+{% extends 'dashboard/base.html' %}
+
+{% block body %}
+
+{% url 'dashboard:all_jobs' as all_jobs_url %}
+{% url 'dashboard:all_archived_jobs' as all_archived_url %}
+
+<div class="container mt-4">
+  <!-- Debugging: Show the number of jobs found -->
+  {% if jobs %}
+    <div class="alert alert-success" role="alert">
+      {{ jobs|length }} jobs found.
+    </div>
+  {% endif %}
+
+  <!-- Search Form -->
+  <!-- Search Form -->
+  <form method="get" action="{% url 'dashboard:all_jobs' %}">
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" name="q" placeholder="Search by name, id, or status">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+      </div>
+    </div>
+  </form>
+  
+  <ul class="nav nav-pills nav-fill mb-3">
+    <li class="nav-item">
+      <a class="nav-link {% if request.path == all_jobs_url %} active {% endif %}" href="{% url 'dashboard:all_jobs' %}">Current Job</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if request.path == all_archived_url %} active {% endif %}" href="{% url 'dashboard:all_archived_jobs' %}">Archived Jobs</a>
+    </li>
+  </ul>
+
+  <div class="list-group">
+    {% if jobs %}
+      {% for job in jobs %}
+        <div class="list-group-item">
+          <div class="row">
+            <!-- Uncomment this if you want to show job photos -->
+            {# <div class="col-md-3">
+              <img src="{{ job.photo.url }}" class="img-fluid rounded" alt="{{ job.name }}">
+            </div> #}
+            <div class="col-md-9">
+              <h5>Job Name: {{ job.name }}</h5>
+              <p>Desc: {{ job.description }} &emsp;  Status: {{ job.status }}</p>
+              <div>
+                <strong>Drop Off: {{ job.delivery_name }}</strong><br>
+                <small>Job ID:<a href="{% url 'dashboard:job_detail' job.id %}"> {{ job.id }}</a></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info" role="alert">
+        No current jobs.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
