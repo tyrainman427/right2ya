@@ -13,6 +13,11 @@ from django.db.models import Q
 from datetime import datetime, timedelta
 from django.http import HttpResponseRedirect, JsonResponse
 import json
+from django.views.generic import DetailView
+from django.urls import reverse_lazy
+from django.views.generic.edit import UpdateView
+from core.models import Job
+from django.conf import settings
 
 @login_required(login_url="/sign-in/?next=/dashboard/")
 def home(request):
@@ -128,6 +133,8 @@ def dashboard_report(request):
 
     print("Revenue:", revenue)
 
+    
+    
     # Getting Top 3 Customers
     top3_customers = Customer.objects.annotate(
         total_order=Count('order')
@@ -161,27 +168,7 @@ def dashboard_report(request):
         "customer": customer,  # Pass the customer data
         "driver": driver,
     })
-    # Getting Top 3 Drivers
-    top3_drivers = Customer.objects.annotate(
-        total_order=Count(
-            Case(
-                When(order__customer=request.user.customer, then=1)
-            )
-        )
-    ).order_by("-total_order")[:3]
 
-    driver = {
-        "labels": [d.user.get_full_name() for d in top3_drivers],
-        "data": [d.total_order for d in top3_drivers]
-    }
-
-    return render(request, 'dashboard/report.html', {
-        "revenue": revenue,
-        "total_revenue": total_revenue,  # Pass the total_revenue to the template
-        "orders": orders,
-        "meal": meal,
-        "driver": driver,
-    })
 
 @login_required(login_url='/dashboard/sign_in/')
 def available_drivers(request):
@@ -204,3 +191,61 @@ def get_latest_job_statuses(request):
         return JsonResponse({'status': 'success', 'data': job_list})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+@login_required(login_url="/sign-in/?next=/customer/")
+def all_jobs_page(request):
+    current_date = timezone.localtime().date()
+    query = request.GET.get('q', '')
+    jobs = Job.objects.filter(
+        customer=request.user.customer,
+        status__in=[
+            Job.PROCESSING_STATUS,
+            Job.READY_STATUS,
+            Job.PICKING_STATUS,
+            Job.DELIVERING_STATUS
+        ]
+    ).filter(
+        Q(scheduled_date__date=current_date, service_type='scheduled') |
+        Q(service_type='standard') |
+        Q(name__icontains=query) |
+        Q(id__icontains=query) |
+        Q(status__icontains=query)
+    )
+
+    return render(request, 'dashboard/all_jobs.html', {
+        "jobs": jobs,
+    })
+
+@login_required(login_url="/sign-in/?next=/customer/")
+def all_archived_jobs_page(request):
+    jobs = Job.objects.filter(
+        status__in=[
+            Job.COMPLETED_STATUS,
+            Job.CANCELED_STATUS,
+            Job.REVIEWED_STATUS
+        ]
+    )
+  
+    return render(request, 'dashboard/all_jobs.html', {
+        "jobs": jobs,
+
+    })
+
+
+
+class JobDetailView(DetailView):
+    model = Job
+    template_name = 'dashboard/job_detail.html'
+    context_object_name = 'job'  # This should be a string
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['GOOGLE_MAP_API_KEY'] = settings.GOOGLE_MAP_API_KEY
+        return context
+      
+class JobEditView(UpdateView):
+    model = Job
+    template_name = 'dashboard/edit_job.html'
+    fields = ['customer', 'courier','name','description','category','size','quantity','photo', 'status','pickup_name','pickup_address',"pickup_phone",'delivery_address','delivery_name','delivery_phone','pickup_photo','delivery_photo','delivered_at']
+    success_url = reverse_lazy('dashboard:all_jobs')

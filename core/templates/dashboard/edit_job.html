@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+
+{% block body %}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Edit Job</h2>
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            <!-- Loop through each form field -->
+            {% for field in form %}
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                <input type="{{ field.field.widget.input_type }}" class="form-control {% if field.errors %}is-invalid{% endif %}" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.value|default_if_none:"" }}">
+                {% for error in field.errors %}
+                    <div class="invalid-feedback">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <!-- Back or Cancel button -->
+        <a href="{% url 'dashboard:job_detail' job.id %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+{% endblock %}

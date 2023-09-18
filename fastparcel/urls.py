@@ -65,6 +65,11 @@ dashboard_urlpatterns = [
     path('meal/add/', dashboard_views.restaurant_add_meal, name='restaurant_add_meal'),
     path('meal/edit/<int:meal_id>/', dashboard_views.restaurant_edit_meal, name='restaurant_edit_meal'),
     path('available/', dashboard_views.available_drivers, name="available_drivers"),
+    path('all_jobs/', dashboard_views.all_jobs_page, name="all_jobs"),
+    path('job/<uuid:pk>/', dashboard_views.JobDetailView.as_view(), name='job_detail'),
+    path('all_jobs/archived', dashboard_views.all_archived_jobs_page, name="all_archived_jobs"),
+    path('job/<uuid:pk>/edit/', dashboard_views.JobEditView.as_view(), name='edit_job'),
+
 ]
 
 urlpatterns = [

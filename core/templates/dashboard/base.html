@@ -5,6 +5,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 
+
+
 <script>
   $(document).ready(function() {
     var alertShown = false;  // Variable to track if the alert has been shown
@@ -63,28 +65,27 @@
 
 <hr>
 
-<div class="list-group">
+<div class="list-group list-group-flush">
   <span class="text-uppercase">Dashboard</span>
 
-  {% comment %} <a href="{% url 'dashboard:restaurant_meal' %}" 
-    class="list-group-item {% if request.path == restaurant_service_url %} active {% endif %}">Services</a> {% endcomment %}
-  <a href="{% url 'dashboard:dashboard_order' %}" 
-    class="list-group-item {% if request.path == restaurant_order_url %} active {% endif %}">
+  <a href="{% url 'dashboard:dashboard_order' %}" class="list-group-item list-group-item-action {% if request.path == restaurant_order_url %} active {% endif %}">
     Orders
     <span class="badge badge-warning ml-2"></span>
   </a>
-  <a href="{% url 'dashboard:available_drivers' %}" 
-  class="list-group-item {% if request.path == restaurant_available_url %} active {% endif %}">Drivers</a>
-  <a href="{% url 'dashboard:dashboard_report' %}" 
-    class="list-group-item {% if request.path == restaurant_report_url %} active {% endif %}">Report</a>
+  <a href="{% url 'dashboard:all_jobs' %}" class="list-group-item list-group-item-action {% if request.path == restaurant_report_url %} active {% endif %}">Jobs</a>
+  <a href="{% url 'dashboard:available_drivers' %}" class="list-group-item list-group-item-action {% if request.path == restaurant_available_url %} active {% endif %}">Drivers</a>
+  <a href="{% url 'dashboard:dashboard_report' %}" class="list-group-item list-group-item-action {% if request.path == restaurant_report_url %} active {% endif %}">Report</a>
 
   <span class="text-uppercase">Profile</span>
-  <a href="{% url 'dashboard:restaurant_account' %}" 
-    class="list-group-item {% if request.path == restaurant_account_url %} active {% endif %}">Account</a>
+  <a href="{% url 'dashboard:restaurant_account' %}" class="list-group-item list-group-item-action {% if request.path == restaurant_account_url %} active {% endif %}">Account</a>
+  {% if request.user.is_staff %}
+  <a href="{% url 'admin_payout' %}" class="list-group-item list-group-item-action {% if request.path == restaurant_report_url %} active {% endif %}">Payout</a>
+  {% endif %}
 </div>
 
-<div class="text-center my-3 mx-3">
+<div class="text-center my-3">
   <a href="/sign-out/" class="btn btn-warning btn-block">Logout</a>
+</div>
 </div>
 
 {% endblock %}

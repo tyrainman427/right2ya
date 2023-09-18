@@ -1,0 +1,203 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="container mt-4">
+    <!-- Back and Edit Buttons -->
+    <div class="d-flex justify-content-between mb-3">
+      <a href="{% url 'dashboard:all_jobs' %}" class="btn btn-secondary">Back</a>
+      {% if request.user.is_staff %}
+        <a href="{% url 'dashboard:edit_job' job.id %}" class="btn btn-primary">Edit</a>
+      {% endif %}
+    </div>
+  <div class="list-group">
+    <div class="list-group-item">
+      <div class="row">
+        <!-- Job Details -->
+        <div class="col-md-3">
+          <img src="{{ job.photo.url }}" class="img-fluid rounded" alt="{{ job.name }}">
+        </div>
+        <div class="col-md-9">
+          <h5>{{ job.name }}</h5>
+          <p>{{ job.description }}</p>
+          <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-map-marker-alt mr-2"></i>
+            <div>
+              <strong>Pickup: {{ job.pickup_name }}</strong><br>
+              <small>{{ job.pickup_address }}</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-flag-checkered mr-2"></i>
+            <div>
+              <strong>Delivery: {{ job.delivery_name }}</strong><br>
+              <small>{{ job.delivery_address }}</small>
+            </div>
+          </div>
+          <!-- Pickup and Delivery Images --><hr>
+          <div class="row mt-3">
+            <div id="pickup_photo" class="col-lg-4">
+                <p>Pick Up Photo:</p>
+                {% if job.pickup_photo %}
+                <img src="{{ job.pickup_photo.url }}" class="rounded-lg photo" width="130" height="130">
+                {% else %}
+                <div class="photo-blank">Pickup Photo Will Appear Here</div>
+                {% endif %}
+              </div>
+              <hr>
+              <p>Drop Off Photo:</p>
+              <div id="delivery_photo" class="col-lg-4">
+                {% if job.delivery_photo %}
+                <img src="{{ job.delivery_photo.url }}" class="rounded-lg photo" width="130" height="130">
+                {% else %}
+                <div class="photo-blank">Delivery Photo Will Appear Here</div>
+                {% endif %}
+              </div>
+          </div>
+          <hr>
+          <!-- Signature -->
+          <div class="mt-3">
+            <!-- Debugging -->
+<div class="mt-3">
+    <strong>Signature:</strong><br>
+    {% if job.signature %}
+    <img src="{{ job.signature.url }}" class="img-fluid rounded" alt="Signature">
+    {% else %}
+    <div>No signature available.</div>
+    {% endif %}
+  </div>
+          <!-- Map for Courier Tracking -->
+          <div class="mt-3">
+            <strong>Courier Location:</strong><br>
+            <div id="courierMap" style="width: 100%; height: 300px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<style>
+    .photo {
+      object-fit: cover;
+    }
+  
+    .photo-blank {
+      border: 2px dashed #DFDFDF;
+      height: 130px;
+      width: 130px;
+      border-radius: 5px;
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+    }
+  </style>
+  
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAP_API_KEY }}&callback=initMap&libraries=places&v=weekly"
+    defer></script>
+  
+<script>
+    var pickupLat = parseFloat("{{ job.pickup_lat }}");
+    var pickupLng = parseFloat("{{ job.pickup_lng }}");
+   
+  
+    var deliveryLat = parseFloat("{{ job.delivery_lat }}");
+    var deliveryLng = parseFloat("{{ job.delivery_lng }}");
+  
+    var courierLat = parseFloat("{{ job.courier.lat }}");
+    var courierLng = parseFloat("{{ job.courier.lng }}");
+  
+  
+    function initMap() {
+      const directionsService = new google.maps.DirectionsService();
+      const directionsRenderer = new google.maps.DirectionsRenderer();
+      const map = new google.maps.Map(document.getElementById("courierMap"), {
+        zoom: 7,
+        center: { lat: 41.85, lng: -87.65 },
+      });
+      directionsRenderer.setMap(map);
+  
+      calculateAndDisplayRoute(map, directionsService, directionsRenderer);
+    }
+  
+    function calculateAndDisplayRoute(map, directionsService, directionsRenderer) {
+      directionsService.route(
+        {
+          origin: new google.maps.LatLng(pickupLat, pickupLng),
+          destination: new google.maps.LatLng(deliveryLat, deliveryLng),
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (response, status) => {
+          if (status === "OK") {
+            new google.maps.DirectionsRenderer({
+              map: map,
+              directions: response,
+              suppressMarkers: true,
+              polylineOptions: {
+                strokeColor: "#000",
+                strokeWeight: 5,
+                strokeOpacity: 0.8
+              }
+            });
+  
+            var leg = response.routes[0].legs[0];
+            new google.maps.Marker({
+              position: leg.start_location,
+              map: map,
+              icon: "{% static 'img/start.png' %}"
+            });
+  
+            new google.maps.Marker({
+              position: leg.end_location,
+              map: map,
+              icon: "{% static 'img/end.png' %}"
+          });
+          if (courierLat && courierLng) {
+            window.courierMarker = new google.maps.Marker({
+              position: new google.maps.LatLng(courierLat, courierLng),
+              map,
+              icon: '{% static "img/courier.png" %}',
+            });
+            console.log("Courier Marker: ", window.courierMarker);  // Print the courier marker
+          } else {
+            console.log("Courier coordinates are not defined");
+          }
+          
+  
+          } else {
+            window.alert("Directions request failed due to " + status);
+          }
+        }
+      );
+    }
+  
+    const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    const ws_path = ws_scheme + '://' + window.location.host + "/ws/jobs/{{ job.id }}/";
+    const jobSocket = new WebSocket(ws_path);
+  
+    jobSocket.onmessage = function (e) {
+      console.log("Received a WebSocket message");
+      const data = JSON.parse(e.data);
+      console.log("Parsed data: ", data);
+      const job = data;
+      console.log("Job: ", job);
+  
+      if (job.courier_lat && job.courier_lng) {
+        const courierPosition = new google.maps.LatLng(job.courier_lat, job.courier_lng);
+        window.courierMarker.setPosition(courierPosition);
+        console.log("Updated courier's marker to: ", courierPosition);
+    }
+    
+
+    }
+  
+  </script>
+  
+
+{% endblock %}
+
