@@ -220,7 +220,7 @@ def create_job_page(request):
                     )
                     if creating_job.service_type == "scheduled":
                         creating_job.is_scheduled = True
-                        creating_job.status = Job.SCHEDULED_DELIVERY
+                        creating_job.status = Job.SCHEDULED_STATUS
                     else:
                         creating_job.status = Job.PROCESSING_STATUS
                         

@@ -104,6 +104,10 @@ def dashboard_order(request):
         if order.status == "processing":
             order.status = "ready"
             order.save()
+        elif order.status == "scheduled":
+            order.status = "ready"
+            order.save()
+            
 
             if notification:  # Check if notification is not None before accessing its attributes
                 notification.read = True

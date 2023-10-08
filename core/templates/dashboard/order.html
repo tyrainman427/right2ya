@@ -135,7 +135,7 @@
           <td>{{ order.customer }}</td>
           <td>{{ order.courier }}</td>
           <td class="text-right">${{ order.price|floatformat:2 }}</td>
-          <td id="order-status" class="indicator.scheduled">{{ order.get_status_display }}</td>
+          <td id="order-status" class="indicator.scheduled">{{ order.get_status_display }} - {{ order.scheduled_date }}</td>
           <td>
             {% if order.status == 'scheduled' %}
               <form action="" method="post">
@@ -144,7 +144,11 @@
                 {% if order.scheduled_date > today or order.scheduled_date < today %} 
                 <button class="btn btn-secondary btn-sm" disabled>Scheduled</button>
                 {% else %}
-                <button class="btn btn-success btn-sm">Send to Driver</button>
+                <form action="" method="post">
+                  {% csrf_token %}
+                  <input name="id" value="{{ order.id }}" hidden>
+                  <button class="btn btn-danger btn-sm">Send to Driver</button>
+                </form>
                 {% endif %}
               </form>
             {% elif order.status != 'scheduled' %}
