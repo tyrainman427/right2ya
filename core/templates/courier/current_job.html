@@ -179,8 +179,8 @@
 
 <div class="d-flex flex-column h-100" style="padding-bottom: 60px">
   <div class="text-center">
-    <h4 class="mt-1 mb-1">{{ job.scheduled_date }}</h4>
-    <h4 class="mt-1 mb-1">{{ job.scheduled_time }}</h4>
+    {% comment %} <h4 class="mt-1 mb-1">{{ job.scheduled_date }}</h4>
+    <h4 class="mt-1 mb-1">{{ job.scheduled_time }}</h4> {% endcomment %}
     <div class="btn-group mt-1 mb-1 align-item-center" role="group">
       <a href="{% url 'courier:current_job' %}" class="btn hunter-green">Current Job</a>
       <a href="{% url 'courier:archived_jobs' %}" class="btn btn-outline-success">Archived Jobs</a>
@@ -252,10 +252,10 @@
     {% elif job.status == 'arrived' %}
     {% if job.id %}
     <!-- Signature Section -->
-    <div class="signature-section">
-      <canvas id="signature-pad" class="signature-pad" width="400" height="200"></canvas>
-      <button id="save-signature" class="btn btn-success">Save Signature</button>
-      <button id="clear-signature" class="btn btn-danger">Clear Signature</button>
+    <div class="signature-section text-center mt-3">
+      <canvas id="signature-pad" class="signature-pad border rounded" width="400" height="150"></canvas>
+      <button id="save-signature" class="btn btn-success mt-3">Save Signature</button>
+      <button id="clear-signature" class="btn btn-danger mt-3">Clear Signature</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
     <script>

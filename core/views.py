@@ -4,8 +4,8 @@ from twilio.rest import Client
 from django.contrib.sites.shortcuts import get_current_site  
 from django.template.loader import render_to_string  
 from django.utils.encoding import force_bytes, force_text  
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode  
-from django.http import HttpResponse  
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.http import HttpResponse, JsonResponse  
 from .token import account_activation_token  
 from django.contrib.auth.models import User  
 from django.core.mail import EmailMessage  
@@ -23,8 +23,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from paypalrestsdk import Payout
 import random
 import string
-from django.contrib import messages
-
+from django.contrib import messages   
+from .forms import BasicInfoForm, VehicleInfoForm, DocumentUploadForm
 
 
 
@@ -201,5 +201,26 @@ def admin_payout(request):
 
 
 
-    
 
+
+def driver_signup(request):
+    if request.method == 'POST':
+        step = request.POST.get('step')
+        if step == '1':
+            form = BasicInfoForm(request.POST)
+        elif step == '2':
+            form = VehicleInfoForm(request.POST)
+        elif step == '3':
+            form = DocumentUploadForm(request.POST, request.FILES)
+        # ... add more steps as needed
+
+        if form.is_valid():
+            # Save the form but don't commit it to the database yet
+            driver_instance = form.save(commit=False)
+            # Add any other logic here, then finally save.
+            driver_instance.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors})
+
+    return render(request, 'driver_signup.html')

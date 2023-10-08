@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from core.models import Restaurant, Meal
+from core.models import Restaurant, Meal,Vehicle,Courier
 
 
 class SignUpForm(UserCreationForm):
@@ -54,3 +54,21 @@ class PayoutForm(forms.ModelForm):
   class Meta:
     model = Courier
     fields = ('paypal_email',)
+    
+    
+
+
+class BasicInfoForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+
+class VehicleInfoForm(forms.ModelForm):
+    class Meta:
+        model = Vehicle
+        fields = ['year', 'make', 'model', 'color']
+
+class DocumentUploadForm(forms.ModelForm):
+    class Meta:
+        model = Courier
+        fields = ['resume', 'license', 'registration', 'insurance']

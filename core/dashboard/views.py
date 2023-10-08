@@ -18,9 +18,11 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
 from core.models import Job
 from django.conf import settings
+from datetime import date
+
 
 @login_required(login_url="/sign-in/?next=/dashboard/")
-def home(request):
+def home(request):   
     return render(request, 'dashboard/order.html')
 
 @login_required(login_url='/restaurant/sign_in/')
@@ -87,27 +89,42 @@ def restaurant_edit_meal(request, meal_id):
 
 @login_required(login_url='/dashboard/sign_in/')
 def dashboard_order(request):
-  if request.method == "POST":
-    order = Job.objects.get(id=request.POST["id"])
-    notification = Notification.objects.filter(job=order).first()
-    if notification:
-      notification.read = True
-      notification.save()
-    else:
-      print("No notification found for this job.")
-
-    if order.status == "processing":
-       order.status = "ready"
-       order.save()
-       
-       if notification:  # Check if notification is not None before accessing its attributes
-         notification.read = True
-         notification.save()
     
-  orders = Job.objects.exclude(Q(status="creating")|Q(status="reviewed")|Q(status="completed")).order_by("-id")
-  return render(request, 'dashboard/order.html', {
-    "orders": orders
-  })
+    if request.method == "POST":
+        order = Job.objects.get(id=request.POST["id"])
+        notification = Notification.objects.filter(job=order).first()
+
+        if notification:
+            notification.read = True
+            notification.save()
+        else:
+            print("No notification found for this job.")
+            
+
+        if order.status == "processing":
+            order.status = "ready"
+            order.save()
+
+            if notification:  # Check if notification is not None before accessing its attributes
+                notification.read = True
+                notification.save()
+
+    # today = timezone.localdate()
+    all_jobs = Job.objects.exclude(Q(status="creating")|Q(status="reviewed")|Q(status="completed")|Q(is_scheduled=True)).order_by("-id")
+    # orders = [job for job in all_jobs if not job.is_scheduled or job.scheduled_date.date() <= today]
+    
+    today = date.today()
+
+    # Fetch orders that are scheduled for today
+    scheduled_orders = Job.objects.filter(is_scheduled=True)
+
+    context = {
+        'immediate_orders': all_jobs,
+        'scheduled_orders': scheduled_orders,
+        'today': today,
+    }
+    
+    return render(request, 'dashboard/order.html',context)
 
 
 @login_required(login_url='/dashboard/sign_in/')
@@ -203,10 +220,11 @@ def all_jobs_page(request):
             Job.PROCESSING_STATUS,
             Job.READY_STATUS,
             Job.PICKING_STATUS,
-            Job.DELIVERING_STATUS
+            Job.DELIVERING_STATUS,
+            Job.SCHEDULED_STATUS
         ]
     ).filter(
-        Q(scheduled_date__date=current_date, service_type='scheduled') |
+        Q(scheduled_date=current_date, service_type='scheduled') |
         Q(service_type='standard') |
         Q(name__icontains=query) |
         Q(id__icontains=query) |

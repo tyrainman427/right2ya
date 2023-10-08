@@ -76,6 +76,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home),
     path('payout/', views.admin_payout, name='admin_payout'),
+    path('driver_signup/', views.driver_signup, name='driver_signup'),
 
     path('update-switch-state/', courier_views.update_switch_state, name='update_switch_state'),
     path('rate-courier/<uuid:job_id>/', views.rate_courier, name='rate_courier'),

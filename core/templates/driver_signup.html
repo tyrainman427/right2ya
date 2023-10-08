@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Form Container -->
+        <div class="col-md-6">
+            <h2>Driver Signup</h2>
+            <div class="card">
+                <div class="card-body" id="step-container">
+                    <!-- Progress Icons -->
+                    <div class="mb-3">
+                        <span id="icon-step-1" class="badge badge-primary">1</span>
+                        <span id="icon-step-2" class="badge badge-secondary">2</span>
+                        <span id="icon-step-3" class="badge badge-secondary">3</span>
+                    </div>
+                <!-- Step 1: Basic Information -->
+                <div id="step-1" class="step" data-step="1">
+                    <h4>Step 1: Basic Information</h4>
+                    <form class="col-md-12">
+                        <div class="form-group">
+                            <label for="first_name">First Name:</label>
+                            <input type="text" class="form-control" id="first_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name:</label>
+                            <input type="text" class="form-control" id="last_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="text" class="form-control" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone_number">Phone:</label>
+                            <input type="text" class="form-control" id="phone_number">
+                        </div>
+                        <button type="button" class="btn btn-primary next-step">Next</button>
+                    </form>
+                </div>
+            </div>
+        <!-- Step 2: Vehicle Information -->
+        <div id="step-2" class="step d-none" data-step="2"> <!-- hidden by default -->
+            <h4>Step 2: Vehicle Information</h4>
+            <form class="col-md-12">
+                <div class="form-group">
+                    <label for="year">Year:</label>
+                    <input type="text" class="form-control" id="year">
+                </div>
+                <div class="form-group">
+                    <label for="make">Make:</label>
+                    <input type="text" class="form-control" id="make">
+                </div>
+                <div class="form-group">
+                    <label for="model">Model:</label>
+                    <input type="text" class="form-control" id="model">
+                </div>
+                <div class="form-group">
+                    <label for="color">Color:</label>
+                    <input type="text" class="form-control" id="color">
+                </div>
+                <!-- Add other fields... -->
+                <button type="button" class="btn btn-primary prev-step">Previous</button>
+                <button type="button" class="btn btn-primary next-step">Next</button>
+            </form>
+        </div>
+
+        
+        <!-- Step 3: Uploads -->
+        <div id="step-3" class="step d-none" data-step="3">
+            <h4>Step 3: Upload Documents</h4>
+            <form class="col-md-6">
+                <div class="form-group">
+                    <label for="resume">Resume:</label>
+                    <input type="file" class="form-control" id="resume">
+                </div>
+                <div class="form-group">
+                    <label for="license">License:</label>
+                    <input type="file" class="form-control" id="license">
+                </div>
+                <div class="form-group">
+                    <label for="insurance">Insurance:</label>
+                    <input type="file" class="form-control" id="insurance">
+                </div>
+                <div class="form-group mb-5">
+                    <label for="registration">Registration:</label>
+                    <input type="file" class="form-control" id="registration">
+                </div>
+                <!-- Add other fields... -->
+                <button type="button" class="btn btn-primary prev-step">Previous</button>
+                <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+            </form>
+        </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h4>Your Information</h4>
+        <div class="card">
+            <div class="card-body" id="display-area">
+        <p>First Name: <span id="display-first_name"></span></p>
+        <p>Last Name: <span id="display-last_name"></span></p>
+        <p>Email: <span id="display-email"></span></p>
+        <p>Phone: <span id="display-phone_number"></span></p>
+        <!-- Add more fields for Step 2 and 3 -->
+        <h4>Vehicle Info</h4>
+        <p>Year: <span id="display-year"></span></p>
+        <p>Color: <span id="display-color"></span></p>
+        <p>Make: <span id="display-make"></span></p>
+        <p>Model: <span id="display-model"></span></p>
+
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+// JavaScript logic to control the form steps
+$(document).ready(function() {
+    $('.next-step').on('click', function() {
+        var currentStep = $(this).closest('.step');
+        currentStep.addClass('d-none');
+        currentStep.next('.step').removeClass('d-none');
+        
+        
+        // Additional logic to update progress icons
+        const currentStepNumber = $(this).closest('.step').data('step');
+        $(`#icon-step-${currentStepNumber}`).removeClass('badge-primary').addClass('badge-secondary');
+        $(`#icon-step-${currentStepNumber + 1}`).removeClass('badge-secondary').addClass('badge-primary');
+
+        console.log("Current Step before clicking next: " + currentStepNumber, currentStep); // Debugging line
+
+    });
+    
+    $('.prev-step').on('click', function() {
+        var currentStep = $(this).closest('.step');
+        currentStep.addClass('d-none');
+        currentStep.prev('.step').removeClass('d-none');
+        
+        // Additional logic to update progress icons
+        const currentStepNumber = $(this).closest('.step').data('step');
+        $(`#icon-step-${currentStepNumber}`).removeClass('badge-primary').addClass('badge-secondary');
+        $(`#icon-step-${currentStepNumber - 1}`).removeClass('badge-secondary').addClass('badge-primary');
+    });
+
+    $('#submit-button').on('click', function() {
+        // Submit the form data using AJAX or a form submission
+    });
+
+    // Update display for user inputs
+    $('input').on('input', function() {
+        const inputId = $(this).attr('id');
+        const inputValue = $(this).val();
+        $(`#display-${inputId}`).text(inputValue);
+    });
+
+    $('input[type="file"]').on('change', function() {
+        const inputId = $(this).attr('id');
+        const inputValue = $(this).val().split('\\').pop(); // Just the filename
+        $(`#display-${inputId}`).text(inputValue);
+    });
+});
+
+</script>
+
+{% endblock %}
