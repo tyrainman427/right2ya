@@ -4,6 +4,25 @@
 {% block content %}
 
 <style>
+  body::before {
+    content: "";
+    position: fixed; /* Fixed/sticky position */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with 0.5 opacity */
+    z-index: -1; /* Sit on top of the background image */
+  }
+  body {
+    background-image: url('{% static "assets/img/delivery.jpeg" %}');
+    background-size:cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  .background-image {
+    opacity: .75;
+  }
   .hunter-green {
     background-color: #355E3B;
   }
@@ -44,7 +63,20 @@
   .navbar-light .navbar-nav .nav-link {
 	color: white !important;
   }
+  .jumbotron {
+    background-color: rgba(53, 94, 59, 0.6);  /* hunter-green with some opacity */
+    color: white;
+  }
+
 </style>
+
+<div class="jumbotron text-center">
+  <h1 class="display-4">Delivering Right to You, One Click at a Time!</h1>
+  <p class="lead">Revolutionize your delivery experience.</p>
+  {% comment %} <hr class="my-4"> {% endcomment %}
+  <p>Join us and be a part of the next big thing in delivery!</p>
+  {% comment %} <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a> {% endcomment %}
+</div>
 
 <div class="container card-container mt-5">
   <div class="row">
@@ -52,7 +84,7 @@
       <div class="card">
         <img src="{% static 'assets/img/delivery-van.jpeg' %}" class="card-img img-responsive" alt="...">
         <div class="card-img-overlay">
-          <h5 class="card-title">COMPANY</h5>
+          <h5 class="card-title">ARE YOU A BUSINESS?</h5>
           {% comment %} <p class="card-text">Create delivery jobs.</p> {% endcomment %}
           <a href="{% url 'customer:home' %}" class="btn hunter-green-button text-white">Enter</a>
         </div>
@@ -62,7 +94,7 @@
       <div class="card">
         <img src="{% static 'assets/img/delivery-man.jpeg' %}" class="card-img img-responsive" alt="...">
         <div class="card-img-overlay">
-          <h5 class="card-title">DRIVERS</h5>
+          <h5 class="card-title">ARE YOU A DRIVER?</h5>
           {% comment %} <p class="card-text">Accept delivery jobs.</p> {% endcomment %}
           <a href="{% url 'courier:home' %}" class="btn hunter-green-button text-white">Enter</a>
         </div>
