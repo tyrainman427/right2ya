@@ -146,12 +146,12 @@ class Job(models.Model):
   SIGNED_STATUS = 'signed'
   STATUSES = (
     (CREATING_STATUS, 'Creating'),
-    (PROCESSING_STATUS, 'Processing'),
-    (READY_STATUS, 'Ready'),
-    (PICKING_STATUS, 'Picking'),
+    (PROCESSING_STATUS, 'Processing Order'),
+    (READY_STATUS, 'Ready for Driver'),
+    (PICKING_STATUS, 'Picking Up Order'),
     (ARRIVED_STATUS,'Arrived'),
-    (DELIVERING_STATUS, 'Delivering'),
-    (SIGNED_STATUS,"Signed"),
+    (DELIVERING_STATUS, 'Delivering Order'),
+    (SIGNED_STATUS,"Order Signed"),
     (COMPLETED_STATUS, 'Completed'),
     (REVIEWED_STATUS, 'Reviewed'),
     (CANCELED_STATUS, 'Canceled'),
