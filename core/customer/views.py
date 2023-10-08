@@ -138,7 +138,8 @@ def create_job_page(request):
             Job.PROCESSING_STATUS,
             Job.READY_STATUS,
             Job.PICKING_STATUS,
-            Job.DELIVERING_STATUS
+            Job.DELIVERING_STATUS,
+            Job.SCHEDULED_STATUS,
         ]
     ).exists()
 
@@ -217,8 +218,12 @@ def create_job_page(request):
                         job=creating_job,
                         amount=creating_job.price,
                     )
-
-                    creating_job.status = Job.PROCESSING_STATUS
+                    if creating_job.service_type == "scheduled":
+                        creating_job.is_scheduled = True
+                        creating_job.status = Job.SCHEDULED_DELIVERY
+                    else:
+                        creating_job.status = Job.PROCESSING_STATUS
+                        
                     creating_job.paid_status = Job.PAID_STATUS
                     creating_job.save()
 
@@ -257,12 +262,18 @@ def current_jobs_page(request):
             Job.PROCESSING_STATUS,
             Job.READY_STATUS,
             Job.PICKING_STATUS,
-            Job.DELIVERING_STATUS
+            Job.DELIVERING_STATUS,
+            Job.ARRIVED_STATUS,
+            Job.SIGNED_STATUS,
+            Job.SCHEDULED_STATUS,
         ]
-    ).filter(
-        Q(scheduled_date__date=current_date, service_type='scheduled') |
-        Q(service_type='standard')
     )
+    
+    print(jobs.query)  # This will print the SQL query
+    print(jobs.count())  # This will print the number of jobs found
+    for job in jobs:
+        print(job.id, job.scheduled_date, job.status)  # This will print relevant fields for each job
+
 
     return render(request, 'customer/jobs.html', {
         "jobs": jobs,
@@ -303,7 +314,6 @@ def job_page(request, job_id):
      
     })
 
-
 @login_required
 def select_job(request):
     if request.method == 'POST':
@@ -319,8 +329,6 @@ def select_job(request):
     
     return render(request, 'customer/select_job.html')
 
-from django.shortcuts import redirect
-
 @login_required
 def select_service_type(request):
     if request.method == 'POST':
@@ -335,9 +343,6 @@ def select_service_type(request):
     # If the request method is not POST or the service type is not provided,
     # render the select service type template again
     return render(request, 'customer/select_job.html')
-
-
-
 
 def choose_meal(request):
     if request.method == 'POST':
@@ -374,7 +379,6 @@ def choose_meal(request):
         'meals': meals,
     }
     return render(request, 'customer/services.html', context)
-
 
 def job_summary(request, job_id):
     try:

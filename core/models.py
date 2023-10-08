@@ -42,6 +42,18 @@ class Customer(models.Model):
 
 class Courier(models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='courier',)
+  resume = models.FileField(upload_to='resumes/', null=True)
+  license = models.FileField(upload_to='licenses/', null=True)
+  registration = models.FileField(upload_to='registrations/', null=True)
+  insurance = models.FileField(upload_to='insurances/', null=True)
+  status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('verified', 'Verified')
+        ],
+        default='pending'
+    )
   lat = models.FloatField(default=0)
   lng = models.FloatField(default=0)
   #temp to fix location bug
@@ -75,7 +87,13 @@ class Courier(models.Model):
   def balance(self):
         return round(sum(t.amount for t in Transaction.objects.filter(job__courier=self, status=Transaction.IN_STATUS)) * 0.75, 2)
     
-  
+class Vehicle(models.Model):
+    driver = models.OneToOneField(Courier, on_delete=models.CASCADE, related_name='vehicle')
+    year = models.IntegerField()
+    make = models.CharField(max_length=100)
+    model = models.CharField(max_length=100)
+    color = models.CharField(max_length=50)
+    
 class Rating(models.Model):
     courier = models.ForeignKey(Courier, on_delete=models.CASCADE, related_name='ratings')
     rating_value = models.IntegerField(default=0)
@@ -109,7 +127,7 @@ class Job(models.Model):
     (LARGE_SIZE, 'Large'),
   )
   SAME_DAY_DELIVERY = 'standard'
-  SCHEDULED_DELIVERY = 'scheduled'
+  SCHEDULED_STATUS = 'scheduled'
   
   SERVICE_DELIVERY = (
         ('standard', 'Standard Delivery'),
@@ -137,6 +155,8 @@ class Job(models.Model):
     (COMPLETED_STATUS, 'Completed'),
     (REVIEWED_STATUS, 'Reviewed'),
     (CANCELED_STATUS, 'Canceled'),
+    (SCHEDULED_STATUS,'Scheduled'),
+
   )
 
   UNPAID_STATUS = 'unpaid'
@@ -199,7 +219,8 @@ class Job(models.Model):
   weight = models.FloatField(default=0)
   has_spill = models.BooleanField(default=False)
   
-  scheduled_date = models.DateTimeField(null=True, blank=True)
+  is_scheduled = models.BooleanField(default=False)
+  scheduled_date = models.DateField(null=True, blank=True)
   paid_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=UNPAID_STATUS)
   previous_status = models.CharField(max_length=100, blank=True, null=True)
   

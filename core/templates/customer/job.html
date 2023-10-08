@@ -225,9 +225,27 @@
         <div class="photo-blank">Delivery Photo Will Appear Here</div>
         {% endif %}
       </div>
-
     </div>
 
+    <hr class="my-4" />
+
+    <h4 class="mb-3">
+      Signature
+    </h4>
+    <div class="row">
+      <div class="col-lg-12">
+        {% if job.signature %}
+        <div class="row">
+          <div class="col-lg-12">
+            <img src="{{ job.signature.url }}" class="rounded-lg" width="300" height="150">
+          </div>
+        </div>
+        {% else %}
+        <div class="photo-blank">Signature Will Appear Here</div>
+        {% endif %}
+      </div>
+ 
+    </div>
   </div>
 </div>
 
@@ -239,16 +257,7 @@
 {% comment %} {% endif %} {% endcomment %}
 
 <!-- Signature -->
-{% if job.signature %}
-<h4 class="mb-3">Signature</h4>
-<div class="row">
-  <div class="col-lg-12">
-    <img src="{{ job.signature.url }}" class="rounded-lg" width="300" height="150">
-  </div>
-</div>
-{% else %}
-<div class="photo-blank">Signature Will Appear Here</div>
-{% endif %}
+
 
 
 <!-- RATE COURIER -->

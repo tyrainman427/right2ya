@@ -37,39 +37,51 @@
   
   </script>
 
-<div class="row">
-  <div class="col-md-10 offset-md-1">
-    <div class="card shadow text-white mb-3 mt-5">
-      <div class="card-header text-center">
-        <h5 class="m-0 font-weight-bold text-black">Orders</h5>
-      </div>
-      <div class="card-body">
-        <table class="table table-striped table-hover table-bordered">
-          <thead>
-            <tr>
-              <th scope="col">Details</th>
-              <th scope="col">Customer</th>
-              <th scope="col">Driver</th>
-              <th scope="col">Total</th>
-              <th scope="col">Status</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          {% if orders %}
-          <tbody>
-            {% for order in orders %}
-           <script> initializeWebSocket("{{ order.id }}"); </script>
+  <style>
+    .greyed-out {
+      background-color: #f0f0f0;  /* or any other shade of grey you prefer */
+    }
+    .status-indicator.scheduled { background-color: yellow; }
+    .status-indicator.completed { background-color: green; }
+  </style>
 
-              <tr class="align-middle" id="order-row-{{ order.id }}">
-                <td>
-                  <ul>
-                     <li>{{ order.name }} :${{ order.price }}</li>
-                  </ul>
-                </td>
-                <td>{{ order.customer}}</td>
-                <td>{{ order.courier }}</td>
+<!-- Immediate Orders -->
+<div class="container">
+<h5 class="mt-5 mb-3 font-weight-bold text-black">Orders </h5>
+<!-- Add these lines for debugging -->
+
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-bordered">
+    <caption>List of Orders</caption>
+    <thead>
+      <tr>
+        <th scope="col">Details</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Driver</th>
+        <th scope="col">Total</th>
+        <th scope="col">Status</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if immediate_orders %}
+        {% for order in immediate_orders %}
+        <script>initializeWebSocket("{{ order.id }}");</script>
+        <tr class="align-middle" id="order-row-{{ order.id }}">
+          <td>
+            <ul>
+              <li>{{ order.name }} </li>
+            </ul>
+          </td>
+          <td>{{ order.customer }}</td>
+          <td>{{ order.courier }}</td>
                 <td class="text-right">${{ order.price|floatformat:2}}</td>
-                <td id="order-status">{{ order.get_status_display }}</td>
+                <td id="order-status">
+                  <span class="status-indicator {{ order.status }}"></span>
+                  {{ order.get_status_display }}
+                </td>
+                
                 <td>
                   {% if order.status == 'processing' %}
                     <form action="" method="post">
@@ -87,14 +99,70 @@
               </tr>
             {% endfor %}    
             {% else %}
-            <h3 class="text-center">There are no jobs to view.</h3> 
+            <h3 class="text-center">There are no jobs to view.</h3>
+
           </tbody>
         {% endif%}
         </table>
       </div>
-    </div>
-  </div>
-</div>
 
+<!-- Scheduled Orders for Today -->
+<h5 class="mt-5 mb-3 font-weight-bold text-black">Scheduled Orders <span class="badge badge-secondary">{{ scheduled_orders.count }}</span></h5>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-bordered">
+    <caption>List of Scheduled Orders</caption>
+    <thead>
+      <tr>
+        <th scope="col">Details</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Driver</th>
+        <th scope="col">Total</th>
+        <th scope="col">Status</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if scheduled_orders %}
+        {% for order in scheduled_orders %}
+
+        <script>initializeWebSocket("{{ order.id }}");</script>
+        <tr class="align-middle greyed-out" id="order-row-{{ order.id }}">
+          <td>
+            <ul>
+              <li>{{ order.name }}</li>
+            </ul>
+          </td>
+          <td>{{ order.customer }}</td>
+          <td>{{ order.courier }}</td>
+          <td class="text-right">${{ order.price|floatformat:2 }}</td>
+          <td id="order-status" class="indicator.scheduled">{{ order.get_status_display }}</td>
+          <td>
+            {% if order.status == 'scheduled' %}
+              <form action="" method="post">
+                {% csrf_token %}
+                <input name="id" value="{{ order.id }}" hidden>
+                {% if order.scheduled_date > today or order.scheduled_date < today %} 
+                <button class="btn btn-secondary btn-sm" disabled>Scheduled</button>
+                {% else %}
+                <button class="btn btn-success btn-sm">Send to Driver</button>
+                {% endif %}
+              </form>
+            {% elif order.status != 'scheduled' %}
+              <!-- Reload Page Button -->
+              <button class="btn btn-primary btn-md" onclick="location.reload();">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            {% endif %}
+          </td>
+          
+        </tr>
+        {% endfor %}
+      {% else %}
+        <h3 class="text-center">There are no scheduled jobs to view for today.</h3>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+</div>
 {% endblock %}
 

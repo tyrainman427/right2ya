@@ -28,7 +28,6 @@
   <!-- LIST OF JOBS -->
   <div class="list-group mt-3">
     {% if jobs %}
-
     {% for job in jobs %}
     <a href="{% url 'customer:job' job.id %}" class="list-group-item list-group-item-action">
       <div class="media">
@@ -72,6 +71,7 @@
     {% else %}
     <div class="card">
       <div class="card-body text-center">
+        
         No current jobs.
       </div>
     </div>
