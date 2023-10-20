@@ -211,7 +211,7 @@ def create_job_page(request):
                         currency='usd',
                         customer=current_customer.stripe_customer_id,
                         payment_method=current_customer.stripe_payment_method_id,
-                        capture_method='manual',
+                        # capture_method='manual',
                         off_session=True,
                         confirm=True,
                     )
@@ -427,7 +427,6 @@ def get_default_card(customer_id):
     else:
         return None
 
-from django.contrib import messages  # Import messages if not done yet
 
 def add_tip(request, job_id):
     current_customer = request.user.customer
@@ -437,46 +436,61 @@ def add_tip(request, job_id):
         form = forms.AddTipForm(request.POST)
         
         if form.is_valid():
-            tip = form.cleaned_data['tip']
+            tip_amount = form.cleaned_data['tip']
             
-            # Add the tip amount to the job and save
-            job.tip = tip
+            # 1. Create a Tip instance and link it to the job
+            tip = Tip.objects.create(job=job, amount=tip_amount)
+            job.tipped = tip
             job.save()
-          
             
-            # Retrieve the original payment intent to get the original charged amount
-            original_payment_intent = stripe.PaymentIntent.retrieve(job.stripe_payment_intent_id)
-            original_amount = original_payment_intent.amount / 100  # Stripe amounts are in cents
-            original_amount = Decimal(original_amount)
-            # Calculate the new total amount including the tip
-            new_total_amount = original_amount + tip
+            # 2. Retrieve the Stripe details of the customer
+            stripe_customer_id = current_customer.stripe_customer_id
+            stripe_payment_method_id = current_customer.stripe_payment_method_id
             
-            # Create a new payment intent with the combined amount
+            # 3. Calculate the total price with the tip
+            job_price_decimal = Decimal(str(job.price))
+            total_price_with_tip = job_price_decimal + job.tipped.amount
+
+            # 4. Refund the original payment intent
+            stripe.Refund.create(
+                payment_intent=job.stripe_payment_intent_id,
+            )
+
+            # 5. Create a new Stripe PaymentIntent with the tip included
             new_payment_intent = stripe.PaymentIntent.create(
-                amount=int(new_total_amount * 100),  # Convert to cents
+                amount=int(total_price_with_tip * 100),  # Convert to cents
                 currency='usd',
-                customer=current_customer.stripe_customer_id,
-                payment_method=current_customer.stripe_payment_method_id,
-                off_session=True,
+                customer=stripe_customer_id,
+                payment_method=stripe_payment_method_id,
                 confirm=True,
             )
-            
-            # Create a new transaction record for this payment
+
+            # 6. Update the job with the new Stripe PaymentIntent ID
+            job.stripe_payment_intent_id = new_payment_intent['id']
+            job.save()
+
+            # 7. Create a new Transaction for the tip
             Transaction.objects.create(
                 stripe_payment_intent_id=new_payment_intent['id'],
                 job=job,
-                amount=new_total_amount,
+                tip=tip.amount,
+                transaction_type=Transaction.TIP,
+                amount=tip_amount,
             )
-            
+
+            # 8. Redirect to the job page
             return redirect('customer:job', job_id=job.id)
+
         else:
-            messages.error(request, "No active card found for the customer.")
+            messages.error(request, "Invalid form data.")
     else:
         form = forms.AddTipForm()
 
-    return render(request, 'customer/add_tip.html', {'form': form, 'job': job, 'total_price': job.price,
-        'total_price_with_tip': job.price + job.tipped if job.tipped else job.price
-    })
+    return render(
+        request, 
+        'customer/add_tip.html', 
+        {'form': form, 'job': job, 'total_price_with_tip': job.price}
+    )
 
 
 @login_required

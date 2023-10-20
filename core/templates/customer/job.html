@@ -172,7 +172,7 @@
       </div>
       <div class="col-lg-3">
         <small class="text-secondary">PRICE</small><br />
-        <span><b>${{ job.price | floatformat:2 }} {% if job.tipped %}<p class="badge badge-success">+ Tip {% endif %}</p></b></span>
+        <span><b>${{ job.price | floatformat:2 }} {% if job.tipped %}<p class="badge badge-success">Left Tip{% endif %}</p></b></span>
       </div>
       <div class="col-lg-3">
         <small class="text-secondary">QUANTITY</small><br />
@@ -185,14 +185,16 @@
 <!-- DELIVERY INFORMATION -->
 <b class="text-secondary">DELIVERY INFORMATION</b> {% if job.delivery_choice == 'scheduled' %}<p class="badge badge-danger mb-2"> {{ job.delivery_choice}} <br />{% endif %}</p><br />
 <!-- Link to add a tip -->
-{% if tipped %}
-Thanks for tipping we appreciate your busines!!
+{% if job.tipped %}
+<div class="alert alert-success" role="alert">
+Thanks for the tip we appreciate your business!!
+</div>
 {% else %}
 {% if job.status == "completed" or job.status == "reviewed" %}
 <div class="alert alert-danger" role="alert">
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tipModal">
-  Complete Job
-</button> Please click on the button to complete job.
+  Add Tip
+</button> If you felt we did a good job and would like to show appeciation.
 </div>
 
     <script type="text/javascript">

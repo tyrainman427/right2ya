@@ -13,8 +13,8 @@
                         <h3 class="mb-0">Add Tip</h3>
                     </div>
                     <div class="card-body">
-                        <p>Total price before tip: {{ total_price }}</p>
-                        <p>Total price with tip: {{ total_price_with_tip }}</p>
+                     
+                        <p>Total price: {{ total_price_with_tip }}</p>
                         <form method="post">
                             {% csrf_token %}
                             <div class="form-group">

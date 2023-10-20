@@ -6,6 +6,8 @@ from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import stripe
+from decimal import Decimal
 
 
 # Create your models here.
@@ -289,7 +291,7 @@ class Job(models.Model):
     subtotal = new_price + extra_weight_fee + weekend_delivery_fee + spill_charge + waiting_fee
 
     # Calculate the service fee
-    service_fee = subtotal * 0.25 if subtotal * 0.25 <= 100 else subtotal * 0.15
+    service_fee = subtotal * 0.25 if subtotal * 0.25 <= 100 else subtotal * 0.2
 
     # Calculate the total price including all fees
     total_price = subtotal + service_fee
@@ -341,7 +343,7 @@ class Transaction(models.Model):
         default=JOB,
     )
 
-  stripe_payment_intent_id = models.CharField(max_length=255, unique=True)
+  stripe_payment_intent_id = models.CharField(max_length=255)
   job = models.ForeignKey(Job, on_delete=models.CASCADE)
   tip = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
 
