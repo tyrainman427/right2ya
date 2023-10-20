@@ -40,7 +40,7 @@ def password_reset_request(request):
 					email_template_name = "registration/password_reset_email.txt"
 					c = {
 					"email":user.email,
-					'domain':'127.0.0.1:8000',
+					'domain':request.get_host(),
 					'site_name': 'Right2ya Beta',
 					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
 					"user": user,
@@ -116,9 +116,12 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):  
         user.is_active = True  
         user.save()  
-        return HttpResponse(f"Thank you for your email confirmation. Now you can login your account.")  
+        return HttpResponse(
+            f"Thank you for your email confirmation. "
+            f"Now you can <a href='/login/'>login to your account</a>."
+        )  
     else:  
-        return HttpResponse('Activation link is invalid!') 
+        return HttpResponse('Activation link is invalid!')  
 
 @login_required    
 def rate_courier(request, job_id):
@@ -165,7 +168,7 @@ def admin_payout(request):
                     payout_items.append({
                         "recipient_type": "EMAIL",
                         "amount": {
-                            "value": "{:.2f}".format(balance * 0.75),
+                            "value": "{:.2f}".format(balance * 0.75), 
                             "currency": "USD"
                         },
                         "receiver": courier.paypal_email,

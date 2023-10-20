@@ -248,7 +248,11 @@
             <input type="hidden" name="step" value="4">
             <button type="button" class="btn btn-outline-warning"
               onclick="$('#pills-delivery-tab').tab('show');">Back</button>
-            <button id="job-submit" type="submit" class="btn  hunter-green text-white ">Create Job</button>
+              <button id="job-submit" type="submit" class="btn  hunter-green text-white ">
+                <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Create Job
+              </button>
+              
           </form>
           <i class="text-secondary">By placing your order you agree to the Terms of Services and Privacy Policy.</i>
         </div>
@@ -351,6 +355,25 @@
         'message': message
     }));
 };
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Get the button element
+  const submitButton = document.getElementById("job-submit");
+
+  // Listen for the 'click' event
+  submitButton.addEventListener("click", function() {
+    // Get the spinner element
+    const spinner = document.getElementById("spinner");
+
+    // Show the spinner
+    spinner.classList.remove("d-none");
+
+    // Perform your button's task here (e.g., sending a form)
+    // After the task is done, hide the spinner
+    // spinner.classList.add("d-none");
+  });
+});
+
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>

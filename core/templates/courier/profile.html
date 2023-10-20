@@ -18,7 +18,7 @@
   <a href="{% url 'courier:payout_method' %}" class="btn btn-outline-secondary btn-block btn-md mt-2">
     Setup
   </a>
-  <a href="#" class="btn btn-block btn-outline-secondary mt-2">Help</a>
+  <a href="{% url 'courier:help' %}" class="btn btn-block btn-outline-primary mt-2">Help</a>
 </div>
 
 <div class="mt-2 p-2">
@@ -44,7 +44,7 @@
   <hr />
   <div class="d-flex text-center">
     <div class="flex-grow-1">
-      <h4 class="text-success">{{  courier.average_rating }}</h4>
+      <h4 class="text-success">{{  courier.average_rating| floatformat:1 }}</h4>
       <span class="text-secondary">Average Rating</span>
     </div>
     <div class="flex-grow-1">
@@ -64,7 +64,7 @@
     <label class="form-check-label" for="map-toggle">GO ONLINE</label>
   </div>
   {% endif %}
-  <a href="" class="text-dark"><small>Need Help?</small></a>
+
 </div>
 <hr />
 <div class="p-2 mt-3 mb-5">

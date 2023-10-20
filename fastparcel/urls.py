@@ -54,6 +54,7 @@ courier_urlpatterns = [
     path('payout_method/', courier_views.payout_method_page, name="payout_method"),
     path('save_signature/<uuid:job_id>/', courier_views.save_signature, name='save_signature'),
     path('arrive_at_destination/<uuid:job_id>/', courier_views.arrive_at_destination, name='arrive_at_destination'),
+    path('help/', courier_views.help, name="help"),
 
 ]
 

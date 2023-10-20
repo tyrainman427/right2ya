@@ -3,6 +3,11 @@
 
 {% block head %}
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <style>
   .photo {
     object-fit: cover;
@@ -167,7 +172,7 @@
       </div>
       <div class="col-lg-3">
         <small class="text-secondary">PRICE</small><br />
-        <span><b>${{ job.price | floatformat:2 }}</b></span>
+        <span><b>${{ job.price | floatformat:2 }} {% if job.tipped %}<p class="badge badge-success">+ Tip {% endif %}</p></b></span>
       </div>
       <div class="col-lg-3">
         <small class="text-secondary">QUANTITY</small><br />
@@ -179,6 +184,52 @@
 
 <!-- DELIVERY INFORMATION -->
 <b class="text-secondary">DELIVERY INFORMATION</b> {% if job.delivery_choice == 'scheduled' %}<p class="badge badge-danger mb-2"> {{ job.delivery_choice}} <br />{% endif %}</p><br />
+<!-- Link to add a tip -->
+{% if tipped %}
+Thanks for tipping we appreciate your busines!!
+{% else %}
+{% if job.status == "completed" or job.status == "reviewed" %}
+<div class="alert alert-danger" role="alert">
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tipModal">
+  Complete Job
+</button> Please click on the button to complete job.
+</div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#tipModal').modal('show');
+            
+            // Update the link when the tip amount changes
+            $('#tipAmount').change(function() {
+                const tipAmount = $(this).val();
+                const baseUrl = "{% url 'customer:add_tip' job.id %}";
+                const newUrl = `${baseUrl}?tip_amount=${tipAmount}`;
+                $('#add-tip-link').attr('href', newUrl);
+            });
+        });
+    </script>
+{% endif %}
+{%endif %}
+
+<!-- Modal -->
+<div class="modal fade" id="tipModal" tabindex="-1" role="dialog" aria-labelledby="tipModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tipModalLabel">Would you like to add a tip?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <br>
+                <a href="{% url 'customer:add_tip' job.id %}" id="add-tip-link" class="btn btn-success btn-lg">Add Tip</a>
+                <button type="button" class="btn btn-danger btn-lg" id="no-tip-button" data-dismiss="modal">No Tip</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card bg-white mt-2 mb-5">
   <div class="card-body p-4">
 
@@ -249,15 +300,8 @@
   </div>
 </div>
 
-<!-- Link to add a tip -->
-{% comment %} {% if tip %} {% endcomment %}
-{% comment %} <a href="{% url 'customer:add_tip' job.id %}">Add a Tip</a> {% endcomment %}
-{% comment %} {% else %} {% endcomment %}
-{% comment %} <p>You have already tipped the courier for this job.</p> {% endcomment %}
-{% comment %} {% endif %} {% endcomment %}
 
 <!-- Signature -->
-
 
 
 <!-- RATE COURIER -->
@@ -291,6 +335,16 @@
 
 {% endif %}
 
+
+
+
+
+{% comment %} {% if not tip %}
+<a href="{% url 'customer:add_tip' job.id %}" class="btn btn-success btn-lg">Add a Tip</a>
+{% else %}
+<p><strong>Tip Amount: </strong> <span class="text-success text-bold">${{ tip.amount }}</span></p>
+{% endif %} {% endcomment %}
+
 <!-- MAP AREA -->
 <div class="d-flex justify-content-between">
   <b class="text-secondary">TRACK DELIVERY</b>
@@ -306,6 +360,28 @@
 </div>
 
 
+
+<script>
+  // Show the tip popup when the "Proceed" button is clicked
+  document.getElementById("proceed-button").addEventListener("click", function() {
+      document.getElementById("tip-popup").style.display = "display";
+  });
+
+  // Logic when "Add Tip" is clicked
+  document.getElementById("add-tip-button").addEventListener("click", function() {
+      var tipAmount = document.getElementById("tip-amount").value;
+      if(tipAmount) {
+          // You can use AJAX to send the tip amount to the server here
+          // If the tip amount is successfully sent and processed, redirect to the payment page
+      }
+  });
+
+  // Logic when "No Tip" is clicked
+  document.getElementById("no-tip-button").addEventListener("click", function() {
+      // Proceed without a tip
+      // Redirect to the payment page
+  });
+</script>
 
 
 {% endblock %}
