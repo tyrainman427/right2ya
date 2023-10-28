@@ -26,6 +26,8 @@ from django.db.models import Q
 from .forms import JobCreateStep1Form, JobCreateStep2Form, JobCreateStep3Form
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from decimal import Decimal
+
 
 
 stripe.api_key = settings.STRIPE_API_SECRET_KEY
@@ -209,14 +211,19 @@ def create_job_page(request):
                         currency='usd',
                         customer=current_customer.stripe_customer_id,
                         payment_method=current_customer.stripe_payment_method_id,
+                        # capture_method='manual',
                         off_session=True,
                         confirm=True,
                     )
+                    # Store the PaymentIntent ID in the Job instance
+                    creating_job.stripe_payment_intent_id = payment_intent['id']
+                    creating_job.save()
 
                     Transaction.objects.create(
                         stripe_payment_intent_id=payment_intent['id'],
                         job=creating_job,
                         amount=creating_job.price,
+                        transaction_type=Transaction.JOB,
                     )
                     if creating_job.service_type == "scheduled":
                         creating_job.is_scheduled = True
@@ -269,8 +276,6 @@ def current_jobs_page(request):
         ]
     )
     
-    print(jobs.query)  # This will print the SQL query
-    print(jobs.count())  # This will print the number of jobs found
     for job in jobs:
         print(job.id, job.scheduled_date, job.status)  # This will print relevant fields for each job
 
@@ -301,6 +306,7 @@ def archived_jobs_page(request):
 @login_required(login_url="/sign-in/?next=/customer/")
 def job_page(request, job_id):
     job = Job.objects.get(id=job_id)
+    tip = Tip.objects.filter(job=job).first() 
 
     
     if request.method == "POST" and job.status == Job.READY_STATUS:
@@ -310,6 +316,7 @@ def job_page(request, job_id):
 
     return render(request, 'customer/job.html', {
         "job": job,
+        'tip': tip,
         "GOOGLE_MAP_API_KEY": settings.GOOGLE_MAP_API_KEY,
      
     })
@@ -420,46 +427,71 @@ def get_default_card(customer_id):
     else:
         return None
 
+
 def add_tip(request, job_id):
     current_customer = request.user.customer
     job = get_object_or_404(Job, pk=job_id)
-
+    
     if request.method == 'POST':
         form = forms.AddTipForm(request.POST)
+        
         if form.is_valid():
-            tip = form.cleaned_data['tip']
-            job.tip = tip
+            tip_amount = form.cleaned_data['tip']
+            
+            # 1. Create a Tip instance and link it to the job
+            tip = Tip.objects.create(job=job, amount=tip_amount)
+            job.tipped = tip
+            job.save()
+            
+            # 2. Retrieve the Stripe details of the customer
+            stripe_customer_id = current_customer.stripe_customer_id
+            stripe_payment_method_id = current_customer.stripe_payment_method_id
+            
+            # 3. Calculate the total price with the tip
+            job_price_decimal = Decimal(str(job.price))
+            total_price_with_tip = job_price_decimal + job.tipped.amount
+
+            # 4. Refund the original payment intent
+            stripe.Refund.create(
+                payment_intent=job.stripe_payment_intent_id,
+            )
+
+            # 5. Create a new Stripe PaymentIntent with the tip included
+            new_payment_intent = stripe.PaymentIntent.create(
+                amount=int(total_price_with_tip * 100),  # Convert to cents
+                currency='usd',
+                customer=stripe_customer_id,
+                payment_method=stripe_payment_method_id,
+                confirm=True,
+            )
+
+            # 6. Update the job with the new Stripe PaymentIntent ID
+            job.stripe_payment_intent_id = new_payment_intent['id']
             job.save()
 
-       
-            stripe.api_key = settings.STRIPE_API_SECRET_KEY
-                        # Retrieve the customer's default card
-            card = get_default_card(job.customer.stripe_customer_id)
+            # 7. Create a new Transaction for the tip
+            Transaction.objects.create(
+                stripe_payment_intent_id=new_payment_intent['id'],
+                job=job,
+                tip=tip.amount,
+                transaction_type=Transaction.TIP,
+                amount=tip_amount,
+            )
 
-             
-            if card is not None:   
-                charge = stripe.PaymentIntent.create(
-                        amount=int(tip.price * 100),
-                        currency='usd',
-                        customer=current_customer.stripe_customer_id,
-                        payment_method=current_customer.stripe_payment_method_id,
-                        off_session=True,
-                        confirm=True,
-                )
-                Transaction.objects.create(
-                        stripe_payment_intent_id = charge['id'],
-                        tip = job,
-                        amount = job.price,
-                    )
-   
+            # 8. Redirect to the job page
+            return redirect('customer:job', job_id=job.id)
 
-                return redirect('customer:job', job_id=job.id)
-            else:
-                messages.error(request, "No active card found for the customer.")
+        else:
+            messages.error(request, "Invalid form data.")
     else:
         form = forms.AddTipForm()
 
-    return render(request, 'customer/add_tip.html', {'form': form, 'job': job})
+    return render(
+        request, 
+        'customer/add_tip.html', 
+        {'form': form, 'job': job, 'total_price_with_tip': job.price}
+    )
+
 
 @login_required
 @require_POST

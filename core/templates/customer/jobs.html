@@ -24,6 +24,7 @@
         href="{% url 'customer:archived_jobs' %}">Archived Jobs</a>
     </li>
   </ul>
+  <div id="paymentStatus"></div>
 
   <!-- LIST OF JOBS -->
   <div class="list-group mt-3">
@@ -78,5 +79,26 @@
     {% endif %}
   </div>
 </div>
+
+<script>
+  // JavaScript
+const paymentStatusElement = document.getElementById('paymentStatus');
+
+// Assuming `socket` is your WebSocket object
+socket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+
+    if (data.type === 'job_update') {
+        // Update job status (you probably already do this)
+        // ...
+
+        // Update payment status
+        if (data.job.payment_status) {
+            paymentStatusElement.innerText = data.job.payment_status;
+        }
+    }
+};
+
+</script>
 
 {% endblock %}

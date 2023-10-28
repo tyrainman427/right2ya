@@ -25,6 +25,8 @@ import random
 import string
 from django.contrib import messages   
 from .forms import BasicInfoForm, VehicleInfoForm, DocumentUploadForm
+from decimal import Decimal
+
 
 
 
@@ -40,7 +42,7 @@ def password_reset_request(request):
 					email_template_name = "registration/password_reset_email.txt"
 					c = {
 					"email":user.email,
-					'domain':'127.0.0.1:8000',
+					'domain':request.get_host(),
 					'site_name': 'Right2ya Beta',
 					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
 					"user": user,
@@ -116,9 +118,12 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):  
         user.is_active = True  
         user.save()  
-        return HttpResponse(f"Thank you for your email confirmation. Now you can login your account.")  
+        return HttpResponse(
+            f"Thank you for your email confirmation. "
+            f"Now you can <a href='/login/'>login to your account</a>."
+        )  
     else:  
-        return HttpResponse('Activation link is invalid!') 
+        return HttpResponse('Activation link is invalid!')  
 
 @login_required    
 def rate_courier(request, job_id):
@@ -154,24 +159,46 @@ def admin_payout(request):
         couriers = Courier.objects.all()
         for courier in couriers:
             if courier.paypal_email:
-                courier_in_transactions = Transaction.objects.filter(
+                # Separate transactions for job and tip
+                job_transactions = Transaction.objects.filter(
                     job__courier=courier,
-                    status=Transaction.IN_STATUS
+                    status=Transaction.IN_STATUS,
+                    transaction_type=Transaction.JOB
                 )
 
-                if courier_in_transactions:
-                    transaction_querysets.append(courier_in_transactions)
-                    balance = sum(i.amount for i in courier_in_transactions)
+                tip_transactions = Transaction.objects.filter(
+                    job__courier=courier,
+                    status=Transaction.IN_STATUS,
+                    transaction_type=Transaction.TIP
+                )
+
+                # Sum up the job amounts (80% of each job amount)
+                job_balance = sum(Decimal(str(t.amount)) * Decimal("0.8") for t in job_transactions)
+                print("job balance:", job_balance)
+
+                # Sum up the tip amounts (100% of each tip)
+                tip_balance = sum(t.amount for t in tip_transactions)
+                print("Tip: ", tip_balance)
+                
+                # Calculate the total balance
+                total_balance = Decimal(job_balance) + Decimal(tip_balance)
+
+                print("Total balance:", total_balance)
+
+
+                if total_balance > 0:
                     payout_items.append({
                         "recipient_type": "EMAIL",
                         "amount": {
-                            "value": "{:.2f}".format(balance * 0.75),
-                            "currency": "USD"
+                        "value": "{:.2f}".format(total_balance),
+                        "currency": "USD"
                         },
                         "receiver": courier.paypal_email,
                         "note": "Thank you.",
                         "sender_item_id": str(courier.id)
                     })
+
+                    transaction_querysets.append(job_transactions | tip_transactions)  # Union of both querysets
 
         # Step 2 - Send payout batch + email to receivers
         sender_batch_id = ''.join(random.choice(string.ascii_uppercase) for i in range(12))
@@ -188,7 +215,7 @@ def admin_payout(request):
             if payout.create():
                 for t in transaction_querysets:
                     t.update(status=Transaction.OUT_STATUS)
-                messages.success(request, "Payout created successfully")
+                # messages.success(request, "Payout created successfully")
             else:
                 messages.error(request, payout.error)
         except Exception as e:

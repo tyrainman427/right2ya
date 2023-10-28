@@ -6,6 +6,8 @@ from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import stripe
+from decimal import Decimal
 
 
 # Create your models here.
@@ -198,6 +200,7 @@ class Job(models.Model):
   duration = models.IntegerField(default=0)
   distance = models.FloatField(default=0)
   price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+  tipped = models.ForeignKey('Tip', on_delete=models.CASCADE,related_name='job_tipped', null=True, blank=True)
 
   # Extra info
   pickup_photo = models.ImageField(upload_to='job/pickup_photos/', null=True, blank=True)
@@ -208,6 +211,8 @@ class Job(models.Model):
   
   scheduled_time = models.TimeField(blank=True, null=True)
   signature = models.ImageField(upload_to='job/signatures/', null=True, blank=True)
+  stripe_payment_intent_id = models.CharField(max_length=255, null=True, blank=True)
+
 
   # Pricing
   service_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0)
@@ -286,7 +291,7 @@ class Job(models.Model):
     subtotal = new_price + extra_weight_fee + weekend_delivery_fee + spill_charge + waiting_fee
 
     # Calculate the service fee
-    service_fee = subtotal * 0.25 if subtotal * 0.25 <= 100 else subtotal * 0.15
+    service_fee = subtotal * 0.25 if subtotal * 0.25 <= 100 else subtotal * 0.2
 
     # Calculate the total price including all fees
     total_price = subtotal + service_fee
@@ -325,9 +330,23 @@ class Transaction(models.Model):
     (IN_STATUS, 'In'),
     (OUT_STATUS, 'Out'),
   )
+  JOB = 'job'
+  TIP = 'tip'
+  TRANSACTION_TYPE_CHOICES = [
+        (JOB, 'Job'),
+        (TIP, 'Tip'),
+    ]
+    # existing fields
+  transaction_type = models.CharField(
+        max_length=5,
+        choices=TRANSACTION_TYPE_CHOICES,
+        default=JOB,
+    )
 
-  stripe_payment_intent_id = models.CharField(max_length=255, unique=True)
+  stripe_payment_intent_id = models.CharField(max_length=255)
   job = models.ForeignKey(Job, on_delete=models.CASCADE)
+  tip = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+
   amount = models.FloatField(default=0)
   status = models.CharField(max_length=20, choices=STATUSES, default=IN_STATUS)
   created_at = models.DateTimeField(default=timezone.now)
@@ -413,4 +432,8 @@ def save_customer_and_restaurant(sender, instance, **kwargs):
 class Tip(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=6, decimal_places=2)
+    
+    def __str__(self):
+      return f"{self.amount} - {self.job}"
+    
 

@@ -256,4 +256,5 @@ def arrive_at_destination(request, job_id):
 
         return redirect(reverse('courier:current_job'))
 
-    # Your existing code to render the template, etc.
+def help(request):
+    return render(request, 'courier/help.html')
