@@ -1,0 +1,166 @@
+{% extends "employee/base.html" %}
+
+{% block body %}
+
+<div class="container">
+  <div class="row">
+    <a class="btn btn-warning btn-sm mt-3 mr-2" href="{% url 'employee:employee-update' employee.id %}" type="button" name="button">Edit</a>
+    <a class="btn btn-danger btn-sm mt-3" href="{% url 'employee:employee-delete' pk=employee.id %}" type="button" name="button">Delete</a>
+    <a class="btn btn-secondary btn-sm mt-3 ml-2" href="{% url 'employee:applicants' %}" type="button" name="button">Back</a>
+  </div>
+  <h1 class="mt-4 mb-3">Applicant: {{ employee.first_name }} {{ employee.last_name}}</h1>
+    <div class="card">
+  <h5 class="card-header">Basic Information</h5>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-3">
+          <p><strong>Address:</strong>{{employee.address }}</p> <!-- author detail link not yet defined -->
+          <p><strong>City:</strong> {{ employee.city }}</p>
+          <p><strong>State:</strong> {{ employee.state }}</p>
+          <p><strong>Zip Code:</strong>{{employee.dob }}</p>
+          <p><strong>Phone:</strong> {{ employee.zip }}</p>
+          <p><strong>D.O.B:</strong>{{employee.dob }}</p>
+          <p><strong>Email:</strong> {{ employee.email }}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>Are you an US citizen?:</strong> {{ employee.us_citizen }}</p>
+        <p><strong>Over 18?:</strong> {{ employee.over18 }}</p>
+        <p><strong>Ever been convicted?:</strong>{{employee.been_convicted }}</p>
+        <p><strong>Explain conviction:</strong>{{employee.explain_conviction }}</p>
+        <p><strong>Military Service:</strong>{{employee.military_service }}</p>
+        <p><strong>Branch:</strong>{{employee.branch }}</p>
+        <p><strong>Veteran:</strong>{{employee.veteran }}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>Applied Position:</strong>{{employee.position_applying }}</p>
+        <p><strong>How did you hear about us?:</strong>{{employee.how_Did_You_Hear_About_Position }}</p>
+        <p><strong>Expected Rate:</strong>{{employee.expected_rate }}</p>
+        <p><strong>Expected Weekly Rate:</strong>{{employee.expect_weekly_rate }}</p>
+        <p><strong>Date Available:</strong>{{employee.date_available}}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>Resume:</strong><a href="{{employee.resume.url }}">{{employee.resume }}</a></p>
+        <p><strong>Social Security:</strong><a href="{{employee.social_security.url }}">{{employee.social_security }}</a></p>
+        <p><strong>Government ID:</strong><a href="{{employee.gov_id.url }}">{{employee.gov_id }}</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <h5 class="card-header">Education</h5>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-3">
+        <p><strong>High School:</strong>{{employee.high_school }}</p>
+        <p><strong>Last Yr Completed:</strong>{{employee.last_year_completed }}</p>
+        <p><strong>Graduated?:</strong>{{employee.graduated }}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>College::</strong>{{employee.college }}</p>
+        <p><strong>Last College Yr Completed:</strong>{{employee.last_college_Year_completedb }}</p>
+        <p><strong>Major:</strong>{{employee.major}}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>Trade School:</strong>{{employee.trade_school }}</p>
+        <p><strong>Graduated from Trade School:</strong>{{employee.graduated_Trade }}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>GED:</strong>{{employee.ged }}</p>
+        <p><strong>List of Skills:</strong>{{employee.list_skills }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <h5 class="card-header">Employment History</h5>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-3">
+        <p><strong>Name of Employer:</strong>{{employee.name_Of_Employer }}</p>
+        <p><strong>Job Title:</strong>{{employee.job_Title }}</p>
+        <p><strong>Date From:</strong>{{employee.date_From }}</p>
+        <p><strong>Date To:</strong>{{employee.date_To}}</p>
+        <p><strong>Okay to contact?:</strong>{{employee.ok_to_contact }}</p>
+        <p><strong>Contact Number:</strong>{{employee.contact_number }}</p>
+        <p><strong>Reason for Leaving:</strong>{{employee.reason_for_leaving }}</p>
+        <p><strong>Emergency Contact Name:</strong> {{ employee.emergency_contact_name }}</p>
+        <p><strong>Emergency Contact Number:</strong> {{ employee.emergency_contact_number }}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>Name of Employer:</strong>{{employee.name_Of_Employer }}</p>
+        <p><strong>Job Title:</strong>{{employee.job_Title }}</p>
+        <p><strong>Date From:</strong>{{employee.date_From }}</p>
+        <p><strong>Date To:</strong>{{employee.date_To}}</p>
+        <p><strong>Okay to contact?:</strong>{{employee.ok_to_contact }}</p>
+        <p><strong>Contact Number:</strong>{{employee.contact_number }}</p>
+        <p><strong>Reason for Leaving:</strong>{{employee.reason_for_leaving }}</p>
+        <p><strong>Emergency Contact Name:</strong> {{ employee.emergency_contact_name }}</p>
+        <p><strong>Emergency Contact Number:</strong> {{ employee.emergency_contact_number }}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>Name of Employer:</strong>{{employee.name_Of_Employer }}</p>
+        <p><strong>Job Title:</strong>{{employee.job_Title }}</p>
+        <p><strong>Date From:</strong>{{employee.date_From }}</p>
+        <p><strong>Date To:</strong>{{employee.date_To}}</p>
+        <p><strong>Okay to contact?:</strong>{{employee.ok_to_contact }}</p>
+        <p><strong>Contact Number:</strong>{{employee.contact_number }}</p>
+        <p><strong>Reason for Leaving:</strong>{{employee.reason_for_leaving }}</p>
+        <p><strong>Emergency Contact Name:</strong> {{ employee.emergency_contact_name }}</p>
+        <p><strong>Emergency Contact Number:</strong> {{ employee.emergency_contact_number }}</p>
+      </div>
+      <div class="col-lg-3">
+        <p><strong>Name of Employer:</strong>{{employee.name_Of_Employer }}</p>
+        <p><strong>Job Title:</strong>{{employee.job_Title }}</p>
+        <p><strong>Date From:</strong>{{employee.date_From }}</p>
+        <p><strong>Date To:</strong>{{employee.date_To}}</p>
+        <p><strong>Okay to contact?:</strong>{{employee.ok_to_contact }}</p>
+        <p><strong>Contact Number:</strong>{{employee.contact_number }}</p>
+        <p><strong>Reason for Leaving:</strong>{{employee.reason_for_leaving }}</p>
+        <p><strong>Emergency Contact Name:</strong> {{ employee.emergency_contact_name }}</p>
+        <p><strong>Emergency Contact Number:</strong> {{ employee.emergency_contact_number }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <h5 class="card-header">Schedule Availability</h5>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-sm-3">
+        <p><strong>Work any day/hour?:</strong> {{ employee.work_any_Day_Any_Hour }}</p>
+        <p><strong>Work Holidays?:</strong> {{ employee.work_holidays }}</p>
+        <p><strong>Transportation:</strong> {{ employee.got_transportation }}</p>
+        <p><strong>Willing To Travel:</strong> {{ employee.willing_to_travel }}</p>
+      </div>
+      <div class="col-sm-3">
+        <p><strong>Monday In:</strong> {{ employee.monday_from }}</p>
+        <p><strong>Monday Out:</strong> {{ employee.monday_to }}</p>
+        <p><strong>Tues In:</strong> {{ employee.tuesday_from }}</p>
+        <p><strong>Tues Out:</strong> {{ employee.tuesday_to }}</p>
+        <p><strong>Wednesday In:</strong> {{ employee.wenesday_from }}</p>
+        <p><strong>Wednesday Out:</strong> {{ employee.wenesday_to }}</p>
+      </div>
+      <div class="col-sm-3">
+        <p><strong>Thurs In:</strong> {{ employee.thursday_from }}</p>
+        <p><strong>Thurs Out:</strong> {{ employee.thursday_to }}</p>
+        <p><strong>Fri In:</strong> {{ employee.friday_from }}</p>
+        <p><strong>Fri Out:</strong> {{ employee.friday_to }}</p>
+      </div>
+      <div class="col-sm-3">
+        <p><strong>Sat In:</strong> {{ employee.saturday_from }}</p>
+        <p><strong>Sat Out:</strong> {{ employee.saturday_to }}</p>
+        <p><strong>Sunday In:</strong> {{ employee.sunday_from }}</p>
+        <p><strong>Sunday Out:</strong> {{ employee.sunday_to }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,108 @@
+{% load crispy_forms_tags %}  
+<!DOCTYPE html>
+<html>
+  <head>
+       <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Contract Form</title>
+    </head>
+    <body>
+
+
+
+        
+        <div class="container">
+          <!--Django Model Form-->
+          <h2 class="my-4">Request A Quote</h2>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+                {{contract_form|crispy}}
+                <button class="btn btn-primary my-4" type="submit">Submit</button>
+          </form>
+
+          <h3>TO RESERVE YOUR DATE</h3>
+
+          <p>
+            To reserve your date, please sign and return this contract along with an advance payment deposit of $100.00. You may also choose to pay the full contracted
+             amount and a signed copy of this contract will be returned to you. This contract is not valid without advance payment and the balance is due two (2) weeks 
+             prior to your event. Any additional hours not originally contracted for must be paid at the conclusion of your event. Please make checks and money orders 
+             payable to Bobby Martin. (All Bookings Made Within Two Weeks of Your Event Must Be Paid in Full Before Event Date)
+            </p>
+
+            <h3>GENERAL INFORMATION</h3>
+
+            <p>
+              I am available to play over the contracted time only if permission is granted by the banquet facility. Should the event be canceled or this contract
+               be terminated by the client, advance payment deposit will be retained by LIVE CITY. Cancellation of this contract within 30 days of your event date 
+               will require full payment of the contracted amount and any cancellation must be made in writing via email or text message. Performance of these terms 
+               are subject to events beyond my control. LIVE CITY reserves the right to shut down sound or light systems should there be any threat of harm to anyone
+                in attendance. LIVE CITY cannot be held liable for any amount greater than the amount contracted for. Access to electricity is required at outdoor events.
+                 Tipping is at the discretion of the client.
+              </p>
+
+              <p>Please sign and date below. A signed copy of this contract will be returned to you.</p><br>
+
+              <p>_________________________</p> 
+              <small>Client</small>   
+              <br>  
+              <p>_________________________</p> 
+              <small>Date</small>   
+              <br> 
+              <p>_________________________</p> 
+              <small>Live City representative</small>   
+              <br> 
+              <p>_________________________</p> 
+              <small>Date</small>   
+              <br>        
+
+
+
+
+
+
+
+
+          <!--Django Model-->
+          <h2 class="my-4">Contracts</h2>
+          <div class="row">
+            {% for m in contracts %}
+            <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
+              <div class="card h-100 p-4">
+                {% comment %} <img src="{{ m.movie_poster.url }}" class="card-img-top" alt="{{ m.movie_title}}"> {% endcomment %}
+                <a href="{% url 'newContract:contract_detail' m.pk %}"><h4>{{m.client_full_name}}</h4></a>
+                <p class="text-muted">{{m.contact_person}} | {{m.phone_number}}</p>
+                <p>Base price  <span class="text-danger">${{ base }}</span></p>
+                {% if m.add_photos %}
+                <p>Add Photos +<span class="text-danger">${{photos}}</span></p>
+                {% else %}
+                <p>Add Photos - No</p>
+                {% endif %}
+                {% if m.add_lights %}
+                <p>Add Lights +<span class="text-danger">${{ lights}}</span></p>
+                {% else %}
+                <p>Add Lights - No</p>
+                {% endif %}
+                {% if m.add_more_time %}
+                <p>Add Time +<span class="text-danger">${{ time }}</span></p>
+                {% else %}
+                <p>Add Time - No</p>
+                {% endif %}
+                <h2>Total: ${{ total }}</h2>
+              </div>
+            </div>
+            {% empty %}
+            <p>No contracts added.</p>
+            {% endfor %}
+          </div>
+        </div>
+    
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    </body>
+</html>

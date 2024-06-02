@@ -1,0 +1,30 @@
+{% extends 'employee/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+
+<h2 class="text-center mt-3">Announcement Form</h2>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-3">
+
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Security token -->
+            {% csrf_token %}
+            <!-- Using the formset -->
+            {{ form| crispy }}
+            <input class="btn btn-primary bt-sm" type="submit" value="Submit">
+            <a class="btn btn-secondary" href="{% url 'employee:announcements' %}" type="button" name="button">Back</a>
+        </form>
+      </div>
+    </div>
+    <div class="col-sm-3">
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

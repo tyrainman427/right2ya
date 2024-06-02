@@ -1,0 +1,46 @@
+{% extends 'employee/base.html' %}
+
+{% block body %}
+<style media="screen">
+.form {
+margin: auto;
+}
+
+.form input, .form select, .form textarea {
+border-radius: 5px;
+border: 1px solid #17a2b8;
+outline: none;
+background: none;
+padding: 5px;
+width: 100%;
+}
+</style>
+
+<div class="clearfix">
+  <a class="btn btn-info left" href="{% url 'employee:calendar' %}"> Calendar </a>
+</div>
+
+
+{% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                {{ field.label }} <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ field.label }} <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <table class="form form-table">
+    {{ form }}
+    <tr><td colspan="2"><button type="submit" class="btn btn-info right"> Submit </button></td></tr>
+  </table>
+</form>
+{% endblock %}

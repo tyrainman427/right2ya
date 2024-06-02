@@ -1,0 +1,87 @@
+{% extends 'employee/base.html' %}
+
+{% block body %}
+
+<div class="container-fluid">
+  <p class="mt-3">Hello, {{ user.username|default:'Guest' }}!</p><h2 class="mt-3 text-center shadow p-3 mb-4 bg-secondary text-white rounded">Home Care Portal</h2>
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-lg-4">
+
+        <div class="card bg-success text-white mb-3" style="max-width: 18rem;">
+    <div class="card-header">Employees</div>
+    <div class="card-body">
+      <h5 class="card-title"></h5>
+      {% if employee %}
+      <p class="card-text" style="font-size:4rem;">{{employee.count}}</p>
+      {% else %}
+      <p class="card-text" style="font-size:4rem;">0</p>
+      {% endif %}
+    </div>
+  </div>
+      </div>
+      <div class="col-lg-4">
+
+        <div class="card bg-primary text-white mb-3" style="max-width: 18rem;">
+    <div class="card-header">Clients</div>
+    <div class="card-body">
+      <h5 class="card-title"></h5>
+      {% if client %}
+      <p class="card-text" style="font-size:4rem;">{{client.count}}</p>
+      {% else %}
+      <p class="card-text" style="font-size:4rem;">0</p>
+      {% endif %}
+    </div>
+  </div>
+      </div>
+      <div class="col-lg-4">
+
+        <div class="card bg-danger text-white mb-3" style="max-width: 18rem;">
+    <div class="card-header">New Applications</div>
+    <div class="card-body">
+      <h5 class="card-title"></h5>
+      {% if client %}
+      <p class="card-text" style="font-size:4rem;">{{applicants.count}}</p>
+      {% else %}
+      <p class="card-text" style="font-size:4rem;">0</p>
+      {% endif %}
+    </div>
+  </div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-sm-6">
+        <h4 class="shadow p-3 mb-3 bg-primary text-white rounded">Employees</h4>
+        <ul class="list-group shadow p-3 mb-5 bg-white rounded">
+    <li class="list-group-item"><a class="btn btn-sm btn-outline-dark" href="{% url 'employee:employee-create'%}">Add New Employee</a></li>
+    <li class="list-group-item"><a class="btn btn-sm btn-outline-dark" href="{% url 'employee:employee-list'%}">View/Edit Employee</a></li>
+    <li class="list-group-item">Reports</li>
+  </ul>
+      </div>
+      <div class="col-sm-6">
+        <h4 class="shadow p-3 mb-3 bg-primary text-white rounded">Clients</h4>
+        <ul class="list-group shadow p-3 mb-5 bg-white rounded">
+    <li class="list-group-item"><a class="btn btn-sm btn-outline-dark" href="{% url 'clients:client-create'%}">Add New Client</a></li>
+    <li class="list-group-item"><a class="btn btn-sm btn-outline-dark" href="{% url 'clients:clients_list'%}">View/Edit Clients</a></li>
+    <li class="list-group-item">Reports</li>
+  </ul>
+      </div>
+      <div class="col-sm-4">
+        <!-- {% if user.is_staff %}
+        <h4 class="shadow p-3 mb-3 bg-primary text-white rounded">IT</h4>
+        <ul class="list-group shadow p-3 mb-5 bg-white rounded">
+          <li class="list-group-item">Create a Ticket</li>
+          <li class="list-group-item">View/Edit Tickets</li>
+          <li class="list-group-item">Request Access</li>
+          <li class="list-group-item">Inventory</li>
+          <li class="list-group-item">Reports</li>
+        </ul>
+        {% endif %} -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

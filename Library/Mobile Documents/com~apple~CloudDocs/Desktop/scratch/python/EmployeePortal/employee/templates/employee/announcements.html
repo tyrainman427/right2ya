@@ -1,0 +1,33 @@
+{% extends 'employee/base.html' %}
+
+{% block body %}
+
+<div class="container">
+    <center><h2 class="mt-3">AAHC Announcements</h2></center>
+  <div class="row">
+
+    <br><br>
+    <a href="{% url 'employee:announcement-add'%}" class="text-dark">Add Announcement</a>
+    <table class="table table-hover table-sm mt-4" id="table">
+      <thead>
+        <tr class="bg-primary">
+          <th class="text-white" scope="col">Title</th>
+          <th class="text-white" scope="col">message</th>
+          <th class="text-white" scope="col">Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ann in object_list %}
+        <tr>
+          <td><a class="text-dark" href="{% url 'employee:announcement-details' ann.id %}">{{ann.title}}</a></td>
+          <td><a class="text-dark" href="{% url 'employee:announcement-details' ann.id %}">{{ann.message}}</a></td>
+          <td><a class="text-dark" href="{% url 'employee:announcement-details' ann.id %}">{{ann.date_created}}</a></td>
+        </a>
+        </tr>
+        {% endfor  %}
+    </table>
+    <br class="mb-6">
+  </div>
+</div>
+
+{% endblock %}

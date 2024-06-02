@@ -1,0 +1,115 @@
+{% extends "employee/base.html" %}
+
+{% block body %}
+
+<div class="container mt-3">
+  <div class="row">
+    <div class="col">
+      <a class="btn btn-secondary btn-sm" href="{% url 'clients:clients_list' %}" type="button" name="button">Back</a>
+
+
+        <h1 class="mt-2">{{ client.first_name}} {{ client.last_name}}</h1>
+
+      <nav>
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Profile</a>
+    <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Docs</a>
+    <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-note" aria-selected="false">Notes</a>
+  </div>
+</nav>
+
+<div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="card mt-3">
+  <h5 class="card-header">Personal Information</h5>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-4">
+        <p><strong>Address:</strong> {{client.address }}</p> <!-- author detail link not yet defined -->
+        <p><strong>Phone Number:</strong> {{ client.phone }}</p>
+        <p><strong>DOB:</strong> {{ client.date_of_birth }}</p>
+        <p><strong>Client #:</strong> {{ client.client_id }}</p>
+      </div>
+      <div class="col-lg-4">
+        <p><strong>Referring Clinician:</strong> {{ client.referring_clinician}}</p>
+        <p><strong>COP Name & Number:</strong> {{client.cop_name_and_number }}</p> <!-- author detail link not yet defined -->
+        <p><strong>Service Days:</strong> {{ client.service_days }}</p>
+        <p><strong>Service Hours:</strong> {{ client.service_hours }}</p>
+      </div>
+      <div class="col-lg-4">
+        <p><strong>Intake completed by:</strong> {{ client.intake_completed_by }}</p>
+        <p><strong>Date:</strong> {{ client.date}}</p>
+        <p><strong>State Date:</strong> {{ client.start_date}}</p>
+      </div>
+
+    </div>
+    <!-- <h5 class="card-title">Special title treatment</h5>
+    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>
+  <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+    <a class="btn btn-primary mt-5 btn-sm" href="{% url 'clients:upload' %}">Upload Files</a>
+
+
+            <table class="table table-hover table-sm mt-4" id="table">
+              <thead>
+                <tr>
+                  <th scope="col">Title</th>
+                  <th scope="col">File</th>
+                  <th scope="col">Uploader</th>
+                </tr>
+              </thead>
+              <tbody>
+                    {% for doc in client.documents.all %}
+                <tr>
+                  <td><a style="color:black">{{doc.title}}</a></td>
+                  <td><a href="{{ doc.docs.url }}">{{doc.docs}}</a></td>
+                  <td><a style="color:black">{{doc.user.username}}</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            </table>
+
+
+
+
+  </div>
+  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+    <a class="btn btn-primary mt-5 btn-sm" href="{% url 'clients:note-create' %}">Add Note</a>
+
+    <table class="table table-hover table-sm mt-4" id="table">
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for note in client.notes.all %}
+        <tr>
+
+          <td><a style="color:black" href="{% url 'clients:note_detail' note.id %}">{{note.title}}</a></td>
+          <td><a style="color:black" href="{% url 'clients:note_detail' note.id %}">{{note.note}}</a></td>
+        </a>
+        </tr>
+        {% endfor %}
+    </table>
+  </div>
+</div>
+
+
+
+
+
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

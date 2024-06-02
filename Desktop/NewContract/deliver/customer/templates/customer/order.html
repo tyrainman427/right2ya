@@ -1,0 +1,283 @@
+{% extends 'customer/base.html' %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="row justify-content-center mt-1">
+        <div class="col-md-12 col-sm-12 p-4">
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-8 col-sm-12 offset-md-1 p-4 text-center">
+                    <h1>DJ Bobby Drake Contract Agreement</h1>
+                </div>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-group pt-3">
+                    <label for="name">Client's Full Name</label>
+                    <input required class="form-control" type="text" placeholder="Client's Full Name" name="client_full_name" />
+                </div>
+                <div class="form-group pt-3">
+                    <label for="name">Contact Person</label>
+                    <input required class="form-control" type="text" placeholder="Contact Person" name="contact_person" />
+                </div>
+                <div class="form-group pt-3">
+                    <label for="name">Address</label>
+                    <input required class="form-control" type="text" placeholder="123 Main St" name="address" />
+                </div>
+
+                </div class="row">
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group pt-3">
+                            <label for="name">City</label>
+                            <input required class="form-control" type="text" placeholder="Miami" name="city" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group pt-3">
+                            <label for="name">State</label>
+                            <input required class="form-control" type="text" placeholder="FL" name="state" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
+                        <div class="form-group pt-3">
+                            <label for="name">Zip Code</label>
+                            <input required class="form-control" type="text" placeholder="94117" name="zip_code" />
+                        </div>
+                    </div>
+              
+        
+  
+            <div class="col-md-4 col-sm-12">
+                <div class="form-group pt-3">
+                    <label for="name">Telephone Number</label>
+                    <input required class="form-control" type="text" placeholder="203 555 5555" name="telephone_number" />
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <div class="form-group pt-3">
+                    <label for="name">Cell Number</label>
+                    <input required class="form-control" type="text" placeholder="860 555 5555" name="cell_number" />
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <div class="form-group pt-3">
+                    <label for="name">Email Address</label>
+                    <input required class="form-control" type="text" placeholder="example@company.com" name="email" />
+                </div> 
+            </div>
+
+            <div class="col-md-4 col-sm-12">
+                <div class="form-group pt-3">
+                    <label for="name">Date of Event</label>
+                    <input required class="form-control" type="text" placeholder="April 27, 2024" name="date_of_event" />
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <div class="form-group pt-3">
+                    <label for="name">Event Type</label>
+                    <input required class="form-control" type="text" placeholder="Birthday Party" name="event_type" />
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <div class="form-group pt-3">
+                    <label for="name">Number Of Guests</label>
+                    <input required class="form-control" type="text" placeholder="100" name="number_of_guests" />
+                </div> 
+            </div>
+
+        <div class="col-md-6 col-sm-12">
+            <div class="form-group pt-3">
+                <label for="name">Start Time</label>
+                <input required class="form-control" type="text" placeholder="4PM" name="start_time" />
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12">
+            <div class="form-group pt-3">
+                <label for="name">End Time</label>
+                <input required class="form-control" type="text" placeholder="8PM" name="end_time" />
+            </div>
+        </div>
+        <div class="col-md-12 col-sm-12">
+            <div class="form-group pt-3">
+                <label for="name">Location of Event</label>
+                <input required class="form-control" type="text" placeholder="Italian Club" name="location_of_event" />
+            </div> 
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <div class="form-group pt-3">
+                <label for="name">Phone Number</label>
+                <input required class="form-control" type="text" placeholder="203 555 5555" name="phone_number" />
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <div class="input-group-prepend pt-3">
+                <label for="name">Type of Payment</label>
+              </div>
+              <select class="custom-select" id="inputGroupSelect01" required>   
+                <option selected>Choose...</option>
+                <option value="Advance Payment Deposit">Advance Payment Deposit</option>
+                <option value="Full Amount">Full Amount</option>
+              </select>
+            <!-- <div class="form-group pt-3">
+                <label for="name">Type of Payment</label>
+                <select class="form-select form-contro" aria-label="type_of_payment">
+                    <option selected>Open this select menu</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                  </select> -->
+                <!-- <input required class="form-control" type="text" placeholder="cash" name="type_of_payment" /> -->
+            <!-- </div> -->
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <div class="input-group-prepend pt-3">
+                <label for="name">Method Of Payment</label>
+              </div>
+              <select class="custom-select" id="inputGroupSelect01" required>   
+                <option selected>Choose...</option>
+                <option value="Cash">Cash</option>
+                <option value="Zelle">Zelle</option>
+                <option value="Cashapp">Cashapp</option>
+                <option value="Venmo">Venmo</option>
+              </select>
+            <!-- <div class="form-group pt-3">
+                <label for="name">Method of Payment</label>
+                <input required class="form-control" type="text" placeholder="cash on delivery" name="method_of_payment" /> -->
+            </div> 
+     </div>
+
+     <div class="pt-5">
+        {% for drink in time %}
+        <div class="row mt-4">
+            <div class="col-md-2 col-sm-12">
+                <img class="rounded" src="{{ drink.image.url }}" width="150" height="100"/>
+            </div>
+            <div class="col-md-8 col-sm-12">
+                <div class="d-flex flex-row">
+                    <div class="form-group form-check">
+                        <input type="checkbox" name="items[]" class="form-check-input" value="{{ drink.pk }}">
+                        <label class="form-check-label">{{ drink.name }}</label>
+                    </div>
+                    <p class="font-weight-bold pl-5">${{ drink.price }}</p>
+                </div>
+                <p>{{ drink.description }}</p>
+            </div>
+        </div>
+        <hr />
+        {% endfor %}
+    </div>
+
+                <div class="pt-5">
+                    {% for app in visuals %}
+                    <div class="row">
+                        <div class="col-md-2 col-sm-12">
+                            <img class="rounded" src="{{ app.image.url }}" width="150" height="100"/>
+                        </div>
+                        <div class="col-md-8 col-sm-12">
+                            <div class="d-flex flex-row">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="items[]" class="form-check-input" value="{{ app.pk }}">
+                                    <label class="form-check-label">{{ app.name }}</label>
+                                </div>
+                                <p class="font-weight-bold pl-5">${{ app.price }}</p>
+                            </div>
+                            <p>{{ app.description }}</p>
+                        </div>
+                    </div>
+                    <hr />
+                {% endfor %}
+                </div>
+
+                <div class="pt-5">
+                    {% for entre in photo %}
+                    <div class="row mt-4">
+                        <div class="col-md-2 col-sm-12">
+                            <img class="rounded" src="{{ entre.image.url }}" width="150" height="100"/>
+                        </div>
+                        <div class="col-md-8 col-sm-12">
+                            <div class="d-flex flex-row">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="items[]" class="form-check-input" value="{{ entre.pk }}">
+                                    <label class="form-check-label">{{ entre.name }}</label>
+                                </div>
+                                <p class="font-weight-bold pl-5">${{ entre.price }}</p>
+                            </div>
+                            <p>{{ entre.description }}</p>
+                        </div>
+                    </div>
+                    <hr />
+                    {% endfor %}
+                </div>
+
+                <div class="pt-5">
+                    {% for dessert in lights %}
+                    <div class="row mt-4">
+                        <div class="col-md-2 col-sm-12">
+                            <img class="rounded" src="{{ dessert.image.url }}" width="150" height="100"/>
+                        </div>
+                        <div class="col-md-8 col-sm-12">
+                            <div class="d-flex flex-row">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" name="items[]" class="form-check-input" value="{{ dessert.pk }}">
+                                    <label class="form-check-label">{{ dessert.name }}</label>
+                                </div>
+                                <p class="font-weight-bold pl-5">${{ dessert.price }}</p>
+                            </div>
+                            <p>{{ dessert.description }}</p>
+                        </div>
+                    </div>
+                    <hr />
+                    {% endfor %}
+                </div>
+
+                <h3>TO RESERVE YOUR DATE</h3>
+
+          <p>
+            To reserve your date, please sign and return this contract along with an advance payment deposit of $100.00. You may also choose to pay the full contracted
+             amount and a signed copy of this contract will be returned to you. This contract is not valid without advance payment and the balance is due two (2) weeks 
+             prior to your event. Any additional hours not originally contracted for must be paid at the conclusion of your event. Please make checks and money orders 
+             payable to Bobby Martin. (All Bookings Made Within Two Weeks of Your Event Must Be Paid in Full Before Event Date)
+            </p>
+
+            <h3>GENERAL INFORMATION</h3>
+
+            <p>
+              I am available to play over the contracted time only if permission is granted by the banquet facility. Should the event be canceled or this contract
+               be terminated by the client, advance payment deposit will be retained by LIVE CITY. Cancellation of this contract within 30 days of your event date 
+               will require full payment of the contracted amount and any cancellation must be made in writing via email or text message. Performance of these terms 
+               are subject to events beyond my control. LIVE CITY reserves the right to shut down sound or light systems should there be any threat of harm to anyone
+                in attendance. LIVE CITY cannot be held liable for any amount greater than the amount contracted for. Access to electricity is required at outdoor events.
+                 Tipping is at the discretion of the client.
+              </p>
+              <input type="checkbox" aria-label="Checkbox for following text input" class=""mb-5> Please check box if you agree to all terms.
+              <br>
+
+                {% comment %} <button class="btn btn-dark mt-5">Place Order!</button> {% endcomment %}
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary mb-5" data-toggle="modal" data-target="#submitModal">
+                    Submit Quote
+                </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="submitModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Submit Your Order!</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-dismiss="modal">Go Back</button>
+          <button type="submit" class="btn btn-dark">Place Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

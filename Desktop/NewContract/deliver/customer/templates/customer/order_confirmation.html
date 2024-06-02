@@ -1,0 +1,137 @@
+{% extends 'customer/base.html' %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="row justify-content-center mt-1">
+        <div class="col-md-5 col-sm-12 p-4 text-center">
+            <h1>Order Submitted!</h1>
+            <p>You should receive a confirmation email soon.</p>
+            <a href="{% url 'index' %}">Go to the homepage</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5 col-sm-12 text-center">
+            <h3 class="pb-3">Order Summary:</h3>
+            <p class="pt-4">Base price for 4 hour block: $300</p>
+            {% for item in items.all %}
+                <p>{{ item.name }} <span class="pl-3">${{ item.price }}</span></p>
+            {% endfor %}
+
+            <p class="font-weight-bold pt-4">Total: ${{ price }}</p>
+
+
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h3>Pay Now or Pay With Cash At Delivery</h3>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+</div>
+
+     <!-- Sample PayPal credentials (client-id) are included -->
+     <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&intent=capture" data-sdk-integration-source="integrationbuilder"></script>
+
+     <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+       const fundingSources = [
+         paypal.FUNDING.PAYPAL,
+         paypal.FUNDING.VENMO,
+         paypal.FUNDING.CARD
+         ]
+
+       for (const fundingSource of fundingSources) {
+         const paypalButtonsComponent = paypal.Buttons({
+           fundingSource: fundingSource,
+
+           // optional styling for buttons
+           // https://developer.paypal.com/docs/checkout/standard/customize/buttons-style-guide/
+           style: {
+             shape: 'rect',
+             height: 40,
+             size: 'large',
+             color: 'blue'
+           },
+
+           // set up the transaction
+           createOrder: (data, actions) => {
+             // pass in any options from the v2 orders create call:
+             // https://developer.paypal.com/api/orders/v2/#orders-create-request-body
+             const createOrderPayload = {
+               purchase_units: [
+                 {
+                   amount: {
+                     value: '{{ price }}',
+                   },
+                 },
+               ],
+             }
+
+             return actions.order.create(createOrderPayload)
+           },
+
+           // finalize the transaction
+           onApprove: (data, actions) => {
+             const captureOrderHandler = (details) => {
+               const payerName = details.payer.name.given_name
+               console.log('Transaction completed!')
+               $.ajax({
+                type: 'POST',
+                url: "{% url 'order-confirmation' pk %}",
+                beforeSend: function(request) {
+                    request.setRequestHeader('X-CSRFToken', csrftoken)
+                 },
+                 data: JSON.stringify({'is_paid': true}),
+                 success: function(data) {
+                    window.location.href = '/payment-confirmation/'
+                 }
+               })
+             }
+
+             return actions.order.capture().then(captureOrderHandler)
+           },
+
+           // handle unrecoverable errors
+           onError: (err) => {
+             console.error(
+               'An error prevented the buyer from checking out with PayPal',
+             )
+           },
+         })
+
+         if (paypalButtonsComponent.isEligible()) {
+           paypalButtonsComponent
+             .render('#paypal-button-container')
+             .catch((err) => {
+               console.error('PayPal Buttons failed to render')
+             })
+         } else {
+           console.log('The funding source is ineligible')
+         }
+       }
+     </script>
+{% endblock content %}
+
+

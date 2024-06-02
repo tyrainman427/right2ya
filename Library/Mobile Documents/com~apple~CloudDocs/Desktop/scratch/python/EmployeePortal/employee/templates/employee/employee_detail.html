@@ -1,0 +1,68 @@
+{% extends "employee/base.html" %}
+
+{% block body %}
+
+<div class="container">
+  <div class="row">
+    <a class="btn btn-warning btn-sm mt-3 mr-2" href="{% url 'employee:employee-update' employee.id %}" type="button" name="button">Edit</a>
+    <a class="btn btn-danger btn-sm mt-3" href="{% url 'employee:employee-delete' pk=employee.id %}" type="button" name="button">Delete</a>
+    <a class="btn btn-secondary btn-sm mt-3 ml-2" href="{% url 'employee:employee-list' %}" type="button" name="button">Back</a>
+  </div>
+  <h1 class="mt-4 mb-3">{{ employee.first_name }} {{ employee.last_name}}</h1>
+  <nav>
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Profile</a>
+    <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">...</a>
+    <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Calendar</a>
+  </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+      <div class="card mt-3">
+  <h5 class="card-header">Personal Information</h5>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-lg-4">
+          <p><strong>Address:</strong>{{employee.address }}</p> <!-- author detail link not yet defined -->
+          <p><strong>City:</strong> {{ employee.city }}</p>
+          <p><strong>State:</strong> {{ employee.state }}</p>
+          <p><strong>Phone:</strong> {{ employee.zip }}</p>
+          <p><strong>Email:</strong> {{ employee.email }}</p>
+      </div>
+      <div class="col-lg-4">
+        <p><strong>D.O.B:</strong>{{employee.dob }}</p> <!-- author detail link not yet defined -->
+        <p><strong>Title:</strong> {{ employee.title }}</p>
+        <p><strong>Department:</strong> {{ employee.department }}</p>
+        <p><strong>Location:</strong> {{ employee.work_location }}</p>
+        <p><strong>Supervisor:</strong> {{ employee.supervisor }}</p>
+      </div>
+      <div class="col-sm-4">
+        <p><strong>Salary:</strong>{{employee.salary }}</p> <!-- author detail link not yet defined -->
+        <p><strong>Start Date:</strong> {{ employee.date_hired }}</p>
+        <p><strong>Emergency Contact Name:</strong> {{ employee.emergency_contact_name }}</p>
+        <p><strong>Emergency Contact Number:</strong> {{ employee.emergency_contact_number }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+
+  <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+    ...
+  </div>
+
+  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+    <div class="container">
+        {% for event in events %}
+        <p>{{ event.title}}</p>
+        <p>{{ event.description}}</p>
+        <p>{{ event.start_time}}</p>
+        <p>{{ event.end_time}}</p>
+        {% endfor %}
+    </div>
+  </div>
+</div>
+
+</div>
+
+{% endblock %}

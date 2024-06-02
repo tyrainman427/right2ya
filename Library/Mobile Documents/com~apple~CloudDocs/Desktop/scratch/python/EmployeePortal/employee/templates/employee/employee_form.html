@@ -1,0 +1,29 @@
+{% extends 'employee/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block body %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+      <h2 class="text-center mt-5 shadow p-3 mb-3 bg-dark text-white rounded">Employment Application Form</h2>
+      <div class="form-group">
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Security token -->
+            {% csrf_token %}
+            <!-- Using the formset -->
+            {{ form|crispy }}
+            <p>I certify that the information contained in this application is correct to the best of my knowledge. I understand that to falsify information is grounds for refusing to hire me, or for discharge should I be hired. I authorize any person, organization or company listed on this application to supply you any and all information concerning my previous employment, education and qualifications for employment. I also authorize you to request and receive such information. I understand I will be submitted to a background check by which the company has my permission to submit on my behalf. In consideration for my employment, I agree to abide by the rules and regulations of the company, which rules may be changed, withdrawn, added or interpreted at any time, at the company’s sole option and without prior notice to me. I also acknowledge that my employment may be terminated, or any offer or acceptance of employment withdrawn, at any time, with or without cause, and with or without
+              prior notice at the option of the company or myself.</p>
+            <input class="btn btn-primary bt-sm" type="submit" value="Submit">
+            <a class="btn btn-secondary" href="/application" type="button" name="button">Back</a>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-2"></div>
+  </div>
+</div>
+
+{% endblock %}

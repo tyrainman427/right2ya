@@ -1,0 +1,18 @@
+{% extends 'employee/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+
+<script>
+  $(document).ready(function(){
+    $('#id_file').attr("multiple","true");
+
+  })
+ </script>
+<form method="post" enctype="multipart/form-data" action="">{% csrf_token %}
+ {{ form.file }}
+ <input type="submit" value="upload" />
+
+</form>
+
+{% endblock%}
