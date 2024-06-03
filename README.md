@@ -17,6 +17,7 @@ I made this app from a Template and added more components as well a Dashboard. T
 - Twilio API - order updates
 - Google Maps/Directions/Places API
 - AWS S3
+- Postgres
 
 ## Screenshots (if applicable)
 ![Screenshot 1](./Users/etnuh/Desktop/s1.png)
