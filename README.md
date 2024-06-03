@@ -20,9 +20,7 @@ I made this app from a Template and added more components as well a Dashboard. T
 - Postgres
 
 ## Screenshots (if applicable)
-![Screenshot 1](./Users/etnuh/Desktop/s1.png)
-![Screenshot 2](/path/to/screenshot2.png)
-<!-- Add more screenshots if necessary -->
+
 
 ## Demo
 N/A
