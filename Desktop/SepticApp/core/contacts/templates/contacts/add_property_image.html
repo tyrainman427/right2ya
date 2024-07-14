@@ -1,0 +1,14 @@
+{% extends 'contacts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Photo for {{ property.address }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Upload Image</button>
+    </form>
+    <a href="{% url 'contact_detail' contact_id %}" class="btn btn-secondary mt-3">Back to Contact</a>
+
+</div>
+{% endblock %}

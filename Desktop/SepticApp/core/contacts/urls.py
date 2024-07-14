@@ -1,0 +1,41 @@
+from django.urls import path  
+from contacts import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('activate/<str:uidb64>/<str:token>/', views.activate, name='activate'),
+    path('signup/', views.signup, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('properties/', views.property_list, name='property_list'),
+    path('contacts/', views.contact_list, name='contact_list'),
+    path('create-payment-intent/', views.create_payment_intent, name='create_payment_intent'),
+    path('create-checkout-session/', views.create_checkout_session, name='create_checkout_session'),
+    path('success/', views.success, name='success'),
+    path('cancel/', views.cancel, name='cancel'),
+
+    path('contacts/<int:contact_id>/', views.contact_detail, name='contact_detail'),
+    path('create-contact/', views.create_contact, name='create_contact'),
+    path('edit/<int:contact_id>/', views.contact_edit, name='contact_edit'),
+    path('properties/<int:property_id>/', views.property_detail, name='property_detail'),
+    path('properties/<int:property_id>/documents/', views.property_documents, name='property_documents'),
+    path('properties/<int:property_id>/photos/', views.property_photos, name='property_photos'),
+    path('properties/<int:property_id>/finances/', views.property_finances, name='property_finances'),
+    path('property/add/<int:contact_id>/', views.property_create, name='property_create'),
+    path('property/edit/<int:property_id>/', views.property_edit, name='property_edit'),
+    path('contacts/<int:contact_id>/properties/<int:property_id>/documents/', views.property_documents, name='property_documents'),
+    path('appointments/create/<int:property_id>/', views.create_appointment, name='create_appointment'),
+    path('appointments/<int:appointment_id>/', views.appointment_detail, name='appointment_detail'),
+    path('appointments/update/<int:appointment_id>/', views.update_appointment, name='update_appointment'),
+    path('invoices/create/', views.create_invoice, name='create_invoice'),
+    path('ajax/load-properties/', views.ajax_load_properties, name='ajax_load_properties'),
+
+    path('invoices/<int:invoice_id>/', views.invoice_detail, name='invoice_detail'),
+    path('invoices/', views.invoice_list, name='invoice_list'),
+    path('invoices/send_emails/', views.send_invoice_emails, name='send_invoice_emails'),
+    path('send-email-invoice/', views.email_invoice, name='email_invoice'),
+    path('send-email/<int:contact_id>/', views.send_contact_email, name='send_contact_email'),
+    path('properties/<int:property_id>/add_photo/', views.add_property_image, name='add_property_image'),
+    path('add-service-contract/', views.add_service_contract, name='add_service_contract'),
+    path('add-service-contract/<int:contact_id>/', views.add_service_contract, name='add_service_contract'),
+]

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Financial Information for {{ property.address }}</h2>
+    <!-- Display the financial information here -->
+    {% for finance in finances %}
+        <!-- Display each finance record -->
+    {% endfor %}
+</div>
+{% endblock %}

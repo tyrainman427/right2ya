@@ -1,0 +1,58 @@
+{% extends 'contacts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Work Order #{{ order.id }}</h2>
+
+    <!-- Card for Contact Information -->
+    <div class="card mb-3">
+        <div class="card-header">Contact Information</div>
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ order.contact.name }}</p>
+            <p><strong>Email:</strong> {{ order.contact.email }}</p>
+            <p><strong>Phone:</strong> {{ order.contact.phone }}</p>
+            <!-- Add more contact details as needed -->
+        </div>
+    </div>
+
+    <!-- Card for Property Information -->
+    <div class="card mb-3">
+        <div class="card-header">Property Information</div>
+        <div class="card-body">
+            <p><strong>Address:</strong> {{ order.property.address }}</p>
+            <!-- Add more property details as needed -->
+        </div>
+    </div>
+
+    <!-- Card for Work Order Details -->
+    <div class="card">
+        <div class="card-header">Work Order Details</div>
+        <div class="card-body">
+            <p><strong>Address Confirmation:</strong> {{ order.get_verify_address_display }}</p>
+            <p><strong>Driveway Evaluation:</strong> {{ order.get_evaluate_driveway_display }}</p>
+            <p><strong>Cover Condition:</strong> {{ order.get_cover_condition_display }}</p>
+            <p><strong>Fluid Level:</strong> {{ order.get_fluid_level_display }}</p>
+            <!-- List of Services -->
+            <p><strong>Services:</strong></p>
+            <ul>
+                {% for service in order.services.all %}
+                    <li>{{ service.name }} - ${{ service.price }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Button to complete the work order -->
+    {% if not order.is_completed %}
+    <form method="post" action="{% url 'complete_work_order' order.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success mt-3">Complete Work Order</button>
+    </form>
+    {% endif %}
+
+    <!-- Button to create an invoice, shown only if the work order is completed -->
+    {% if order.is_completed %}
+    <a href="{% url 'create_invoice_from_work_order' order.id %}" class="btn btn-primary mt-3">Create Invoice</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Create Work Order</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary mt-5">Save Work Order</button>
+        <button type="button" class="btn btn-secondary mt-5" onclick="history.back()">Back</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function() {
+    // Initialize Select2 without custom rendering for debugging
+    $('#id_services').select2({
+        placeholder: 'Select services',
+        allowClear: true,
+        closeOnSelect: false
+    });
+
+    $('#id_contact').change(function() {
+        var contactId = $(this).val();
+        var url = "{% url 'ajax_load_properties' %}";
+        var propertyField = $('#id_property');
+
+        $.get(url, { contact_id: contactId }, function(data) {
+            propertyField.empty();
+            $.each(data.properties, function(index, property) {
+                propertyField.append(new Option(property.address, property.id));
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

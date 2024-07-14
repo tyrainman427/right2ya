@@ -1,0 +1,31 @@
+{% extends 'contacts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Sent Emails</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Contact</th>
+                <th>Property</th>
+                <th>Subject</th>
+                <th>Date Sent</th>
+                <th>Status</th>
+                <th>Times Sent</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email in emails %}
+            <tr>
+                <td>{{ email.contact.name }}</td>
+                <td>{{ email.property.address }}</td>
+                <td>{{ email.subject }}</td>
+                <td>{{ email.sent_date }}</td>
+                <td>{{ email.delivery_status }}</td>
+                <td>{{ email.times_sent }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

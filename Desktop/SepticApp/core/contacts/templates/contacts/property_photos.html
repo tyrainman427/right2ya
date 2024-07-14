@@ -1,0 +1,46 @@
+{% extends 'contacts/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .custom-card {
+        height: 300px; /* Adjust the height as needed */
+        overflow: hidden; /* This will crop the image if it's too tall */
+    }
+    
+    .custom-card .card-img-top {
+        width: 100%;
+        height: auto;
+        object-fit: cover; /* This will cover the area of the card */
+    }
+    
+    
+</style>
+
+<div class="container mt-4">
+    <h2>Photos of {{ property.address }}</h2>
+    <!-- Buttons -->
+    <div class="my-3">
+        <a href="{% url 'contact_detail' property.contact.id %}" class="btn btn-secondary">Back to Contacts</a>
+        <a href="{% url 'add_property_image' property.id %}" class="btn btn-primary">Add More Images</a>
+    </div>
+    <!-- Photo Gallery -->
+    <div class="row">
+        {% for photo in photos %}
+        <div class="col-md-4 mb-4">
+            <div class="card custom-card">
+                <img src="{{ photo.image.url }}" class="card-img-top" alt="Photo of {{ property.address }}">
+            </div>
+            <div class="card-footer">
+                <p>{{ photo.title }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>No photos available for this property.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

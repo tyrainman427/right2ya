@@ -1,0 +1,59 @@
+{% extends 'contacts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <a href="{% url 'schedule_appointment' %}" class="btn btn-warning mb-4 text-white">+ Appointment</a>
+    <div id='calendar'></div>
+
+
+<!-- Custom Modal for Appointment Details -->
+<div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="appointmentModalLabel">Appointment Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="appointmentInfo"></p>
+          <a href="#" id="appointmentDetailLink" class="btn btn-primary">View Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: '{% url "appointment_data" %}',
+            eventClick: function(info) {
+                const eventDate = new Date(info.event.start);
+                const formattedDate = eventDate.toLocaleDateString('en-US', {
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                });
+
+            
+                // Update modal content
+                document.getElementById('appointmentInfo').textContent = "Appointment: " + info.event.title + "\nDate: " + formattedDate + "\nContact: " + info.event.extendedProps.customer;
+                const detailLink = document.getElementById('appointmentDetailLink');
+                detailLink.href = `/appointments/${info.event.id}/`; // Update the path as needed
+
+                // Show the modal
+                $('#appointmentModal').modal('show');
+            }
+        });
+        calendar.render();
+    });
+</script>
+
+
+{% endblock %}

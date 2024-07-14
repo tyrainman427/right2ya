@@ -1,0 +1,78 @@
+{% extends 'contacts/base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+<link href='https://fullcalendar.io/releases/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+
+<div class="container mt-4">
+    <!-- Jobs Section -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    Jobs Waiting
+                </div>
+                <div class="card-body">
+                    <!-- Jobs waiting content goes here -->
+                    <div class="card-body">
+                        {% for job in jobs_waiting %}
+                            <p>Job ID: {{ job.id }} - Contact: {{ job.contact }}</p>
+                            <!-- Add more details as needed -->
+                        {% empty %}
+                            <p>No jobs waiting.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Calendar Section -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                Calendar
+            </div>
+            <div class="card-body">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: '{% url "appointment_data" %}',
+            eventClick: function(info) {
+                const eventDate = new Date(info.event.start);
+                const formattedDate = eventDate.toLocaleDateString('en-US', {
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                });
+
+            
+                // Update modal content
+                document.getElementById('appointmentInfo').textContent = "Appointment: " + info.event.title + "\nDate: " + formattedDate + "\nContact: " + info.event.extendedProps.customer;
+                const detailLink = document.getElementById('appointmentDetailLink');
+                detailLink.href = `/appointments/${info.event.id}/`; // Update the path as needed
+
+            }
+        });
+        calendar.render();
+    });
+</script>
+
+<script src='https://fullcalendar.io/releases/fullcalendar/3.10.2/lib/moment.min.js'></script>
+<script src='https://fullcalendar.io/releases/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+
+{% endif %}
+{% endblock %}

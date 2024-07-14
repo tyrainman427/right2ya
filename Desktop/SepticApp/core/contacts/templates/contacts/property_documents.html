@@ -1,0 +1,31 @@
+{% extends 'contacts/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-5">Documents for {{ property.address }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h3>Upload Documents</h3>
+        {{ formset.management_form }}
+        {% for form in formset %}
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{{ request.GET.prev }}" class="btn btn-secondary">Back</a>
+     
+
+
+    </form>
+    <hr>
+    <h3>Existing Documents</h3>
+    <ul class="list-group">
+        {% for document in existing_documents %}
+            <li class="list-group-item">
+                <a href="{{ document.file.url }}">{{ document.file.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

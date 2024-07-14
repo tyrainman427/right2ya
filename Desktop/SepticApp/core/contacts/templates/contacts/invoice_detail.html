@@ -1,0 +1,165 @@
+{% extends 'contacts/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .invoice-container {
+        position: relative;
+    }
+    
+    .paid-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 128, 0, 0.6);
+        color: red;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        z-index: 10;
+    }
+</style>
+
+<div class="container mt-4">
+    <a href="{% url 'invoice_list' %}" class="btn btn-secondary mb-3">Back to Invoices</a>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-4">Invoice Details</h2>
+        </div>
+        <div class="col-md-4 text-right">
+            <button type="button" class="btn btn-primary" onclick="sendEmail({{ invoice.contact.id }})">Send Email</button>
+            <button type="button" class="btn btn-primary" id="add-payment-btn" data-bs-toggle="modal" data-bs-target="#payment-modal">Add Payment</button>
+            <button type="button" class="btn btn-danger" onclick="markAsPaid('{{ invoice.id }}')">{% if invoice.is_paid %}Paid{% else %}Unpaid{% endif %}</button>
+        </div>
+    </div>
+
+    <div class="modal fade" id="payment-modal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Make A Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'create_checkout_session' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="container">
+                            <div class=row>
+                                <h3>Services:</h3>
+                                <ul>
+                                    {% for service in invoice.services.all %}
+                                    <li>{{ service.name }} - ${{ service.price }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                       
+                        <input type="hidden" name="invoice_id" value="{{ invoice.id }}">
+                        <button type="submit" class="btn btn-primary">Checkout</button>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="invoice-container position-relative">
+        {% if invoice.is_paid %}
+        <div class="paid-overlay">
+            <span>PAID</span>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Property Information
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Property Address:</strong> {{invoice.contact.address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        Contact Information
+                    </div>
+                    <div class="card-body text-right">
+                        <p><strong>Contact:</strong> {{ invoice.contact.name }}</p>
+                        <p><strong>Tech:</strong> {{ invoice.tech.username }}</p>
+                        <p><strong>Date of Service:</strong> {{ invoice.date_of_service }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Invoice Items
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Service</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in invoice.services.all %}
+                        <tr>
+                            <td>{{ service.name }}</td>
+                            <td>${{ service.price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <h3>Subtotal: ${{ subtotal }}</h3>
+        <h3>Service Fee (15%): ${{ service_fee| floatformat:2 }}</h3>
+        <h3>Total: ${{ invoice.total }}</h3>
+    </div>
+
+    <script>
+        function sendEmail(contactId) {
+            fetch(`/invoices/${contactId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.status);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; cookies.length > i; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</div>
+{% endblock %}

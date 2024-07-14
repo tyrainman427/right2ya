@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Create Invoice</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <button type="submit" class="btn btn-primary mt-5">Save Invoice</button>
+        <button type="button" class="btn btn-secondary mt-5" onclick="history.back()">Back</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(document).ready(function() {
+    function calculateTotal() {
+        var selectedServices = $('#id_services').val();
+        var subtotal = 0;
+
+        if (selectedServices) {
+            selectedServices.forEach(function(serviceId) {
+                var price = parseFloat($('option[value="' + serviceId + '"]').data('price'));
+                if (!isNaN(price)) {
+                    subtotal += price;
+                }
+            });
+        }
+
+        var serviceFee = subtotal * 0.15;
+        var total = subtotal + serviceFee;
+
+        $('#id_total').val(total.toFixed(2));
+    }
+
+    // Initialize Select2
+    $('#id_services').select2({
+        placeholder: 'Select services',
+        allowClear: true,
+        closeOnSelect: false
+    });
+
+    // Attach event handler
+    $('#id_services').on('change', calculateTotal);
+
+    // Calculate total on page load if services are pre-selected
+    calculateTotal();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Login</h2>
+  <form method="post" class="row g-3">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="col-md-6">
+      <div class="mb-3">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.help_text %}
+        <small class="form-text text-muted">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+        <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
